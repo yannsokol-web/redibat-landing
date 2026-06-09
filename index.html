@@ -1,0 +1,1141 @@
+<!DOCTYPE html>
+<html lang="fr"><head>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Newsreader:ital,wght@0,400;0,500;1,400;1,500&display=swap" rel="stylesheet">
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rédibat — Logiciel de rédaction de CCTP pour le BTP</title>
+<meta name="description" content="Rédibat est une application de bureau pour les professionnels du bâtiment : structurez vos affaires par lots et articles, pré-rédigez vos descriptifs et capitalisez votre bibliothèque de CCTP. Bientôt disponible.">
+<link rel="icon" type="image/png" sizes="512x512" href="assets/favicon-512.png">
+<link rel="icon" type="image/png" sizes="256x256" href="assets/favicon-256.png">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16.png">
+<link rel="apple-touch-icon" href="assets/favicon-256.png">
+<meta name="theme-color" content="#0a1727">
+<style>/* cyrillic-ext */
+/* vietnamese */
+/* latin-ext */
+/* latin */
+/* cyrillic-ext */
+/* vietnamese */
+/* latin-ext */
+/* latin */
+/* cyrillic-ext */
+/* vietnamese */
+/* latin-ext */
+/* latin */
+/* cyrillic-ext */
+/* vietnamese */
+/* latin-ext */
+/* latin */
+/* cyrillic-ext */
+/* cyrillic */
+/* vietnamese */
+/* latin-ext */
+/* latin */
+/* cyrillic-ext */
+/* cyrillic */
+/* vietnamese */
+/* latin-ext */
+/* latin */
+/* cyrillic-ext */
+/* cyrillic */
+/* vietnamese */
+/* latin-ext */
+/* latin */
+/* vietnamese */
+/* latin-ext */
+/* latin */
+/* vietnamese */
+/* latin-ext */
+/* latin */
+/* vietnamese */
+/* latin-ext */
+/* latin */
+/* vietnamese */
+/* latin-ext */
+/* latin */
+</style>
+<style>
+  :root {
+    --marine-950: oklch(0.15 0.045 256);
+    --marine-900: oklch(0.18 0.052 255);
+    --marine-850: oklch(0.205 0.058 254);
+    --marine-800: oklch(0.235 0.063 253);
+    --marine-700: oklch(0.275 0.072 252);
+    --marine-600: oklch(0.34 0.088 250);
+
+    --line: rgba(150, 195, 240, 0.085);
+    --line-strong: rgba(150, 195, 240, 0.16);
+
+    --text: #eaf2fb;
+    --text-soft: #a6bdd6;
+    --text-faint: #6c84a1;
+    --text-dim: #4f627d;
+
+    /* Brand: deep navy #0b317c -> mid #185fcb -> cyan #30c5ec */
+    --accent: oklch(0.70 0.145 248);
+    --accent-bright: oklch(0.80 0.115 224);
+    --accent-soft: oklch(0.70 0.145 248 / 0.14);
+    --accent-line: oklch(0.72 0.13 240 / 0.32);
+    --cyan: oklch(0.80 0.115 224);
+    --brand-grad: linear-gradient(135deg, #0b317c 0%, #185fcb 55%, #30c5ec 100%);
+
+    --card: rgba(255, 255, 255, 0.022);
+    --card-border: rgba(150, 195, 240, 0.12);
+
+    --display: "Newsreader", Georgia, serif;
+    --body: "Hanken Grotesk", -apple-system, sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, monospace;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: var(--body);
+    color: var(--text);
+    background: var(--marine-800);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(var(--line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line) 1px, transparent 1px);
+    background-size: 58px 58px;
+    -webkit-mask-image: radial-gradient(ellipse 100% 80% at 50% 16%, #000 0%, transparent 74%);
+    mask-image: radial-gradient(ellipse 100% 80% at 50% 16%, #000 0%, transparent 74%);
+    z-index: 0;
+    pointer-events: none;
+  }
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(1150px 640px at 50% -12%, oklch(0.55 0.17 256 / 0.40), transparent 68%),
+      radial-gradient(820px 560px at 86% 4%, oklch(0.80 0.12 220 / 0.20), transparent 70%),
+      radial-gradient(700px 520px at 10% 12%, oklch(0.45 0.14 258 / 0.22), transparent 70%),
+      linear-gradient(180deg, var(--marine-700) 0%, var(--marine-800) 40%, var(--marine-900) 100%);
+    z-index: -1;
+  }
+
+  .wrap {
+    position: relative;
+    z-index: 1;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 32px;
+  }
+  .wrap--narrow { max-width: 1060px; }
+  .wrap--wide { max-width: 1460px; }
+
+  /* ============ Header ============ */
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 30px 0;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    text-decoration: none;
+  }
+  .brand-logo {
+    height: 40px;
+    width: auto;
+    display: block;
+  }
+  .brand .mark {
+    position: relative;
+    width: 36px; height: 36px;
+    border: 1.5px solid var(--accent-line);
+    border-radius: 9px;
+    display: grid; place-items: center;
+    font-family: var(--mono);
+    font-weight: 600; font-size: 15px;
+    color: var(--accent-bright);
+    background: var(--accent-soft);
+  }
+  .brand .mark::before, .brand .mark::after {
+    content: ""; position: absolute; width: 5px; height: 5px; border: 1px solid var(--accent-line);
+  }
+  .brand .mark::before { top: -3px; left: -3px; border-right: 0; border-bottom: 0; }
+  .brand .mark::after  { bottom: -3px; right: -3px; border-left: 0; border-top: 0; }
+
+  .nav-meta { display: flex; align-items: center; gap: 26px; }
+  .nav-coord {
+    font-family: var(--mono); font-size: 11.5px; letter-spacing: 0.04em;
+    color: var(--text-faint); text-transform: uppercase;
+  }
+  .badge {
+    display: inline-flex; align-items: center; gap: 9px;
+    font-family: var(--mono); font-size: 12px; font-weight: 500; letter-spacing: 0.04em;
+    color: var(--text-soft); padding: 8px 15px;
+    border: 1px solid var(--card-border); border-radius: 100px;
+    background: rgba(255, 255, 255, 0.025); backdrop-filter: blur(6px);
+  }
+  .badge .dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: linear-gradient(135deg, #2f80e0, #35c5ec);
+    box-shadow: 0 0 0 0 oklch(0.80 0.115 224 / 0.55);
+    animation: pulse 2.6s ease-out infinite;
+  }
+  @keyframes pulse {
+    0% { box-shadow: 0 0 0 0 oklch(0.80 0.115 224 / 0.5); }
+    70% { box-shadow: 0 0 0 9px oklch(0.80 0.115 224 / 0); }
+    100% { box-shadow: 0 0 0 0 oklch(0.80 0.115 224 / 0); }
+  }
+
+  /* ============ Hero ============ */
+  .hero { text-align: center; padding: 66px 0 44px; max-width: 860px; margin: 0 auto; }
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: 12px;
+    font-family: var(--mono); font-size: 12.5px; font-weight: 500; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--accent-bright); margin-bottom: 28px;
+  }
+  .eyebrow::before, .eyebrow::after { content: ""; width: 26px; height: 1px; background: var(--accent-line); }
+  .hero h1 {
+    font-family: var(--display); font-weight: 400;
+    font-size: clamp(2.6rem, 6.2vw, 4.3rem); line-height: 1.06; letter-spacing: -0.022em;
+    color: var(--text); margin-bottom: 26px; text-wrap: balance;
+  }
+  .hero h1 em {
+    font-style: italic;
+    background: linear-gradient(105deg, #4a9ef0 0%, #38c6ec 100%);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent; color: transparent;
+  }
+  .hero p {
+    font-size: clamp(1.05rem, 2vw, 1.2rem); color: var(--text-soft);
+    max-width: 640px; margin: 0 auto; text-wrap: pretty;
+  }
+
+  /* ============ Showcase ============ */
+  .showcase { padding: 48px 0 52px; }
+  .showcase-cap {
+    display: flex; align-items: center; justify-content: space-between;
+    font-family: var(--mono); font-size: 11.5px; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--text-faint); margin-bottom: 14px; padding: 0 4px;
+  }
+  .showcase-cap .tick { color: var(--accent); }
+
+  .frame { position: relative; border-radius: 16px; }
+  .frame .reg { position: absolute; width: 16px; height: 16px; border: 1px solid var(--accent-line); z-index: 3; pointer-events: none; }
+  .frame .reg.tl { top: -8px; left: -8px; border-right: 0; border-bottom: 0; }
+  .frame .reg.tr { top: -8px; right: -8px; border-left: 0; border-bottom: 0; }
+  .frame .reg.bl { bottom: -8px; left: -8px; border-right: 0; border-top: 0; }
+  .frame .reg.br { bottom: -8px; right: -8px; border-left: 0; border-top: 0; }
+
+  /* ====== The light app window — scaled to fit (1916×1080 canvas) ====== */
+  .app {
+    --a-bg: #eef1f4;
+    --a-panel: #ffffff;
+    --a-border: #e3e7ec;
+    --a-border-soft: #edf0f3;
+    --a-navy: #1f3a5c;
+    --a-navy-deep: #16314f;
+    --a-text: #3c4654;
+    --a-muted: #8a94a3;
+    --a-faint: #a9b2bd;
+    --a-sel: #e6effb;
+    --a-blue: #2f63d4;
+    --a-blue-deep: #2350bd;
+    --a-teal: #2f8a72;
+    --a-red: #e23b2e;
+
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1916 / 1080;
+    font-family: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", sans-serif;
+    color: var(--a-text);
+    background: var(--a-bg);
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.10);
+    box-shadow:
+      0 0 0 1px rgba(0,0,0,0.25),
+      0 50px 100px -36px rgba(0,0,0,0.78),
+      0 0 120px -30px oklch(0.74 0.125 245 / 0.35);
+  }
+  .app-scale {
+    position: absolute; top: 0; left: 0;
+    width: 1916px; height: 1080px;
+    transform-origin: top left;
+    display: flex; flex-direction: column;
+    background: var(--a-bg);
+  }
+
+  /* window / tab bar */
+  .winbar {
+    display: flex; align-items: flex-end; gap: 3px;
+    height: 52px; padding: 0 16px;
+    background: linear-gradient(180deg, #dfe5ec, #d3dae2);
+    border-bottom: 1px solid #c3ccd6;
+  }
+  .tab {
+    display: flex; align-items: center; gap: 11px;
+    max-width: 540px; height: 40px; padding: 0 20px;
+    font-size: 16px; color: #4b5563;
+    background: #cfd7e0; border: 1px solid #c0c9d4; border-bottom: none;
+    border-radius: 9px 9px 0 0; cursor: pointer;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    transition: background 0.15s, color 0.15s;
+  }
+  .tab:hover { background: #d9e0e8; }
+  .tab.active { background: var(--a-panel); color: var(--a-navy); font-weight: 500; }
+  .tab .star { color: var(--a-blue); margin-left: -4px; }
+  .tab .x {
+    width: 22px; height: 22px; border-radius: 5px; display: inline-grid; place-items: center;
+    font-size: 17px; color: #fff; background: var(--a-red); line-height: 1;
+  }
+
+  /* screens */
+  .screen { display: none; flex-direction: column; flex: 1; min-height: 0; }
+  .screen.active { display: flex; }
+
+  /* ---------- HOME screen ---------- */
+  .screen-home {
+    background: #f1f3f6; overflow-y: auto; padding: 56px 70px 60px;
+  }
+  .home-title { display: flex; align-items: baseline; gap: 13px; }
+  .home-title h2 { font-size: 40px; font-weight: 600; color: var(--a-navy); letter-spacing: -0.01em; }
+  .home-title .ver { font-size: 16px; color: var(--a-muted); font-weight: 500; }
+  .home-sub { font-size: 19px; color: var(--a-muted); margin: 9px 0 46px; letter-spacing: 0.02em; }
+  .home-label { font-size: 14px; font-weight: 600; letter-spacing: 0.13em; color: var(--a-muted); text-transform: uppercase; margin-bottom: 26px; }
+  .home-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 28px; }
+  .hcard {
+    position: relative; background: var(--a-panel); border: 1px solid var(--a-border);
+    border-radius: 14px; padding: 34px 30px 36px; cursor: pointer;
+    box-shadow: 0 1px 2px rgba(20,40,70,0.04);
+    transition: border-color 0.18s, box-shadow 0.18s, transform 0.18s;
+  }
+  .hcard:hover { border-color: #c4d2e8; box-shadow: 0 8px 24px -10px rgba(20,40,70,0.20); transform: translateY(-3px); }
+  .hcard::after { content: ""; position: absolute; left: 30px; right: 30px; bottom: 20px; height: 3px; background: var(--a-blue); opacity: 0; transition: opacity 0.18s; }
+  .hcard:hover::after { opacity: 0.7; }
+  .hcard .ic { width: 56px; height: 56px; border-radius: 13px; background: #eef1f5; display: grid; place-items: center; color: var(--a-navy); margin-bottom: 26px; }
+  .hcard .ic svg { width: 26px; height: 26px; }
+  .hcard h3 { font-size: 22px; font-weight: 600; color: var(--a-navy); margin-bottom: 11px; }
+  .hcard p { font-size: 16px; color: var(--a-muted); }
+  .home-relink { margin: 30px 0 32px; font-size: 17px; color: var(--a-muted); }
+  .home-relink span { color: var(--a-blue); cursor: pointer; }
+  .home-hr { height: 1px; background: var(--a-border); margin: 4px 0 0; }
+  .recent-head { display: flex; align-items: center; gap: 18px; margin: 34px 0 16px; }
+  .recent-head .l { font-size: 14px; font-weight: 600; letter-spacing: 0.13em; color: var(--a-muted); text-transform: uppercase; }
+  .recent-head .c { font-size: 16px; color: var(--a-blue); cursor: pointer; }
+  .recent { background: var(--a-panel); border: 1px solid var(--a-border); border-radius: 12px; overflow: hidden; }
+  .raff { display: flex; gap: 16px; padding: 22px 24px; cursor: pointer; transition: background 0.14s; }
+  .raff + .raff { border-top: 1px solid var(--a-border-soft); }
+  .raff:hover { background: #f6f8fb; }
+  .raff .fic { color: var(--a-faint); flex: none; margin-top: 2px; }
+  .raff .fic svg { width: 20px; height: 20px; }
+  .raff .rt { font-size: 19px; color: var(--a-navy); font-weight: 500; margin-bottom: 6px; }
+  .raff .rm { font-size: 15.5px; color: var(--a-muted); }
+  .raff .rm .dt { color: var(--a-teal); }
+  .raff .rm .pa { color: #9aa3af; }
+
+  /* ---------- WORK screen ---------- */
+  .wtoolbar {
+    display: flex; align-items: center; gap: 12px;
+    height: 64px; padding: 0 24px; background: var(--a-panel); border-bottom: 1px solid var(--a-border);
+    font-size: 16px; white-space: nowrap; overflow: visible;
+  }
+  .tbtn { display: inline-flex; align-items: center; gap: 9px; padding: 10px 13px; border-radius: 9px; color: var(--a-text); cursor: pointer; transition: background 0.14s; }
+  .tbtn:hover { background: #eef2f7; }
+  .tbtn svg { color: var(--a-navy); width: 19px; height: 19px; }
+  .wt-title { color: var(--a-text); font-size: 16px; max-width: 320px; min-width: 44px; flex: 0 1 auto; overflow: hidden; text-overflow: ellipsis; padding: 0 10px; }
+  .wt-phase { width: 124px; height: 38px; border: 1px solid var(--a-border); border-radius: 9px; padding: 0 14px; font-size: 15px; color: var(--a-muted); display: flex; align-items: center; }
+  .fmtbar { display: flex; align-items: center; gap: 4px; }
+  .fbtn {
+    width: 38px; height: 38px; border: 1px solid var(--a-border); border-radius: 8px;
+    display: grid; place-items: center; font-size: 16px; color: var(--a-text); background: #fff; cursor: pointer;
+  }
+  .fbtn:hover { background: #f0f4f9; }
+  .fbtn.b { font-weight: 700; }
+  .fbtn.s { text-decoration: line-through; }
+  .fbtn.red { color: var(--a-red); font-weight: 600; }
+  .fmtbar svg, .mini-fmt svg { width: 16px; height: 16px; }
+  .wt-sep { width: 1px; height: 30px; background: var(--a-border); margin: 0 6px; }
+  .wt-spacer { flex: 1; }
+  .wt-link { display: inline-flex; align-items: center; gap: 9px; padding: 10px 13px; border-radius: 9px; color: var(--a-text); cursor: pointer; }
+  .wt-link:hover { background: #eef2f7; }
+  .wt-link svg { color: var(--a-muted); width: 17px; height: 17px; }
+  .gen-btn {
+    display: inline-flex; align-items: center; gap: 10px; padding: 13px 24px; margin-left: 8px;
+    background: linear-gradient(180deg, var(--a-blue), var(--a-blue-deep)); color: #fff;
+    border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; border: none;
+    box-shadow: 0 3px 9px -2px rgba(35,80,189,0.45);
+    transition: filter 0.15s, transform 0.1s;
+  }
+  .gen-btn:hover { filter: brightness(1.07); }
+  .gen-btn svg { width: 17px; height: 17px; }
+  .gen-btn:active { transform: translateY(1px); }
+  .gen-btn.busy { pointer-events: none; opacity: 0.85; }
+  .gen-btn .spin { width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.4); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .gen-wrap { position: relative; display: inline-flex; }
+  .gen-menu { position: absolute; top: calc(100% + 8px); right: 0; min-width: 248px; background: #fff; border: 1px solid var(--a-border); border-radius: 11px; box-shadow: 0 16px 40px -12px rgba(20,40,70,0.30); padding: 8px; display: none; z-index: 40; }
+  .gen-menu.open { display: block; }
+  .gen-menu .gh { font-size: 12px; letter-spacing: 0.09em; text-transform: uppercase; color: var(--a-muted); font-weight: 600; padding: 7px 14px 9px; }
+  .gen-menu .gi { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 9px; font-size: 15px; color: var(--a-text); cursor: pointer; }
+  .gen-menu .gi:hover { background: #eef2f7; }
+  .gen-menu .gi .ext { margin-left: auto; font-size: 13px; color: var(--a-faint); }
+
+  .wpanes { flex: 1; display: flex; min-height: 0; }
+
+  .wlib, .wtree { background: var(--a-panel); display: flex; flex-direction: column; min-height: 0; }
+  .wlib { width: 352px; border-right: 1px solid var(--a-border); }
+  .wtree { width: 460px; border-right: 1px solid var(--a-border); }
+  .weditor { flex: 1; background: #f5f7fa; overflow-y: auto; padding: 34px; min-width: 0; }
+
+  .panehead { display: flex; align-items: center; justify-content: space-between; height: 64px; padding: 0 24px; border-bottom: 1px solid var(--a-border-soft); }
+  .panehead .h { font-size: 17px; font-weight: 600; color: var(--a-navy); }
+  .panehead .h.lbl { font-size: 14px; letter-spacing: 0.1em; color: var(--a-muted); text-transform: uppercase; font-weight: 600; }
+  .panehead .cl { color: var(--a-faint); cursor: pointer; font-size: 19px; }
+  .libsearch { margin: 18px 20px; display: flex; align-items: center; gap: 11px; padding: 13px 16px; border: 1px solid var(--a-border); border-radius: 9px; color: var(--a-faint); font-size: 15px; }
+  .libsearch svg { flex: none; width: 16px; height: 16px; }
+
+  .scrolly { flex: 1; overflow-y: auto; padding: 8px 0 18px; }
+
+  /* library lots */
+  .lib-lot { }
+  .lib-lot .row {
+    display: flex; align-items: center; gap: 12px; padding: 13px 20px; cursor: pointer; transition: background 0.12s;
+  }
+  .lib-lot .row:hover { background: #f3f6fa; }
+  .lib-lot .chev { color: var(--a-faint); flex: none; transition: transform 0.18s; font-size: 13px; width: 13px; }
+  .lib-lot.open .chev { transform: rotate(90deg); }
+  .lib-lot .nm { font-size: 15.5px; font-weight: 600; color: var(--a-navy); letter-spacing: 0.01em; line-height: 1.45; }
+  .lib-lot .kids { display: none; padding: 2px 0 8px; }
+  .lib-lot.open .kids { display: block; }
+  .lib-lot .kid { padding: 9px 20px 9px 52px; font-size: 15px; color: var(--a-text); cursor: pointer; }
+  .lib-lot .kid:hover { background: #eef4fc; color: var(--a-blue-deep); }
+
+  /* affaire tree */
+  .tnode .trow {
+    display: flex; align-items: center; gap: 10px; padding: 11px 18px; cursor: pointer;
+    border-left: 4px solid transparent; transition: background 0.12s;
+  }
+  .tnode .trow:hover { background: #f3f6fa; }
+  .tnode .chev { flex: none; color: var(--a-faint); font-size: 13px; width: 13px; transition: transform 0.18s; }
+  .tnode.open > .trow .chev { transform: rotate(90deg); }
+  .tnode .chev.leaf { visibility: hidden; }
+  .tnode .label { font-size: 15.5px; line-height: 1.45; }
+  .tnode.lot > .trow .label { font-weight: 700; color: var(--a-navy); letter-spacing: 0.01em; }
+  .tnode.sub > .trow .label { font-weight: 600; color: #34507a; }
+  .tnode.leaf > .trow .label { color: var(--a-text); }
+  .tnode > .children { display: none; }
+  .tnode.open > .children { display: block; }
+  .tnode.active > .trow { background: var(--a-sel); border-left-color: var(--a-blue); }
+  .tnode.active > .trow .label { color: var(--a-navy-deep); font-weight: 600; }
+
+  /* editor */
+  .ecard { background: var(--a-panel); border: 1px solid var(--a-border); border-radius: 12px; padding: 22px 30px 26px; margin-bottom: 20px; }
+  .ecard .sec { font-size: 14px; font-weight: 600; letter-spacing: 0.12em; color: var(--a-muted); text-transform: uppercase; padding-bottom: 13px; border-bottom: 1px solid var(--a-border-soft); margin-bottom: 16px; }
+  .ecard .art-title { font-size: 22px; font-weight: 600; color: var(--a-navy); letter-spacing: 0.01em; margin-bottom: 15px; }
+  .mini-fmt { display: flex; gap: 6px; margin-bottom: 14px; }
+  .ebody { font-size: 17px; line-height: 1.5; color: var(--a-text); min-height: 34px; }
+  .ebody p { margin-bottom: 11px; }
+  .ebody .sh { text-decoration: underline; margin: 14px 0 9px; color: #2f3b49; }
+  .ebody ul { list-style: none; margin: 0 0 8px; padding: 0; }
+  .ebody li { position: relative; padding-left: 26px; margin-bottom: 7px; }
+  .ebody li::before { content: ""; position: absolute; left: 8px; top: 11px; width: 5px; height: 5px; border-radius: 50%; background: #5a6675; }
+  .ebody b { font-weight: 700; color: #2c3744; }
+  .ebody .mark { display: inline-block; background: var(--a-red); color: #fff; padding: 2px 8px; border-radius: 4px; font-weight: 500; }
+  .ebody .caret { display: inline-block; width: 2px; height: 1.05em; background: var(--a-blue); vertical-align: text-bottom; margin-left: 2px; animation: blink 1s steps(1) infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+  .ebody .empty { color: var(--a-faint); font-style: italic; }
+  .reveal-item { opacity: 0; transform: translateY(6px); animation: itemIn 0.4s cubic-bezier(0.2,0.8,0.2,1) forwards; }
+  @keyframes itemIn { to { opacity: 1; transform: translateY(0); } }
+  .uline { display: flex; align-items: center; gap: 14px; margin-top: 14px; }
+  .uline .ul { font-size: 14px; font-weight: 600; letter-spacing: 0.1em; color: var(--a-muted); text-transform: uppercase; }
+  .uline select { font-size: 15px; color: var(--a-text); border: 1px solid var(--a-border); border-radius: 9px; padding: 7px 13px; background: #fff; }
+
+  /* status bar */
+  .wstatus {
+    display: flex; align-items: center; gap: 15px; height: 38px; padding: 0 24px;
+    background: var(--a-panel); border-top: 1px solid var(--a-border);
+    font-size: 15px; color: var(--a-muted);
+  }
+  .wstatus .seclbl { color: var(--a-faint); }
+  .wstatus .secnum { background: var(--a-sel); color: var(--a-blue-deep); font-weight: 600; padding: 2px 9px; border-radius: 5px; }
+  .wstatus .spacer { flex: 1; }
+  .wstatus .added { display: inline-flex; align-items: center; gap: 9px; }
+  .wstatus .added .d { width: 8px; height: 8px; border-radius: 50%; background: var(--a-blue); }
+
+  .hint { text-align: center; margin-top: 26px; font-family: var(--mono); font-size: 11.5px; letter-spacing: 0.04em; color: var(--text-faint); }
+  .hint b { color: var(--text-soft); font-weight: 500; }
+
+  /* app scrollbars */
+  .scrolly::-webkit-scrollbar, .weditor::-webkit-scrollbar, .screen-home::-webkit-scrollbar { width: 10px; }
+  .scrolly::-webkit-scrollbar-thumb, .weditor::-webkit-scrollbar-thumb, .screen-home::-webkit-scrollbar-thumb {
+    background: #cdd5df; border-radius: 10px; border: 3px solid transparent; background-clip: padding-box;
+  }
+
+  /* ============ Features ============ */
+  .features { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; padding: 58px 0 26px; }
+  .card {
+    position: relative; border: 1px solid var(--card-border); border-radius: 14px; background: var(--card);
+    padding: 26px 24px 28px; overflow: hidden;
+    transition: transform 0.35s cubic-bezier(0.2,0.8,0.2,1), border-color 0.35s, background 0.35s;
+  }
+  .card::after { content: ""; position: absolute; inset: 0; background: radial-gradient(420px 200px at 50% -40%, oklch(0.74 0.125 245 / 0.12), transparent 70%); opacity: 0; transition: opacity 0.4s; pointer-events: none; }
+  .card:hover { transform: translateY(-4px); border-color: var(--accent-line); background: rgba(95,160,240,0.04); }
+  .card:hover::after { opacity: 1; }
+  .card .num { font-family: var(--mono); font-size: 12px; color: var(--accent); margin-bottom: 18px; display: block; letter-spacing: 0.06em; }
+  .card h3 { font-family: var(--display); font-weight: 500; font-size: 1.24rem; letter-spacing: -0.01em; color: var(--text); margin-bottom: 10px; line-height: 1.2; }
+  .card p { font-size: 0.95rem; color: var(--text-soft); }
+
+  /* ============ Audience ============ */
+  .audience { text-align: center; padding: 64px 0 26px; max-width: 680px; margin: 0 auto; }
+  .audience .rule { width: 46px; height: 1px; background: var(--line-strong); margin: 0 auto 28px; }
+  .audience p { font-size: 1.08rem; color: var(--text-soft); text-wrap: pretty; }
+  .audience strong { color: var(--text); font-weight: 600; }
+
+  /* ============ Footer ============ */
+  footer {
+    border-top: 1px solid var(--line); margin-top: 64px; padding: 28px 0 46px;
+    display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px;
+    font-family: var(--mono); font-size: 12px; color: var(--text-faint); letter-spacing: 0.02em;
+  }
+  footer a { color: var(--text-soft); text-decoration: none; transition: color 0.25s; }
+  footer a:hover { color: var(--accent-bright); }
+  footer .right { display: inline-flex; align-items: center; gap: 10px; }
+  footer .right .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); display: inline-block; }
+
+  /* ============ Reveal ============ */
+  .reveal { opacity: 0; transform: translateY(18px); animation: rise 0.85s cubic-bezier(0.2,0.8,0.2,1) forwards; }
+  .d1 { animation-delay: 0.04s; } .d2 { animation-delay: 0.13s; } .d3 { animation-delay: 0.22s; }
+  .d4 { animation-delay: 0.31s; } .d5 { animation-delay: 0.40s; } .d6 { animation-delay: 0.48s; } .d7 { animation-delay: 0.56s; }
+  @keyframes rise { to { opacity: 1; transform: translateY(0); } }
+
+  /* ============ Responsive ============ */
+  @media (max-width: 1040px) {
+    .features { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 720px) {
+    .wrap { padding: 0 18px; }
+    .hero { padding: 46px 0 36px; }
+    header { padding: 22px 0; }
+    .nav-coord { display: none; }
+    .features { grid-template-columns: 1fr; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .reveal { animation: none; opacity: 1; transform: none; }
+    .badge .dot, .ebody .caret { animation: none; }
+    .ebody .caret { display: none; }
+    .reveal-item { animation: none; opacity: 1; transform: none; }
+    html { scroll-behavior: auto; }
+  }
+</style>
+</head>
+<body>
+  
+  <div class="wrap wrap--narrow">
+    <header>
+      <a class="brand reveal d1" href="#" aria-label="Rédibat — accueil"><img class="brand-logo" src="assets/logo-redibat.webp" alt="Rédibat"></a>
+      <div class="nav-meta reveal d1">
+        <span class="nav-coord">
+</span>
+        <span class="badge"><span class="dot"></span>Bientôt disponible</span>
+      </div>
+    </header>
+
+    <section class="hero">
+      <div class="eyebrow reveal d2">Logiciel de rédaction de CCTP</div>
+      <h1 class="reveal d3">Vos cahiers des clauses techniques, rédigés avec <em>méthode</em>.</h1>
+      <p class="reveal d4" data-comment-anchor="6f8a505a7b-p">Une application de bureau pour les professionnels du bâtiment : structurez vos affaires par lots et articles, rédigez vos descriptifs plus facilement et capitalisez votre bibliothèque — sans jamais perdre la main sur vos données.</p>
+    </section>
+  </div>
+
+  <!-- ============ Faithful interactive mockup ============ -->
+  <div class="wrap wrap--wide">
+    <section class="showcase reveal d5">
+      <div class="showcase-cap">
+        <span><span class="tick">▸</span> Aperçu de l'application — interface réelle, en direct</span>
+        <span>RÉDIBAT</span>
+      </div>
+
+      <div class="frame">
+        <span class="reg tl"></span><span class="reg tr"></span><span class="reg bl"></span><span class="reg br"></span>
+
+        <div class="app" id="app">
+          <div class="app-scale" id="appScale">
+          <!-- tabs -->
+          <div class="winbar">
+            <div class="tab" data-screen="home">Accueil</div>
+            <div class="tab active" data-screen="work">
+              Construction d'un plateau de bureaux à Rennes (MERIDIEN)<span class="star">&nbsp;*</span>
+              <span class="x">×</span>
+            </div>
+          </div>
+
+          <!-- ===== HOME ===== -->
+          <div class="screen screen-home" data-screen-id="home" data-screen-label="Accueil">
+            <div class="home-title"><h2>Rédibat</h2><span class="ver">v2.0</span></div>
+            <div class="home-sub">Rédaction de CCTP</div>
+
+            <div class="home-label">Affaire</div>
+            <div class="home-cards">
+              <div class="hcard">
+                <div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h6a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg></div>
+                <h3>Ouvrir</h3><p>Ouvrir une affaire existante</p>
+              </div>
+              <div class="hcard">
+                <div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 4h11a2 2 0 0 1 2 2v14H7a2 2 0 0 1-2-2z"></path><path d="M5 16h13"></path></svg></div>
+                <h3>Bibliothèque</h3><p>Parcourir les articles types</p>
+              </div>
+              <div class="hcard">
+                <div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 5v14M5 12h14"></path></svg></div>
+                <h3>Nouvelle affaire</h3><p>Créer depuis le template</p>
+              </div>
+              <div class="hcard">
+                <div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"></circle><path d="M12 3v2.5M12 18.5V21M3 12h2.5M18.5 12H21M5.6 5.6l1.8 1.8M16.6 16.6l1.8 1.8M18.4 5.6l-1.8 1.8M7.4 16.6l-1.8 1.8"></path></svg></div>
+                <h3>Modifier le template</h3><p>Personnaliser les lots par défaut</p>
+              </div>
+            </div>
+
+            <div class="home-relink">↻ <span>Régénérer la bibliothèque depuis les documents Word</span></div>
+            <div class="home-hr"></div>
+
+            <div class="recent-head"><span class="l">Affaires récentes</span><span class="c">Effacer</span></div>
+            <div class="recent" id="recentList"></div>
+          </div>
+
+          <!-- ===== WORK ===== -->
+          <div class="screen screen-work active" data-screen-id="work" data-screen-label="Page de travail">
+            <div class="wtoolbar">
+              <span class="tbtn" id="goHome"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 11l8-7 8 7"></path><path d="M6 10v9h12v-9"></path></svg>Accueil</span>
+              <span class="tbtn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 4h11a2 2 0 0 1 2 2v14H7a2 2 0 0 1-2-2z"></path></svg>Bibliothèque</span>
+              <span class="wt-title">Construction d'un plateau de bureaux à Rennes (MEF…)</span>
+              <span class="wt-phase">Phase…</span>
+              <span class="fmtbar">
+                <span class="fbtn b">G</span><span class="fbtn s">S</span>
+                <span class="fbtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M5 19l4-1 9-9-3-3-9 9z"></path></svg></span>
+                <span class="fbtn">•</span><span class="fbtn">1.</span>
+                <span class="fbtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="5" width="18" height="14" rx="1.5"></rect><path d="M3 16l5-4 4 3 4-4 5 4"></path></svg></span>
+                <span class="fbtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="16" rx="1.5"></rect><path d="M3 9h18M9 4v16"></path></svg></span>
+              </span>
+              <span class="wt-spacer"></span>
+              <span class="wt-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 4h11l3 3v13H5z"></path><path d="M8 4v5h7"></path></svg>Enregistrer</span>
+              <span class="wt-link">Enregistrer sous</span>
+              <span class="wt-link">Page de garde</span>
+              <span class="wt-link">Contacts</span>
+              <span class="gen-wrap">
+                <button class="gen-btn" id="btnGenerate"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L4 14h6l-1 8 9-12h-6z"></path></svg>Générer</button>
+                <div class="gen-menu" id="genMenu">
+                  <div class="gh">Générer le CCTP</div>
+                  <div class="gi">Document Word <span class="ext">.docx</span></div>
+                  <div class="gi">Document PDF <span class="ext">.pdf</span></div>
+                  <div class="gi">Aperçu avant impression</div>
+                </div>
+              </span>
+            </div>
+
+            <div class="wpanes">
+              <!-- library -->
+              <div class="wlib">
+                <div class="panehead"><span class="h">Bibliothèque</span><span class="cl">×</span></div>
+                <div class="libsearch"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>Rechercher un article…</div>
+                <div class="scrolly" id="libList"></div>
+              </div>
+
+              <!-- affaire tree -->
+              <div class="wtree">
+                <div class="panehead" data-comment-anchor="e9e52fe2c3-div"><span class="h lbl">Articles de l'affaire</span></div>
+                <div class="scrolly" id="treeList"></div>
+              </div>
+
+              <!-- editor -->
+              <div class="weditor" id="editor">
+                <div class="ecard">
+                  <div class="sec">Descriptif</div>
+                  <div class="art-title" id="artTitle">PEINTURE SUR MURS ET CLOISONS INTERIEURS</div>
+                  <div class="mini-fmt">
+                    <span class="fbtn b">G</span><span class="fbtn s">S</span>
+                    <span class="fbtn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M5 19l4-1 9-9-3-3-9 9z"></path></svg></span>
+                    <span class="fbtn red">A</span><span class="fbtn">•</span><span class="fbtn">1.</span>
+                    <span class="fbtn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="5" width="18" height="14" rx="1.5"></rect><path d="M3 16l5-4 4 3 4-4 5 4"></path></svg></span>
+                    <span class="fbtn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="16" rx="1.5"></rect><path d="M3 9h18M9 4v16"></path></svg></span>
+                  </div>
+                  <div class="ebody" id="descBody"></div>
+                </div>
+
+                <div class="ecard">
+                  <div class="sec">Localisation</div>
+                  <div class="mini-fmt">
+                    <span class="fbtn b">G</span><span class="fbtn s">S</span>
+                    <span class="fbtn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M5 19l4-1 9-9-3-3-9 9z"></path></svg></span>
+                    <span class="fbtn red">A</span><span class="fbtn">•</span><span class="fbtn">1.</span>
+                  </div>
+                  <div class="ebody" id="locBody">A prévoir : suivant dossier de plans.</div>
+                  <div class="uline"><span class="ul">Unité</span>
+                    <select><option>—</option><option>m²</option><option>ml</option><option>u</option><option>ens</option></select>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="wstatus">
+              <span class="seclbl">Section</span><span class="secnum" id="stSec">7.2.3.1</span>
+              <span id="stSecName">PEINTURE SUR MURS ET CLOISONS INTERIEURS</span>
+              <span class="spacer"></span>
+              <span class="added"><span class="d"></span><span id="stAdded">Ajoutés : 6 éléments</span></span>
+            </div>
+          </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="hint reveal d6">Onglet Accueil pour l'écran de démarrage · parcourez l'arborescence</div>
+    </section>
+  </div>
+
+  <!-- ============ Features ============ -->
+  <div class="wrap wrap--narrow">
+    <section class="features">
+      <div class="card reveal d4"><span class="num">01</span><h3>Rédaction structurée</h3><p>Construisez vos affaires par lots et articles, dans une arborescence claire — du CCTP complet jusqu'au moindre descriptif.</p></div>
+      <div class="card reveal d5"><span class="num">02</span><h3>Bibliothèque d'articles types</h3><p>Capitalisez vos articles types et réutilisez-les d'une affaire à l'autre. Votre bibliothèque s'enrichit à chaque projet.</p></div>
+      <div class="card reveal d6"><span class="num">03</span><h3 data-comment-anchor="349c6878a1-h3">TCO &amp; DPGF</h3><p>Produisez vos décompositions de prix (DPGF) et vos tableaux comparatifs des offres (TCO), intégrant directement les offres des entreprises consultées.</p></div>
+      <div class="card reveal d7"><span class="num">04</span><h3>Application de bureau</h3><p>Vos affaires en local, au format ouvert, avec import de vos documents Word existants. Sans connexion permanente.</p></div>
+    </section>
+
+    <section class="audience reveal d7">
+      <div class="rule"></div>
+      <p>Conçu pour les <strong>maîtres d'œuvre</strong>, <strong>bureaux d'études</strong>, <strong>économistes de la construction</strong> et entreprises du BTP.</p>
+    </section>
+
+    <footer>
+      <span>© 2026 Rédibat</span>
+      <span class="right"><a href="mailto:contact@redibat.fr">contact@redibat.fr</a><span class="dot"></span>Bientôt disponible</span>
+    </footer>
+  </div>
+
+  <script>
+/* Rédibat — interactive mockup (faithful to the real app) */
+(function () {
+  "use strict";
+
+  var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  /* ---------------- Data ---------------- */
+  var libLots = [
+    "RETRAIT AMIANTE - RETRAIT PLOMB", "DECONSTRUCTION", "GROS OEUVRE",
+    "CHARPENTE BOIS - MURS A OSSATURE BOIS", "CHARPENTE METALLIQUE", "ETANCHEITE",
+    "COUVERTURE (ARDOISE - METAL - …)", "BARDAGES EXTERIEURS (BOIS - METAL - …)",
+    "ITE - RAVALEMENT - PEINTURE DE FACADE", "MENUISERIES EXTERIEURES", "METALLERIE",
+    "MENUISERIES INTERIEURES BOIS", "DOUBLAGES - CLOISONS - PLAFONDS", "CLOISONS MODULAIRES",
+    "PLAFONDS SUSPENDUS", "PLANCHER TECHNIQUE", "REVETEMENTS DE SOLS - FAIENCE", "PEINTURE",
+    "NETTOYAGE", "ASCENSEUR", "PORTES AUTOMATIQUES - FERMETURES I…", "REVETEMENT DE SOL SPORTIF",
+    "EQUIPEMENTS SPORTIFS", "ETANCHEITE A L_AIR", "CLOISONS FRIGORIFIQUES", "MOBILIER",
+    "TERRASSEMENTS - VRD - AMENAGEMENT…"
+  ];
+  var libKids = ["Généralités", "Prescriptions techniques", "Mise en œuvre", "Tolérances d'exécution"];
+
+  var tree = [
+    { code: "1", t: "GENERALITES" },
+    { code: "2", t: "VRD - TERRASSEMENT - GROS-OEUVRE - RAVALEMENT" },
+    { code: "3", t: "CHARPENTE BOIS - COUVERTURE - BARDAGE" },
+    { code: "4", t: "ETANCHEITE" },
+    { code: "5", t: "MENUISERIES EXTERIEURES - SERRURERIE - METALLERIE" },
+    { code: "6", t: "MENUISERIES INTERIEURES - DOUBLAGES - CLOISONS - PLA…" },
+    { code: "7", t: "REVETEMENTS DE SOL & MURAUX - PEINTURE - NETTOYAGE", open: true, children: [
+      { code: "7.1", t: "REVETEMENTS DE SOLS & MURAUX" },
+      { code: "7.2", t: "PEINTURE", open: true, children: [
+        { code: "7.2.1", t: "PEINTURES SUR PLAFONDS" },
+        { code: "7.2.2", t: "PEINTURES INTERIEURES" },
+        { code: "7.2.3", t: "PEINTURES ET REVETEMENT MURAL SUR PAROIS", open: true, children: [
+          { code: "7.2.3.1", t: "PEINTURE SUR MURS ET CLOISONS INTERIEURS" }
+        ] },
+        { code: "7.2.4", t: "PEINTURES EXTERIEURES" },
+        { code: "7.2.5", t: "PEINTURE DE SOL" },
+        { code: "7.2.6", t: "TRAVAUX PREPARATOIRES" }
+      ] },
+      { code: "7.3", t: "NETTOYAGE" }
+    ] },
+    { code: "8", t: "PLOMBERIE - CHAUFFAGE - VENTILATION" },
+    { code: "9", t: "ELECTRICITE - COURANTS FORTS - COURANTS FAIBLES" },
+    { code: "10", t: "AMENAGEMENTS EXTERIEURS - PAYSAGE" }
+  ];
+
+  var contents = {
+    "7.2.3.1": {
+      loc: "A prévoir : suivant dossier de plans.",
+      desc: [
+        { t: "p", html: 'Peinture finition soignée sur parois avec labels "Ecolabel européen", comprenant en particulier :' },
+        { t: "sh", html: "a) Support plaques à peindre" },
+        { t: "ul", items: [
+          'Travaux préparatoires suivant article " SUBJECTILES " ci-avant.',
+          "Couche intermédiaire",
+          "Couche finition, <b>mate veloutée, finition B</b> sans émanations de Composés Organiques Volatiles avec étiquette A+"
+        ] },
+        { t: "sh", html: "b) Support béton" },
+        { t: "ul", items: [
+          'Travaux préparatoires suivant article " SUBJECTILES " ci-avant.',
+          "Couche intermédiaire",
+          "Couche finition, <b>mate veloutée</b>, finition B sans émanations de Composés Organiques Volatiles avec étiquette A+"
+        ] },
+        { t: "mark", html: "Teinte (s) au choix du maître d'oeuvre" },
+        { t: "p", html: "Compris toutes sujétions de mise en oeuvre et de parfait achèvement suivant les DTU, normes et avis techniques." }
+      ]
+    },
+    "7.1": {
+      loc: "Suivant plans de calepinage.",
+      desc: [
+        { t: "p", html: "Fourniture et pose des revêtements de sols et muraux conformément au CCTP et aux plans de calepinage validés par le maître d'œuvre." },
+        { t: "mark", html: "Calepinage à valider avant commande" },
+        { t: "p", html: "Compris toutes sujétions de coupe, joints périphériques et finitions suivant les DTU en vigueur." }
+      ]
+    },
+    "7.2.1": {
+      loc: "Ensemble des plafonds des locaux concernés.",
+      desc: [
+        { t: "p", html: "Peinture sur plafonds après rebouchage et ponçage des supports, application en deux couches mates." },
+        { t: "ul", items: ["Impression sur supports neufs", "Deux couches de finition mate, étiquette A+"] },
+        { t: "p", html: "Compris protection des ouvrages adjacents et nettoyage en fin de chantier." }
+      ]
+    },
+    "7.2.2": {
+      loc: "Murs et menuiseries des locaux intérieurs.",
+      desc: [
+        { t: "p", html: "Travaux de peinture intérieure sur murs et menuiseries, finition soignée en milieu occupé." },
+        { t: "ul", items: ["Préparation et égrenage des supports", "Couche d'impression", "Deux couches de finition velours, <b>étiquette A+</b>"] }
+      ]
+    }
+  };
+
+  function genericDesc() {
+    return [
+      { t: "p", html: "Descriptif établi conformément au CCTP, aux pièces écrites du marché et aux normes et DTU en vigueur." },
+      { t: "ul", items: [
+        "Fourniture et mise en œuvre par l'entreprise du présent lot",
+        "Compris toutes sujétions de pose, calage et finitions",
+        "Conforme aux prescriptions du fascicule technique applicable"
+      ] },
+      { t: "p", html: "L'entreprise reste responsable de la cohérence de ses ouvrages avec les lots adjacents." }
+    ];
+  }
+
+  var recents = [
+    { t: "Construction d'un plateau de bureaux à Rennes (MERIDIEN)", dt: "08/06/2026 23:05", pa: "C:/Users/yanns/Desktop/Exemple Rédibat/Construction d'un plateau de bureaux à Rennes (MERIDIEN).rdbx" },
+    { t: "Réhabilitation de la mairie de Strasbourg", dt: "08/06/2026 23:05", pa: "C:/Users/yanns/Desktop/Exemple Rédibat/Réhabilitation de la mairie de Strasbourg.rdbx" },
+    { t: "Construction d'un complexe sportif à MARSEILLE (MARSEILLE)", dt: "08/06/2026 23:05", pa: "C:/Users/yanns/Desktop/Exemple Rédibat/Construction d'un complexe sportif à MARSEILLE (MARSEILLE).rdbx" },
+    { t: "Construction de 124 logements à PARIS (PARIS HABITAT)", dt: "08/06/2026 23:03", pa: "C:/Users/yanns/Desktop/Exemple Rédibat/Construction de 124 logements à PARIS (PARIS HABITAT).rdbx" }
+  ];
+
+  /* ---------------- Helpers ---------------- */
+  function el(tag, cls, html) {
+    var n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (html != null) n.innerHTML = html;
+    return n;
+  }
+  function stripTags(s) { return s.replace(/<[^>]+>/g, ""); }
+  function $(id) { return document.getElementById(id); }
+
+  /* ---------------- Recents (home) ---------------- */
+  (function buildRecents() {
+    var list = $("recentList");
+    if (!list) return;
+    recents.forEach(function (r) {
+      var row = el("div", "raff");
+      row.innerHTML =
+        '<span class="fic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/></svg></span>' +
+        '<span><div class="rt">' + r.t + '</div>' +
+        '<div class="rm"><span class="dt">' + r.dt + '</span> &nbsp;—&nbsp; <span class="pa">' + r.pa + "</span></div></span>";
+      row.addEventListener("click", function () { showScreen("work"); });
+      list.appendChild(row);
+    });
+  })();
+
+  /* ---------------- Library ---------------- */
+  (function buildLib() {
+    var list = $("libList");
+    if (!list) return;
+    libLots.forEach(function (name, i) {
+      var lot = el("div", "lib-lot");
+      var row = el("div", "row");
+      row.innerHTML = '<span class="chev">▸</span><span class="nm">LOT N° ' + (i + 1) + ". " + name + "</span>";
+      var kids = el("div", "kids");
+      libKids.forEach(function (k) { kids.appendChild(el("div", "kid", k)); });
+      lot.appendChild(row);
+      lot.appendChild(kids);
+      row.addEventListener("click", function () { lot.classList.toggle("open"); });
+      list.appendChild(lot);
+    });
+  })();
+
+  /* ---------------- Affaire tree ---------------- */
+  var nodeByCode = {};
+  (function buildTree() {
+    var container = $("treeList");
+    if (!container) return;
+    function render(nodes, depth, parent) {
+      nodes.forEach(function (n) {
+        var hasKids = n.children && n.children.length;
+        var cls = "tnode " + (depth === 0 ? "lot" : (hasKids ? "sub" : "leaf"));
+        var node = el("div", cls);
+        if (n.open) node.classList.add("open");
+        var row = el("div", "trow");
+        row.style.paddingLeft = (18 + depth * 26) + "px";
+        var label = depth === 0 ? ("LOT N° " + n.code + ". " + n.t) : (n.code + "  " + n.t);
+        row.innerHTML = '<span class="chev' + (hasKids ? "" : " leaf") + '">▸</span><span class="label">' + label + "</span>";
+        node.appendChild(row);
+        nodeByCode[n.code] = { node: node, data: n };
+
+        if (hasKids) {
+          var kids = el("div", "children");
+          node.appendChild(kids);
+          row.addEventListener("click", function (e) { e.stopPropagation(); node.classList.toggle("open"); });
+          render(n.children, depth + 1, kids);
+        } else {
+          row.addEventListener("click", function (e) { e.stopPropagation(); selectArticle(n.code); });
+        }
+        parent.appendChild(node);
+      });
+    }
+    render(tree, 0, container);
+  })();
+
+  /* ---------------- Editor ---------------- */
+  var descBody = $("descBody");
+  var locBody = $("locBody");
+  var artTitle = $("artTitle");
+  var stSec = $("stSec");
+  var stSecName = $("stSecName");
+  var stAdded = $("stAdded");
+  var editor = $("editor");
+  var btn = $("btnGenerate");
+
+  var currentCode = "7.2.3.1";
+
+  function setAdded(n) {
+    stAdded.textContent = "Ajoutés : " + n + " élément" + (n > 1 ? "s" : "");
+  }
+  function titleOf(code) {
+    return nodeByCode[code] ? nodeByCode[code].data.t : "";
+  }
+  function setActive(code) {
+    Object.keys(nodeByCode).forEach(function (c) { nodeByCode[c].node.classList.remove("active"); });
+    var entry = nodeByCode[code];
+    if (entry) {
+      entry.node.classList.add("active");
+      // open ancestors
+      var p = entry.node.parentNode;
+      while (p && p !== document) {
+        if (p.classList && p.classList.contains("tnode")) p.classList.add("open");
+        p = p.parentNode;
+      }
+    }
+  }
+
+  function buildBlock(b) {
+    if (b.t === "p") return el("p", "reveal-item", b.html);
+    if (b.t === "sh") return el("div", "sh reveal-item", b.html);
+    if (b.t === "mark") return el("p", "reveal-item", '<span class="mark">' + b.html + "</span>");
+    if (b.t === "ul") {
+      var ul = el("ul", "reveal-item");
+      b.items.forEach(function (it) { ul.appendChild(el("li", null, it)); });
+      return ul;
+    }
+    return el("p", "reveal-item", "");
+  }
+
+  function renderStatic(blocks) {
+    descBody.innerHTML = "";
+    blocks.forEach(function (b) {
+      var e = buildBlock(b);
+      if (reduced) e.classList.remove("reveal-item");
+      descBody.appendChild(e);
+    });
+    setAdded(blocks.length);
+  }
+
+  function selectArticle(code) {
+    writeToken++; writing = false;
+    currentCode = code;
+    setActive(code);
+    artTitle.textContent = titleOf(code);
+    stSec.textContent = code;
+    stSecName.textContent = titleOf(code);
+    editor.scrollTop = 0;
+    var c = contents[code];
+    if (c) {
+      renderStatic(c.desc);
+      locBody.textContent = c.loc || "A prévoir : suivant dossier de plans.";
+    } else {
+      descBody.innerHTML = '<p class="empty">Aucun descriptif rédigé pour cet article.</p>';
+      locBody.textContent = "—";
+      setAdded(0);
+    }
+  }
+
+  var writing = false;
+  var writeToken = 0;
+
+  // L'article se rédige « à la frappe », comme si l'utilisateur le tapait (déclenché au scroll).
+  function writeArticle(code) {
+    var c = contents[code] || { desc: genericDesc(), loc: locBody.textContent };
+    var blocks = c.desc;
+    artTitle.textContent = titleOf(code);
+    stSec.textContent = code;
+    stSecName.textContent = titleOf(code);
+    if (c.loc) locBody.textContent = c.loc;
+
+    if (reduced) { renderStatic(blocks); return; }
+
+    var token = ++writeToken;
+    writing = true;
+    descBody.innerHTML = "";
+    setAdded(0);
+
+    var segs = [];
+    blocks.forEach(function (b) {
+      if (b.t === "ul") {
+        segs.push({ t: "ul-open" });
+        b.items.forEach(function (it) { segs.push({ t: "li", text: stripTags(it), html: it }); });
+        segs.push({ t: "ul-close" });
+      } else if (b.t === "mark") {
+        segs.push({ t: "mark", text: stripTags(b.html), html: '<span class="mark">' + b.html + "</span>" });
+      } else if (b.t === "sh") {
+        segs.push({ t: "sh", text: stripTags(b.html), html: b.html });
+      } else {
+        segs.push({ t: "p", text: stripTags(b.html), html: b.html });
+      }
+    });
+
+    var caret = el("span", "caret");
+    var i = 0, curUl = null, blockCount = 0;
+
+    function nextSeg() {
+      if (token !== writeToken) return;
+      if (i >= segs.length) { if (caret.parentNode) caret.remove(); writing = false; return; }
+      var s = segs[i];
+      if (s.t === "ul-open") { curUl = el("ul", null); descBody.appendChild(curUl); blockCount++; setAdded(blockCount); i++; return nextSeg(); }
+      if (s.t === "ul-close") { curUl = null; i++; return nextSeg(); }
+
+      var host;
+      if (s.t === "li") { host = el("li", null); curUl.appendChild(host); }
+      else if (s.t === "sh") { host = el("div", "sh"); descBody.appendChild(host); }
+      else { host = el("p", null); descBody.appendChild(host); }
+
+      var tspan = el("span", null);
+      host.appendChild(tspan);
+      host.appendChild(caret);
+      editor.scrollTop = editor.scrollHeight;
+
+      var txt = s.text, j = 0;
+      (function type() {
+        if (token !== writeToken) return;
+        if (j <= txt.length) {
+          tspan.textContent = txt.slice(0, j);
+          j++;
+          var ch = txt.charAt(j - 2), d = 8 + Math.random() * 15;
+          if (ch === "," || ch === ";") d += 65;
+          if (ch === "." || ch === ":") d += 120;
+          setTimeout(type, d);
+        } else {
+          host.innerHTML = s.html;
+          host.appendChild(caret);
+          if (s.t !== "li") { blockCount++; setAdded(blockCount); }
+          editor.scrollTop = editor.scrollHeight;
+          i++;
+          setTimeout(nextSeg, 95);
+        }
+      })();
+    }
+    nextSeg();
+  }
+
+  /* ---------------- Tabs / screens ---------------- */
+  function showScreen(which) {
+    document.querySelectorAll(".screen").forEach(function (s) {
+      s.classList.toggle("active", s.getAttribute("data-screen-id") === which);
+    });
+    document.querySelectorAll(".winbar .tab").forEach(function (t) {
+      t.classList.toggle("active", t.getAttribute("data-screen") === which);
+    });
+  }
+  document.querySelectorAll(".winbar .tab").forEach(function (t) {
+    t.addEventListener("click", function () { showScreen(t.getAttribute("data-screen")); });
+  });
+  var goHome = $("goHome");
+  if (goHome) goHome.addEventListener("click", function () { showScreen("home"); });
+  document.querySelectorAll(".hcard").forEach(function (c) {
+    c.addEventListener("click", function () { showScreen("work"); });
+  });
+
+  // Générer = export du CCTP (Word / PDF) — PAS la rédaction du texte
+  var genMenu = $("genMenu");
+  if (btn && genMenu) {
+    btn.addEventListener("click", function (e) {
+      e.stopPropagation();
+      genMenu.classList.toggle("open");
+    });
+    genMenu.querySelectorAll(".gi").forEach(function (g) {
+      g.addEventListener("click", function () { genMenu.classList.remove("open"); });
+    });
+    document.addEventListener("click", function () { genMenu.classList.remove("open"); });
+  }
+
+  /* ---------------- Init + view trigger ---------------- */
+  setActive(currentCode);
+  artTitle.textContent = titleOf(currentCode);
+  if (reduced) {
+    renderStatic(contents[currentCode].desc);
+    locBody.textContent = contents[currentCode].loc;
+  } else {
+    descBody.innerHTML = '<p><span class="caret"></span></p>';
+    setAdded(0);
+  }
+
+  var fired = false;
+  function kick() {
+    if (fired) return;
+    var app = $("app");
+    if (!app) return;
+    var r = app.getBoundingClientRect();
+    if (r.top < window.innerHeight * 0.72 && r.bottom > 80) {
+      fired = true;
+      setTimeout(function () { writeArticle(currentCode); }, 500);
+    }
+  }
+  if (!reduced) {
+    if ("IntersectionObserver" in window) {
+      var io = new IntersectionObserver(function (es) {
+        es.forEach(function (e) { if (e.isIntersecting) kick(); });
+      }, { threshold: 0.3 });
+      io.observe($("app"));
+    }
+    window.addEventListener("scroll", kick, { passive: true });
+    setTimeout(kick, 400);
+  }
+
+  /* ---------- Scale-to-fit : afficher toute l'interface comme la vraie capture ---------- */
+  function fit() {
+    var app = $("app"), sc = $("appScale");
+    if (!app || !sc) return;
+    sc.style.transform = "scale(" + (app.clientWidth / 1916) + ")";
+  }
+  fit();
+  window.addEventListener("resize", fit);
+  window.addEventListener("load", fit);
+  setTimeout(fit, 60);
+})();
+
+</script>
+
+
+</body></html>
