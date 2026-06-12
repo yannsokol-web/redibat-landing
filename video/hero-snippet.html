@@ -1,0 +1,87 @@
+<!--
+  Snippet d'intégration de la vidéo dans le hero de redibat.fr (index.html).
+
+  1. Copier le MP4 rendu vers la landing :
+       video/out/redibat-presentation.mp4  →  assets/redibat-presentation.mp4
+  2. Générer le poster (image affichée avant lecture / si autoplay bloqué) :
+       cd video && npx remotion still RedibatPresentation ../assets/video-poster.jpg --frame=285
+  3. Coller le bloc ci-dessous dans la section hero, et le <style> dans le <style> global.
+
+  Notes :
+  - `muted` + `playsinline` sont indispensables pour l'autoplay mobile/Safari.
+  - `preload="none"` + `loading` du poster = pas de poids vidéo au premier rendu ;
+    l'IntersectionObserver ne charge la vidéo que lorsqu'elle approche du viewport.
+  - Le bouton son permet d'activer la musique/bruitages (l'autoplay doit rester muet).
+-->
+
+<div class="hero-video" id="hero-video">
+  <video
+    id="redibat-video"
+    poster="assets/video-poster.jpg"
+    preload="none"
+    muted
+    loop
+    playsinline
+    aria-label="Présentation de Rédibat : rédaction de CCTP et analyse des offres"
+  >
+    <!-- data-src : rempli au moment où la vidéo approche du viewport -->
+    <source data-src="assets/redibat-presentation.mp4" type="video/mp4" />
+    <!-- Fallback si la balise vidéo n'est pas supportée -->
+    <a href="assets/redibat-presentation.mp4">Voir la vidéo de présentation</a>
+  </video>
+  <button class="hero-video-sound" id="hero-video-sound" aria-label="Activer le son">🔇</button>
+</div>
+
+<style>
+  .hero-video {
+    position: relative;
+    max-width: 1060px;
+    margin: 48px auto 0;
+    border-radius: 14px;
+    overflow: hidden;
+    border: 1px solid rgba(150, 195, 240, 0.16);
+    box-shadow: 0 30px 90px rgba(4, 12, 26, 0.6), 0 0 80px rgba(24, 95, 203, 0.14);
+    background: #0d1f36;
+  }
+  .hero-video video { display: block; width: 100%; height: auto; }
+  .hero-video-sound {
+    position: absolute;
+    right: 14px;
+    bottom: 14px;
+    width: 44px;
+    height: 44px;
+    border-radius: 999px;
+    border: 1px solid rgba(150, 195, 240, 0.3);
+    background: rgba(13, 30, 53, 0.75);
+    color: #eaf2fb;
+    font-size: 18px;
+    cursor: pointer;
+    backdrop-filter: blur(6px);
+  }
+</style>
+
+<script>
+  (() => {
+    const video = document.getElementById('redibat-video');
+    const sound = document.getElementById('hero-video-sound');
+    // Lazy-load : la source n'est attachée que près du viewport, puis autoplay muet.
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (!entries[0].isIntersecting) return;
+        io.disconnect();
+        const source = video.querySelector('source[data-src]');
+        source.src = source.dataset.src;
+        video.load();
+        video.play().catch(() => {/* autoplay refusé : le poster reste affiché */});
+      },
+      {rootMargin: '200px'}
+    );
+    io.observe(video);
+    sound.addEventListener('click', () => {
+      video.muted = !video.muted;
+      if (!video.muted) video.play();
+      sound.textContent = video.muted ? '🔇' : '🔊';
+      sound.setAttribute('aria-label', video.muted ? 'Activer le son' : 'Couper le son');
+    });
+  })();
+</script>
