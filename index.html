@@ -232,6 +232,28 @@
     100% { box-shadow: 0 0 0 0 oklch(0.80 0.115 224 / 0); }
   }
 
+  /* ============ Bouton Espace client / Téléchargement ============ */
+  .btn-client {
+    display: inline-flex; align-items: center; gap: 9px;
+    font-family: var(--mono); font-size: 12px; font-weight: 600; letter-spacing: 0.04em;
+    text-transform: uppercase; text-decoration: none; cursor: pointer; white-space: nowrap;
+    color: #fff; padding: 9px 17px; border: 0; border-radius: 100px;
+    background: var(--brand-grad); text-shadow: 0 1px 2px rgba(5, 20, 45, 0.35);
+    box-shadow: 0 6px 22px oklch(0.70 0.145 248 / 0.28);
+    transition: transform .18s ease, box-shadow .18s ease, filter .18s ease;
+  }
+  .btn-client:hover {
+    transform: translateY(-1px); filter: brightness(1.06);
+    box-shadow: 0 10px 30px oklch(0.70 0.145 248 / 0.42);
+  }
+  .btn-client svg { width: 15px; height: 15px; }
+  .hero-cta { margin-top: 40px; }
+  .hero-cta .btn-client { font-size: 13.5px; padding: 13px 26px; }
+  .hero-cta .cta-note {
+    display: block; margin-top: 14px;
+    font-family: var(--mono); font-size: 11.5px; letter-spacing: 0.03em; color: var(--text-faint);
+  }
+
   /* ============ Hero ============ */
   .hero { text-align: center; padding: 66px 0 44px; max-width: 860px; margin: 0 auto; }
   .eyebrow {
@@ -583,6 +605,7 @@
         <span class="nav-coord">
 </span>
         <span class="badge"><span class="dot"></span>Bientôt disponible</span>
+        <a class="btn-client" href="https://api.redibat.fr/telecharger">Espace client</a>
       </div>
     </header>
 
@@ -590,6 +613,13 @@
       <div class="eyebrow reveal d2">Logiciel de rédaction de CCTP</div>
       <h1 class="reveal d3">Vos cahiers des clauses techniques, rédigés avec <em>méthode</em>.</h1>
       <p class="reveal d4" data-comment-anchor="6f8a505a7b-p">Une application de bureau pour les professionnels du bâtiment : structurez vos affaires par lots et articles, rédigez vos descriptifs plus facilement et capitalisez votre bibliothèque — sans jamais perdre la main sur vos données.</p>
+      <div class="hero-cta reveal d5">
+        <a class="btn-client" href="https://api.redibat.fr/telecharger" aria-label="Espace client — télécharger Rédibat">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"></path><path d="m7 11 5 5 5-5"></path><path d="M5 21h14"></path></svg>
+          Espace client — Télécharger
+        </a>
+        <span class="cta-note">Réservé aux clients disposant d'un compte.</span>
+      </div>
     </section>
   </div>
 
