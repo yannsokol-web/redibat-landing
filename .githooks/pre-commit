@@ -1,0 +1,80 @@
+#!/bin/sh
+# =============================================================================
+# Hook anti-secret — redibat-landing (page vitrine)
+#
+# INSTALLATION (une fois par clone) :
+#     git config core.hooksPath .githooks
+#
+# Ce hook REFUSE le commit s'il détecte un secret dans les fichiers indexés :
+#   - un fichier .env RÉEL (autre que .env.example) ;
+#   - un fichier de clé/certificat/base : *.pem, *.key, *.db ;
+#   - JWT_SECRET= suivi d'autre chose que la valeur d'exemple (change-me...) ;
+#   - un motif de mot de passe en clair (RedibatPro, RedibatMax,
+#     ou password: / password= suivi de >= 6 caractères non blancs).
+#
+# Sortie : message clair + exit 1 dès la première détection.
+# Contournement EXCEPTIONNEL (sous ta responsabilité) : git commit --no-verify
+# =============================================================================
+
+set -u
+
+fail() {
+    echo ""
+    echo "  ❌  COMMIT REFUSÉ par le hook anti-secret (.githooks/pre-commit)"
+    echo "  ----------------------------------------------------------------"
+    echo "  $1"
+    echo ""
+    echo "  Corrige le contenu avant de committer. Si un secret a déjà été"
+    echo "  exposé, fais-le tourner (rotation) et purge l'historique si besoin."
+    echo ""
+    exit 1
+}
+
+# Liste des fichiers indexés (ajoutés/modifiés), à plat.
+staged=$(git diff --cached --name-only --diff-filter=ACM)
+[ -z "$staged" ] && exit 0
+
+# --- 1) Fichiers interdits par leur NOM / extension ------------------------
+for f in $staged; do
+    base=$(basename "$f")
+
+    # .env réel (tout fichier .env ou *.env qui n'est pas un .example)
+    case "$base" in
+        .env|*.env)
+            case "$base" in
+                *.example|*.sample|*.dist) : ;;  # gabarits autorisés
+                *) fail "Fichier d'environnement réel détecté : $f (seuls les .env.example sont autorisés)." ;;
+            esac
+            ;;
+    esac
+
+    # Clés / certificats / bases de données
+    case "$base" in
+        *.pem) fail "Clé/certificat PEM détecté : $f (ne jamais committer de clé)." ;;
+        *.key) fail "Fichier de clé détecté : $f (ne jamais committer de clé)." ;;
+        *.db)  fail "Base de données détectée : $f (ne jamais committer de .db)." ;;
+    esac
+done
+
+# --- 2) Contenus interdits dans le DIFF indexé -----------------------------
+# On n'inspecte que les lignes AJOUTÉES (préfixe '+', hors en-tête '+++').
+added=$(git diff --cached --no-color -U0 | grep -E '^\+' | grep -Ev '^\+\+\+')
+
+# JWT_SECRET= avec une valeur autre que le placeholder change-me...
+if printf '%s\n' "$added" | grep -Eiq 'JWT_SECRET=' ; then
+    if printf '%s\n' "$added" | grep -Ei 'JWT_SECRET=' | grep -Eqv 'JWT_SECRET=[[:space:]]*change-me' ; then
+        fail "JWT_SECRET défini avec une valeur réelle (attendu : change-me...). Ne jamais committer un secret JWT."
+    fi
+fi
+
+# Mots de passe de démonstration historiques.
+if printf '%s\n' "$added" | grep -Eq 'RedibatPro|RedibatMax' ; then
+    fail "Mot de passe de démonstration en clair détecté (RedibatPro / RedibatMax)."
+fi
+
+# Motif générique mot de passe en clair : password : <6+ non blancs> ou password = <6+>
+if printf '%s\n' "$added" | grep -Eiq 'password[[:space:]]*[:=][[:space:]]*[^[:space:]]{6,}' ; then
+    fail "Motif de mot de passe en clair détecté (password[:=]…). Utiliser un hash / un secret hors dépôt."
+fi
+
+exit 0
