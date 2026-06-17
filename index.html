@@ -48,6 +48,70 @@
   "publisher": { "@type": "Organization", "name": "YSCORP", "url": "https://redibat.fr/" }
 }
 </script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Qu'est-ce qu'un logiciel de rédaction de CCTP ?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Un logiciel de rédaction de CCTP aide les professionnels du bâtiment à structurer et rédiger leurs cahiers des clauses techniques particulières — par lots et par articles — puis à les exporter en Word ou PDF. Rédibat va plus loin en vous laissant capitaliser vos propres articles types dans une bibliothèque réutilisable d'un projet à l'autre."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "À qui s'adresse Rédibat ?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Aux maîtres d'œuvre, maîtres d'ouvrage (MOE/MOA), économistes de la construction, architectes et bureaux d'études qui rédigent régulièrement des pièces écrites : CCTP, descriptifs et DPGF."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Puis-je repartir de mes CCTP existants ?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Oui. Rédibat importe vos documents existants pour repartir de votre travail plutôt que d'une page blanche, et alimenter votre bibliothèque avec vos propres contenus."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Mes données restent-elles en local ? Faut-il une connexion Internet permanente ?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Vos affaires sont enregistrées en local, dans un format ouvert, et l'application fonctionne sans connexion permanente. Vous gardez la main sur vos données, sans dépendre du cloud d'un éditeur."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Comment fonctionne la bibliothèque d'articles types ?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Vous capitalisez vos propres articles types au fil des projets et les réutilisez d'une affaire à l'autre. Votre bibliothèque vous appartient et s'enrichit à chaque CCTP rédigé, au lieu de louer une base imposée."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Rédibat produit-il la DPGF et le tableau comparatif des offres (TCO) ?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Oui. À partir de vos descriptifs, Rédibat génère la décomposition de prix (DPGF) et le tableau comparatif des offres (TCO) intégrant les propositions des entreprises consultées."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "En quoi Rédibat se distingue des logiciels de CCTP en ligne ?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Là où beaucoup d'outils sont 100 % en ligne et reposent sur une bibliothèque louée, Rédibat est une application de bureau : vos données en local, votre propre bibliothèque, un format ouvert et l'import de vos documents existants. Pas d'abonnement au cloud pour accéder à votre travail."
+      }
+    }
+  ]
+}
+</script>
 <style>/* cyrillic-ext */
 /* vietnamese */
 /* latin-ext */
@@ -560,6 +624,18 @@
   .audience p { font-size: 1.08rem; color: var(--text-soft); text-wrap: pretty; }
   .audience strong { color: var(--text); font-weight: 600; }
 
+  /* ============ FAQ ============ */
+  .faq { padding: 60px 0 8px; }
+  .faq-head { text-align: center; max-width: 680px; margin: 0 auto 36px; }
+  .faq-head .rule { width: 46px; height: 1px; background: var(--line-strong); margin: 0 auto 26px; }
+  .faq-head h2 {
+    font-family: var(--display); font-weight: 400;
+    font-size: clamp(1.9rem, 4.2vw, 2.6rem); line-height: 1.1;
+    letter-spacing: -0.02em; color: var(--text); text-wrap: balance;
+  }
+  .faq-list { display: grid; gap: 14px; }
+  .faq-list .card h3 { margin-bottom: 10px; }
+
   /* ============ Footer ============ */
   footer {
     border-top: 1px solid var(--line); margin-top: 64px; padding: 28px 0 46px;
@@ -612,7 +688,7 @@
 
     <section class="hero">
       <div class="eyebrow reveal d2">Logiciel de rédaction de CCTP</div>
-      <h1 class="reveal d3">Vos cahiers des clauses techniques, rédigés avec <em>méthode</em>.</h1>
+      <h1 class="reveal d3">Rédigez vos CCTP et vos descriptifs, avec <em>méthode</em>.</h1>
       <p class="reveal d4" data-comment-anchor="6f8a505a7b-p">Une application de bureau pour les professionnels du bâtiment : structurez vos affaires par lots et articles, rédigez vos descriptifs plus facilement et capitalisez votre bibliothèque — sans jamais perdre la main sur vos données.</p>
       <div class="hero-cta reveal d5">
         <a class="btn-client" href="https://api.redibat.fr/telecharger" aria-label="Espace client — télécharger Rédibat">
@@ -770,15 +846,52 @@
   <!-- ============ Features ============ -->
   <div class="wrap wrap--narrow">
     <section class="features">
-      <div class="card reveal d4"><span class="num">01</span><h3>Rédaction structurée</h3><p>Construisez vos affaires par lots et articles, dans une arborescence claire — du CCTP complet jusqu'au moindre descriptif.</p></div>
+      <div class="card reveal d4"><span class="num">01</span><h3>Rédaction structurée de vos CCTP</h3><p>Construisez vos affaires par lots et articles, dans une arborescence claire — du CCTP complet jusqu'au moindre descriptif.</p></div>
       <div class="card reveal d5"><span class="num">02</span><h3>Bibliothèque d'articles types</h3><p>Capitalisez vos articles types et réutilisez-les d'une affaire à l'autre. Votre bibliothèque s'enrichit à chaque projet.</p></div>
-      <div class="card reveal d6"><span class="num">03</span><h3 data-comment-anchor="349c6878a1-h3">TCO &amp; DPGF</h3><p>Produisez vos décompositions de prix (DPGF) et vos tableaux comparatifs des offres (TCO), intégrant directement les offres des entreprises consultées.</p></div>
-      <div class="card reveal d7"><span class="num">04</span><h3>Application de bureau</h3><p>Vos affaires en local, au format ouvert, avec import de vos documents Word existants. Sans connexion permanente.</p></div>
+      <div class="card reveal d6"><span class="num">03</span><h3 data-comment-anchor="349c6878a1-h3">DPGF et tableau comparatif des offres (TCO)</h3><p>Produisez vos décompositions de prix (DPGF) et vos tableaux comparatifs des offres (TCO), intégrant directement les offres des entreprises consultées.</p></div>
+      <div class="card reveal d7"><span class="num">04</span><h3>Logiciel de bureau, vos données en local</h3><p>Vos affaires en local, au format ouvert, avec import de vos documents Word existants. Sans connexion permanente.</p></div>
     </section>
 
     <section class="audience reveal d7">
       <div class="rule"></div>
       <p>Conçu pour les <strong>maîtres d'œuvre</strong>, <strong>bureaux d'études</strong>, <strong>économistes de la construction</strong> et entreprises du BTP.</p>
+    </section>
+
+    <section class="faq reveal">
+      <div class="faq-head">
+        <div class="rule"></div>
+        <h2>Questions fréquentes</h2>
+      </div>
+      <div class="faq-list">
+        <div class="card">
+          <h3>Qu'est-ce qu'un logiciel de rédaction de CCTP ?</h3>
+          <p>Un logiciel de rédaction de CCTP aide les professionnels du bâtiment à structurer et rédiger leurs cahiers des clauses techniques particulières — par lots et par articles — puis à les exporter en Word ou PDF. Rédibat va plus loin en vous laissant capitaliser vos propres articles types dans une bibliothèque réutilisable d'un projet à l'autre.</p>
+        </div>
+        <div class="card">
+          <h3>À qui s'adresse Rédibat ?</h3>
+          <p>Aux maîtres d'œuvre, maîtres d'ouvrage (MOE/MOA), économistes de la construction, architectes et bureaux d'études qui rédigent régulièrement des pièces écrites : CCTP, descriptifs et DPGF.</p>
+        </div>
+        <div class="card">
+          <h3>Puis-je repartir de mes CCTP existants ?</h3>
+          <p>Oui. Rédibat importe vos documents existants pour repartir de votre travail plutôt que d'une page blanche, et alimenter votre bibliothèque avec vos propres contenus.</p>
+        </div>
+        <div class="card">
+          <h3>Mes données restent-elles en local ? Faut-il une connexion Internet permanente ?</h3>
+          <p>Vos affaires sont enregistrées en local, dans un format ouvert, et l'application fonctionne sans connexion permanente. Vous gardez la main sur vos données, sans dépendre du cloud d'un éditeur.</p>
+        </div>
+        <div class="card">
+          <h3>Comment fonctionne la bibliothèque d'articles types ?</h3>
+          <p>Vous capitalisez vos propres articles types au fil des projets et les réutilisez d'une affaire à l'autre. Votre bibliothèque vous appartient et s'enrichit à chaque CCTP rédigé, au lieu de louer une base imposée.</p>
+        </div>
+        <div class="card">
+          <h3>Rédibat produit-il la DPGF et le tableau comparatif des offres (TCO) ?</h3>
+          <p>Oui. À partir de vos descriptifs, Rédibat génère la décomposition de prix (DPGF) et le tableau comparatif des offres (TCO) intégrant les propositions des entreprises consultées.</p>
+        </div>
+        <div class="card">
+          <h3>En quoi Rédibat se distingue des logiciels de CCTP en ligne ?</h3>
+          <p>Là où beaucoup d'outils sont 100 % en ligne et reposent sur une bibliothèque louée, Rédibat est une application de bureau : vos données en local, votre propre bibliothèque, un format ouvert et l'import de vos documents existants. Pas d'abonnement au cloud pour accéder à votre travail.</p>
+        </div>
+      </div>
     </section>
 
     <footer>
