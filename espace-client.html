@@ -274,8 +274,16 @@ class Component extends DCLogic {
         const loginEmail = (data.email || email).toLowerCase();
         const isFounder = loginEmail === Component.FOUNDER_EMAIL;
         try {
-          if (isFounder) sessionStorage.setItem('redibat_founder', '1');
-          else sessionStorage.removeItem('redibat_founder');
+          // Fondateur : on persiste le jeton (onglet uniquement) pour que
+          // /espace-fondateur puisse interroger l'API après la navigation (le jeton en
+          // mémoire est perdu au changement de page). Jamais pour un compte non-fondateur.
+          if (isFounder) {
+            sessionStorage.setItem('redibat_founder', '1');
+            sessionStorage.setItem('redibat_token', data.token);
+          } else {
+            sessionStorage.removeItem('redibat_founder');
+            sessionStorage.removeItem('redibat_token');
+          }
         } catch (_) {}
         this.setState({ loggedIn: true, loading: false, error: '', email: data.email || email, role: data.role || '' });
         return;
@@ -332,6 +340,7 @@ class Component extends DCLogic {
         return;
       }
       if (resp.status === 401) {
+        try { sessionStorage.removeItem('redibat_token'); sessionStorage.removeItem('redibat_founder'); } catch (_) {}
         this.setState({ downloading: false, downloadError: 'Session expirée. Reconnectez-vous.', loggedIn: false });
         return;
       }

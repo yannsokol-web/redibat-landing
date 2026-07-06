@@ -42,6 +42,9 @@
     <div style="margin-bottom: 32px;">
       <h1 style="font-family: 'Newsreader', Georgia, serif; font-weight: 500; letter-spacing: -0.02em; font-size: 34px; color: #16314f; margin: 0 0 6px;">Tableau de bord</h1>
       <p style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 15px; color: var(--a-muted); margin: 0;">Gestion des utilisateurs, licences, téléchargements et retours.</p>
+      <sc-if value="{{ hasError }}" hint-placeholder-val="{{ false }}">
+        <div role="alert" style="margin-top: 16px; padding: 12px 16px; border-radius: 12px; background: rgba(226,59,46,0.08); border: 1px solid rgba(226,59,46,0.28); font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 14px; color: #b3261e;">{{ error }}</div>
+      </sc-if>
     </div>
 
     <!-- Stats -->
@@ -140,48 +143,105 @@
 </x-dc>
 <script type="text/x-dc" data-dc-script>
 class Component extends DCLogic {
+  // Backend redibat-auth (même origine que l'espace client). Le jeton fondateur a été
+  // persisté en sessionStorage au login (espace-client.html) : on le relit ici.
+  static API_BASE = 'https://api.redibat.fr';
+
+  state = { loading: true, error: '', users: [], bugs: [], messages: [], stats: null };
+
+  componentDidMount() {
+    if (this._fetchStarted) return;   // garde : un seul appel même si le runtime re-monte
+    this._fetchStarted = true;
+    let token = '';
+    try { token = sessionStorage.getItem('redibat_token') || ''; } catch (_) {}
+    if (!token) { location.replace('/espace-client'); return; }   // pas de session -> login
+    fetch(Component.API_BASE + '/v1/founder/overview', {
+      headers: { 'Authorization': 'Bearer ' + token, 'Accept': 'application/json' },
+    }).then((r) => {
+      if (r.status === 401 || r.status === 403) {                 // expiré / non-fondateur
+        try { sessionStorage.removeItem('redibat_token'); sessionStorage.removeItem('redibat_founder'); } catch (_) {}
+        location.replace('/espace-client');
+        return null;
+      }
+      if (!r.ok) throw new Error('http ' + r.status);
+      return r.json();
+    }).then((data) => {
+      if (!data) return;
+      this.setState({
+        loading: false, error: '',
+        users: data.users || [], bugs: data.bugs || [],
+        messages: data.messages || [], stats: data.stats || null,
+      });
+    }).catch(() => {
+      this.setState({ loading: false, error: 'Impossible de charger les données. Réessayez.' });
+    });
+  }
+
   renderVals() {
     const teal = 'var(--a-teal)', tealBg = 'rgba(47,138,114,0.12)';
     const amber = '#b7791f', amberBg = 'rgba(183,121,31,0.12)';
     const red = 'var(--a-red)', redBg = 'rgba(226,59,46,0.10)';
     const muted = 'var(--a-muted)', mutedBg = 'rgba(138,148,163,0.14)';
     const blue = 'var(--a-blue)', blueBg = 'rgba(47,99,212,0.12)';
-    const users = [
-      { email: 'a.morel@ateliermorel.fr', company: 'Atelier Morel Architecture', licence: 'PRO', duration: '12 mois', start: '02/07/2026', end: '02/07/2027', status: 'Actif' },
-      { email: 'contact@bet-durand.fr', company: 'BET Durand', licence: 'MAX', duration: '12 mois', start: '28/06/2026', end: '28/06/2027', status: 'Actif' },
-      { email: 'j.lefevre@ecobat-eco.fr', company: 'Écobat Économistes', licence: 'MAX', duration: '12 mois', start: '21/06/2026', end: '21/06/2027', status: 'Actif' },
-      { email: 's.nguyen@moe-atlantique.fr', company: 'MOE Atlantique', licence: 'PRO', duration: '1 mois', start: '14/06/2026', end: '14/07/2026', status: 'En attente' },
-      { email: 'p.girard@girardconstruction.fr', company: 'Girard Construction', licence: 'PRO', duration: '12 mois', start: '09/06/2026', end: '09/06/2027', status: 'Actif' },
-      { email: 'contact@studio-plan-b.fr', company: 'Studio Plan B', licence: 'MAX', duration: '1 mois', start: '30/05/2026', end: '30/06/2026', status: 'En attente' },
-    ].map(u => ({
-      ...u,
-      period: u.start + ' → ' + u.end,
-      licColor: u.licence === 'MAX' ? '#ffffff' : blue,
-      licBg: u.licence === 'MAX' ? 'linear-gradient(135deg, #185fcb, #30c5ec)' : blueBg,
-      statusColor: u.status === 'Actif' ? teal : amber,
-      statusBg: u.status === 'Actif' ? tealBg : amberBg,
+    const s = this.state;
+    const today = new Date().toISOString().slice(0, 10);   // 'AAAA-MM-JJ' (UTC)
+    // Dates d'abonnement en 'AAAA-MM-JJ' -> comparaison lexicographique = chronologique.
+    const fmtFR = (iso) => { if (!iso) return '—'; const p = String(iso).slice(0, 10).split('-'); return p[2] + '/' + p[1] + '/' + p[0]; };
+    const fmtDM = (iso) => { if (!iso) return ''; const p = String(iso).slice(0, 10).split('-'); return p[2] + '/' + p[1]; };
+
+    const users = (s.users || []).map((u) => {
+      const licence = (u.role || '').toUpperCase();          // 'PRO' | 'MAX'
+      const active = u.license_active === 1
+        && !!u.subscription_start && u.subscription_start <= today
+        && (!u.subscription_end || u.subscription_end >= today);
+      const status = active ? 'Actif' : 'En attente';
+      return {
+        email: u.email,
+        company: u.company || '—',
+        licence,
+        duration: u.plan_months ? (u.plan_months + ' mois') : '—',
+        period: fmtFR(u.subscription_start) + ' → ' + fmtFR(u.subscription_end),
+        status,
+        licColor: licence === 'MAX' ? '#ffffff' : blue,
+        licBg: licence === 'MAX' ? 'linear-gradient(135deg, #185fcb, #30c5ec)' : blueBg,
+        statusColor: status === 'Actif' ? teal : amber,
+        statusBg: status === 'Actif' ? tealBg : amberBg,
+      };
+    });
+
+    const bugs = (s.bugs || []).map((b) => {
+      const sev = b.severity === 'high' ? 'Élevée' : (b.severity === 'medium' ? 'Moyenne' : 'Faible');
+      return {
+        title: b.title,
+        email: b.user_email,
+        date: fmtDM(b.created_at),
+        severity: sev,
+        sevColor: sev === 'Élevée' ? red : (sev === 'Moyenne' ? amber : muted),
+        sevBg: sev === 'Élevée' ? redBg : (sev === 'Moyenne' ? amberBg : mutedBg),
+      };
+    });
+
+    const messages = (s.messages || []).map((m) => ({
+      email: m.from_email,
+      subject: m.subject,
+      snippet: m.snippet,
+      date: fmtDM(m.created_at),
     }));
-    const bugs = [
-      { title: 'Export DPGF : colonne Qté vide', email: 'j.lefevre@ecobat-eco.fr', date: '03/07', severity: 'Élevée' },
-      { title: 'Lenteur ouverture bibliothèque', email: 'contact@bet-durand.fr', date: '01/07', severity: 'Moyenne' },
-      { title: 'Coquille libellé « page de garde »', email: 'a.morel@ateliermorel.fr', date: '27/06', severity: 'Faible' },
-    ].map(b => ({
-      ...b,
-      sevColor: b.severity === 'Élevée' ? red : (b.severity === 'Moyenne' ? amber : muted),
-      sevBg: b.severity === 'Élevée' ? redBg : (b.severity === 'Moyenne' ? amberBg : mutedBg),
-    }));
-    const messages = [
-      { email: 's.nguyen@moe-atlantique.fr', subject: 'Demande de licence multiposte', snippet: 'Bonjour, nous sommes 4 économistes et souhaitons équiper tous les postes…', date: '04/07' },
-      { email: 'p.girard@girardconstruction.fr', subject: 'Import de CCTP au format .docx', snippet: 'Est-il possible d\u2019importer nos anciens CCTP Word pour alimenter la bibliothèque ?', date: '02/07' },
-      { email: 'contact@studio-plan-b.fr', subject: 'Question tarif', snippet: 'Merci pour la démo. Quels sont vos tarifs pour un poste unique ?', date: '29/06' },
-    ];
-    const stats = [
-      { label: 'Utilisateurs', value: '128', delta: '+6 cette semaine', deltaColor: teal },
-      { label: 'Téléchargements', value: '112', delta: '+9', deltaColor: teal },
-      { label: 'Bugs ouverts', value: '3', delta: '1 élevée', deltaColor: red },
-      { label: 'Messages non lus', value: '3', delta: 'à traiter', deltaColor: amber },
-    ];
-    return { users, bugs, messages, stats, userCount: users.length };
+
+    const st = s.stats;
+    const stats = st ? [
+      { label: 'Utilisateurs', value: String(st.users_total), delta: '+' + st.users_week + ' cette semaine', deltaColor: teal },
+      { label: 'Téléchargements', value: String(st.downloads_total), delta: '+' + st.downloads_week, deltaColor: teal },
+      { label: 'Bugs ouverts', value: String(st.bugs_open), delta: st.bugs_high + (st.bugs_high > 1 ? ' élevées' : ' élevée'), deltaColor: red },
+      { label: 'Messages non lus', value: String(st.messages_unread), delta: 'à traiter', deltaColor: amber },
+    ] : [];
+
+    return {
+      users, bugs, messages, stats,
+      userCount: users.length,
+      hasError: !!s.error,
+      error: s.error,
+    };
   }
 }
 </script>
