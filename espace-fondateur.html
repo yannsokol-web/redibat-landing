@@ -106,8 +106,9 @@
       <div style="display: flex; flex-direction: column; gap: 24px;">
 
         <div style="background: #ffffff; border: 1px solid var(--a-border); border-radius: 16px; box-shadow: 0 1px 2px rgba(31,58,92,0.04); overflow: hidden;">
-          <div style="padding: 18px 22px; border-bottom: 1px solid var(--a-border-soft);">
+          <div onClick="{{ onOpenBugs }}" style="padding: 18px 22px; border-bottom: 1px solid var(--a-border-soft); cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 10px;">
             <h2 style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 16px; font-weight: 700; color: #16314f; margin: 0;">Rapports de bugs</h2>
+            <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.04em; color: var(--a-blue); white-space: nowrap;">Gérer →</span>
           </div>
           <sc-for list="{{ bugs }}" as="b" hint-placeholder-count="3">
             <div style="padding: 15px 22px; border-top: 1px solid var(--a-border-soft);">
@@ -130,8 +131,9 @@
         </div>
 
         <div style="background: #ffffff; border: 1px solid var(--a-border); border-radius: 16px; box-shadow: 0 1px 2px rgba(31,58,92,0.04); overflow: hidden;">
-          <div style="padding: 18px 22px; border-bottom: 1px solid var(--a-border-soft);">
+          <div onClick="{{ onOpenMessages }}" style="padding: 18px 22px; border-bottom: 1px solid var(--a-border-soft); cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 10px;">
             <h2 style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 16px; font-weight: 700; color: #16314f; margin: 0;">Messages</h2>
+            <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.04em; color: var(--a-blue); white-space: nowrap;">Gérer →</span>
           </div>
           <sc-for list="{{ messages }}" as="m" hint-placeholder-count="3">
             <div style="padding: 15px 22px; border-top: 1px solid var(--a-border-soft);">
@@ -148,6 +150,70 @@
       </div>
     </div>
   </main>
+
+  <!-- Boîte de réception plein écran (overlay) : gestion des bugs / messages -->
+  <sc-if value="{{ isOverlayOpen }}">
+    <div onClick="{{ onCloseInbox }}" style="position: fixed; inset: 0; z-index: 100; background: rgba(16,31,58,0.55); backdrop-filter: blur(3px); display: flex; align-items: flex-start; justify-content: center; padding: 40px 20px; overflow-y: auto;">
+      <div onClick="{{ onPanelClick }}" style="width: 100%; max-width: 780px; background: #ffffff; border-radius: 18px; box-shadow: 0 24px 70px rgba(16,31,58,0.4); overflow: hidden;">
+
+        <div style="display: flex; align-items: center; justify-content: space-between; padding: 20px 24px; border-bottom: 1px solid var(--a-border-soft);">
+          <h2 style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 19px; font-weight: 700; color: #16314f; margin: 0;">{{ overlayTitle }}</h2>
+          <button type="button" onClick="{{ onCloseInbox }}" style="border: none; background: transparent; cursor: pointer; font-size: 22px; line-height: 1; color: var(--a-muted); padding: 4px 8px; border-radius: 8px;">✕</button>
+        </div>
+
+        <sc-if value="{{ hasActionError }}">
+          <div role="alert" style="margin: 12px 24px 0; padding: 10px 14px; border-radius: 10px; background: rgba(226,59,46,0.08); border: 1px solid rgba(226,59,46,0.28); font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 13px; color: #b3261e;">{{ actionError }}</div>
+        </sc-if>
+
+        <div style="display: flex; gap: 6px; padding: 14px 24px; border-bottom: 1px solid var(--a-border-soft); flex-wrap: wrap;">
+          <button type="button" onClick="{{ onFilterAll }}" style="cursor: pointer; border: 1px solid var(--a-border); background: {{ allTabBg }}; color: {{ allTabColor }}; font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.04em; padding: 6px 12px; border-radius: 100px;">Tous ({{ countAll }})</button>
+          <button type="button" onClick="{{ onFilterNew }}" style="cursor: pointer; border: 1px solid var(--a-border); background: {{ newTabBg }}; color: {{ newTabColor }}; font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.04em; padding: 6px 12px; border-radius: 100px;">Nouveaux ({{ countNew }})</button>
+          <button type="button" onClick="{{ onFilterPending }}" style="cursor: pointer; border: 1px solid var(--a-border); background: {{ pendingTabBg }}; color: {{ pendingTabColor }}; font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.04em; padding: 6px 12px; border-radius: 100px;">En attente ({{ countPending }})</button>
+          <button type="button" onClick="{{ onFilterDone }}" style="cursor: pointer; border: 1px solid var(--a-border); background: {{ doneTabBg }}; color: {{ doneTabColor }}; font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.04em; padding: 6px 12px; border-radius: 100px;">Traités ({{ countDone }})</button>
+        </div>
+
+        <div style="max-height: 62vh; overflow-y: auto;">
+          <sc-if value="{{ isOverlayEmpty }}">
+            <div style="padding: 44px 24px; text-align: center; font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 14px; color: var(--a-muted);">Aucun élément dans ce dossier.</div>
+          </sc-if>
+          <sc-for list="{{ overlayItems }}" as="it">
+            <div style="border-top: 1px solid var(--a-border-soft);">
+              <div onClick="{{ it.onToggle }}" style="padding: 15px 24px; cursor: pointer;">
+                <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 4px;">
+                  <span style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 14.5px; font-weight: 600; color: #16314f;">{{ it.title }}</span>
+                  <sc-if value="{{ it.hasSeverity }}">
+                    <span style="font-family: 'IBM Plex Mono', monospace; font-size: 9.5px; letter-spacing: 0.04em; text-transform: uppercase; padding: 3px 8px; border-radius: 100px; color: {{ it.sevColor }}; background: {{ it.sevBg }};">{{ it.severity }}</span>
+                  </sc-if>
+                  <span style="font-family: 'IBM Plex Mono', monospace; font-size: 9.5px; letter-spacing: 0.04em; text-transform: uppercase; padding: 3px 8px; border-radius: 100px; color: {{ it.stateColor }}; background: {{ it.stateBg }};">{{ it.stateLabel }}</span>
+                </div>
+                <div style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 12.5px; color: var(--a-muted);">{{ it.meta }}</div>
+              </div>
+              <sc-if value="{{ it.isExpanded }}">
+                <div style="padding: 0 24px 18px;">
+                  <sc-if value="{{ it.hasBody }}">
+                    <div style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 13px; line-height: 1.5; color: var(--a-text); white-space: pre-wrap; text-wrap: pretty; margin-bottom: 10px;">{{ it.body }}</div>
+                  </sc-if>
+                  <sc-if value="{{ it.hasLogs }}">
+                    <details style="margin-bottom: 12px;">
+                      <summary style="cursor: pointer; font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--a-muted); user-select: none;">Logs techniques</summary>
+                      <pre style="margin: 6px 0 0; padding: 10px 12px; background: #f6f8fa; border: 1px solid var(--a-border-soft); border-radius: 8px; font-family: 'IBM Plex Mono', monospace; font-size: 11px; line-height: 1.5; color: #16314f; white-space: pre-wrap; word-break: break-word; max-height: 240px; overflow: auto;">{{ it.logs }}</pre>
+                    </details>
+                  </sc-if>
+                  <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
+                    <sc-if value="{{ it.canNew }}"><button type="button" onClick="{{ it.onNew }}" style="cursor: pointer; border: 1px solid var(--a-border); background: #ffffff; color: #16314f; font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 12.5px; font-weight: 500; padding: 7px 14px; border-radius: 8px;">Rouvrir</button></sc-if>
+                    <sc-if value="{{ it.canPending }}"><button type="button" onClick="{{ it.onPending }}" style="cursor: pointer; border: 1px solid var(--a-border); background: #ffffff; color: #16314f; font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 12.5px; font-weight: 500; padding: 7px 14px; border-radius: 8px;">En attente</button></sc-if>
+                    <sc-if value="{{ it.canDone }}"><button type="button" onClick="{{ it.onDone }}" style="cursor: pointer; border: none; background: var(--a-teal); color: #ffffff; font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 12.5px; font-weight: 600; padding: 7px 14px; border-radius: 8px;">Marquer traité</button></sc-if>
+                    <button type="button" onClick="{{ it.onDelete }}" style="cursor: pointer; border: 1px solid rgba(226,59,46,0.35); background: rgba(226,59,46,0.06); color: var(--a-red); font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 12.5px; font-weight: 500; padding: 7px 14px; border-radius: 8px; margin-left: auto;">Supprimer</button>
+                  </div>
+                </div>
+              </sc-if>
+            </div>
+          </sc-for>
+        </div>
+
+      </div>
+    </div>
+  </sc-if>
 </div>
 </x-dc>
 <script type="text/x-dc" data-dc-script>
@@ -156,7 +222,9 @@ class Component extends DCLogic {
   // persisté en sessionStorage au login (espace-client.html) : on le relit ici.
   static API_BASE = 'https://api.redibat.fr';
 
-  state = { loading: true, error: '', users: [], bugs: [], messages: [], stats: null };
+  state = { loading: true, error: '', users: [], bugs: [], messages: [], stats: null,
+    overlay: null, filter: 'all', expandedKey: null,
+    allBugs: [], allMessages: [], inboxLoaded: false, actionError: '' };
 
   componentDidMount() {
     if (this._fetchStarted) return;   // garde : un seul appel même si le runtime re-monte
@@ -185,6 +253,67 @@ class Component extends DCLogic {
       this.setState({ loading: false, error: 'Impossible de charger les données. Réessayez.' });
     });
   }
+
+  // --- Boîte de réception (overlay) : jeton, chargement, mutations ---
+  _token() { try { return sessionStorage.getItem('redibat_token') || ''; } catch (_) { return ''; } }
+  _authFailed() {
+    try { sessionStorage.removeItem('redibat_token'); sessionStorage.removeItem('redibat_founder'); } catch (_) {}
+    location.replace('/espace-client');
+  }
+
+  openInbox = (type) => {
+    this.setState({ overlay: type, filter: 'all', expandedKey: null, actionError: '' });
+    if (this.state.inboxLoaded) return;              // déjà chargée : pas de refetch
+    const token = this._token();
+    if (!token) { this._authFailed(); return; }
+    fetch(Component.API_BASE + '/v1/founder/inbox', {
+      headers: { 'Authorization': 'Bearer ' + token, 'Accept': 'application/json' },
+    }).then((r) => {
+      if (r.status === 401 || r.status === 403) { this._authFailed(); return null; }
+      if (!r.ok) throw new Error('http ' + r.status);
+      return r.json();
+    }).then((data) => {
+      if (!data) return;
+      this.setState({ allBugs: data.bugs || [], allMessages: data.messages || [], inboxLoaded: true });
+    }).catch(() => this.setState({ actionError: 'Impossible de charger la boîte de réception.' }));
+  };
+
+  closeInbox = () => this.setState({ overlay: null, expandedKey: null, actionError: '' });
+  setFilter = (f) => this.setState({ filter: f });
+  toggleExpand = (key) => this.setState({ expandedKey: this.state.expandedKey === key ? null : key });
+  stopProp = (e) => { if (e && e.stopPropagation) e.stopPropagation(); };
+
+  // POST état / DELETE, puis mise à jour LOCALE des listes (pas de refetch : le dashboard
+  // et les stats se re-dérivent des listes complètes dans renderVals).
+  _mutate(type, id, method, body) {
+    const token = this._token();
+    if (!token) { this._authFailed(); return Promise.resolve(false); }
+    const opts = { method, headers: { 'Authorization': 'Bearer ' + token, 'Accept': 'application/json' } };
+    if (body) { opts.headers['Content-Type'] = 'application/json'; opts.body = JSON.stringify(body); }
+    return fetch(Component.API_BASE + '/v1/founder/' + type + '/' + id, opts).then((r) => {
+      if (r.status === 401 || r.status === 403) { this._authFailed(); return false; }
+      return r.ok;
+    }).catch(() => false);
+  }
+
+  setItemState = (type, id, newState) => {
+    this._mutate(type, id, 'POST', { state: newState }).then((ok) => {
+      if (!ok) { this.setState({ actionError: 'Action impossible. Réessayez.' }); return; }
+      const key = type === 'bug' ? 'allBugs' : 'allMessages';
+      const list = (this.state[key] || []).map((x) => x.id === id ? Object.assign({}, x, { state: newState }) : x);
+      this.setState({ [key]: list, actionError: '' });
+    });
+  };
+
+  deleteItem = (type, id) => {
+    if (!window.confirm('Supprimer définitivement cet élément ? Cette action est irréversible.')) return;
+    this._mutate(type, id, 'DELETE', null).then((ok) => {
+      if (!ok) { this.setState({ actionError: 'Suppression impossible. Réessayez.' }); return; }
+      const key = type === 'bug' ? 'allBugs' : 'allMessages';
+      const list = (this.state[key] || []).filter((x) => x.id !== id);
+      this.setState({ [key]: list, expandedKey: null, actionError: '' });
+    });
+  };
 
   renderVals() {
     const teal = 'var(--a-teal)', tealBg = 'rgba(47,138,114,0.12)';
@@ -218,7 +347,10 @@ class Component extends DCLogic {
       };
     });
 
-    const bugs = (s.bugs || []).map((b) => {
+    // Aperçu des cartes : une fois la boîte de réception chargée, on dérive des listes
+    // COMPLÈTES (source de vérité après une action) ; sinon des données de l'overview.
+    const bugSource = s.inboxLoaded ? (s.allBugs || []).filter((b) => b.state !== 'done') : (s.bugs || []);
+    const bugs = bugSource.map((b) => {
       const sev = b.severity === 'high' ? 'Élevée' : (b.severity === 'medium' ? 'Moyenne' : 'Faible');
       const description = b.description || '';
       const logs = b.logs || '';
@@ -236,26 +368,101 @@ class Component extends DCLogic {
       };
     });
 
-    const messages = (s.messages || []).map((m) => ({
+    const msgSource = s.inboxLoaded ? (s.allMessages || []).filter((m) => m.state !== 'done') : (s.messages || []);
+    const messages = msgSource.map((m) => ({
       email: m.from_email,
       subject: m.subject,
-      snippet: m.snippet,
+      snippet: (m.snippet != null ? m.snippet : (m.body || '').slice(0, 140)),
       date: fmtDM(m.created_at),
     }));
 
     const st = s.stats;
+    // Compteurs de gestion re-dérivés des listes complètes après une action (sinon overview).
+    const bugsOpen = s.inboxLoaded ? (s.allBugs || []).filter((b) => b.state !== 'done').length : (st ? st.bugs_open : 0);
+    const bugsHigh = s.inboxLoaded ? (s.allBugs || []).filter((b) => b.state !== 'done' && b.severity === 'high').length : (st ? st.bugs_high : 0);
+    const msgUnread = s.inboxLoaded ? (s.allMessages || []).filter((m) => m.state === 'new').length : (st ? st.messages_unread : 0);
     const stats = st ? [
       { label: 'Utilisateurs', value: String(st.users_total), delta: '+' + st.users_week + ' cette semaine', deltaColor: teal },
       { label: 'Téléchargements', value: String(st.downloads_total), delta: '+' + st.downloads_week, deltaColor: teal },
-      { label: 'Bugs ouverts', value: String(st.bugs_open), delta: st.bugs_high + (st.bugs_high > 1 ? ' élevées' : ' élevée'), deltaColor: red },
-      { label: 'Messages non lus', value: String(st.messages_unread), delta: 'à traiter', deltaColor: amber },
+      { label: 'Bugs ouverts', value: String(bugsOpen), delta: bugsHigh + (bugsHigh > 1 ? ' élevées' : ' élevée'), deltaColor: red },
+      { label: 'Messages non lus', value: String(msgUnread), delta: 'à traiter', deltaColor: amber },
     ] : [];
+
+    // --- Boîte de réception (overlay) : liste unifiée bugs/messages + handlers par item ---
+    const stateLabel = { new: 'Nouveau', pending: 'En attente', done: 'Traité' };
+    const stateCol = { new: blue, pending: amber, done: teal };
+    const stateBgc = { new: blueBg, pending: amberBg, done: tealBg };
+    const overlayType = s.overlay;
+    const isBugs = overlayType === 'bugs';
+    const rawList = overlayType ? (isBugs ? (s.allBugs || []) : (s.allMessages || [])) : [];
+    const cnt = (f) => rawList.filter((x) => f === 'all' ? true : (x.state || 'new') === f).length;
+    const filtered = rawList.filter((x) => s.filter === 'all' ? true : (x.state || 'new') === s.filter);
+    const overlayItems = filtered.map((x) => {
+      const st2 = x.state || 'new';
+      const key = (isBugs ? 'bug-' : 'msg-') + x.id;
+      const typeParam = isBugs ? 'bug' : 'message';
+      const it = {
+        key, state: st2,
+        stateLabel: stateLabel[st2] || st2,
+        stateColor: stateCol[st2] || muted,
+        stateBg: stateBgc[st2] || mutedBg,
+        isExpanded: s.expandedKey === key,
+        onToggle: () => this.toggleExpand(key),
+        onNew: () => this.setItemState(typeParam, x.id, 'new'),
+        onPending: () => this.setItemState(typeParam, x.id, 'pending'),
+        onDone: () => this.setItemState(typeParam, x.id, 'done'),
+        onDelete: () => this.deleteItem(typeParam, x.id),
+        canNew: st2 !== 'new', canPending: st2 !== 'pending', canDone: st2 !== 'done',
+      };
+      if (isBugs) {
+        const sev = x.severity === 'high' ? 'Élevée' : (x.severity === 'medium' ? 'Moyenne' : 'Faible');
+        it.title = x.title;
+        it.meta = x.user_email + ' · ' + fmtFR(x.created_at);
+        it.hasSeverity = true;
+        it.severity = sev;
+        it.sevColor = sev === 'Élevée' ? red : (sev === 'Moyenne' ? amber : muted);
+        it.sevBg = sev === 'Élevée' ? redBg : (sev === 'Moyenne' ? amberBg : mutedBg);
+        it.body = x.description || '';
+        it.hasBody = !!(x.description && String(x.description).trim());
+        it.logs = x.logs || '';
+        it.hasLogs = !!(x.logs && String(x.logs).trim());
+      } else {
+        it.title = x.from_email;
+        it.meta = x.subject + ' · ' + fmtFR(x.created_at);
+        it.hasSeverity = false; it.severity = ''; it.sevColor = muted; it.sevBg = mutedBg;
+        it.body = x.body || '';
+        it.hasBody = !!(x.body && String(x.body).trim());
+        it.logs = ''; it.hasLogs = false;
+      }
+      return it;
+    });
+    const tabBg = (f) => s.filter === f ? '#16314f' : 'transparent';
+    const tabColor = (f) => s.filter === f ? '#ffffff' : 'var(--a-muted)';
 
     return {
       users, bugs, messages, stats,
       userCount: users.length,
       hasError: !!s.error,
       error: s.error,
+      // --- Overlay boîte de réception ---
+      onOpenBugs: () => this.openInbox('bugs'),
+      onOpenMessages: () => this.openInbox('messages'),
+      onCloseInbox: this.closeInbox,
+      onPanelClick: this.stopProp,
+      isOverlayOpen: !!overlayType,
+      overlayTitle: isBugs ? 'Rapports de bugs' : (overlayType === 'messages' ? 'Messages' : ''),
+      overlayItems,
+      isOverlayEmpty: overlayItems.length === 0,
+      countAll: cnt('all'), countNew: cnt('new'), countPending: cnt('pending'), countDone: cnt('done'),
+      onFilterAll: () => this.setFilter('all'),
+      onFilterNew: () => this.setFilter('new'),
+      onFilterPending: () => this.setFilter('pending'),
+      onFilterDone: () => this.setFilter('done'),
+      allTabBg: tabBg('all'), allTabColor: tabColor('all'),
+      newTabBg: tabBg('new'), newTabColor: tabColor('new'),
+      pendingTabBg: tabBg('pending'), pendingTabColor: tabColor('pending'),
+      doneTabBg: tabBg('done'), doneTabColor: tabColor('done'),
+      hasActionError: !!s.actionError, actionError: s.actionError,
     };
   }
 }
