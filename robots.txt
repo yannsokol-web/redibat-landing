@@ -1,6 +1,6 @@
 User-agent: *
 Allow: /
-Disallow: /EspaceClient.dc.html
-Disallow: /FounderDashboard.dc.html
+Disallow: /espace-client
+Disallow: /espace-fondateur
 
 Sitemap: https://redibat.fr/sitemap.xml

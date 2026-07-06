@@ -19,7 +19,7 @@
 <div style="position: relative; background: rgba(255,255,255,0.72); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border-bottom: 1px solid var(--a-border-soft); font-family: 'Hanken Grotesk', system-ui, sans-serif;">
   <header style="max-width: 1200px; margin: 0 auto; padding: 14px 32px; display: flex; align-items: center; justify-content: space-between; gap: 32px;">
 
-    <a href="Landing.dc.html" style="display: inline-flex; align-items: center; text-decoration: none; flex: none;">
+    <a href="/" style="display: inline-flex; align-items: center; text-decoration: none; flex: none;">
       <img src="uploads/redibat-lockup-h.png" alt="Rédibat" style="height: 38px; width: auto; display: block;">
     </a>
 
@@ -47,13 +47,13 @@
         </div>
       </div>
 
-      <a href="APropos.dc.html" style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 15px; font-weight: 500; color: #1f3a5c;
+      <a href="/a-propos" style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 15px; font-weight: 500; color: #1f3a5c;
                text-decoration: none; padding: 9px 14px; border-radius: 8px; transition: background .18s ease;" style-hover="background: rgba(31,58,92,0.05);">À propos</a>
 
-      <a href="FAQ.dc.html" style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 15px; font-weight: 500; color: #1f3a5c;
+      <a href="/faq" style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 15px; font-weight: 500; color: #1f3a5c;
                text-decoration: none; padding: 9px 14px; border-radius: 8px; transition: background .18s ease;" style-hover="background: rgba(31,58,92,0.05);">FAQ</a>
 
-      <a href="EspaceClient.dc.html" style="margin-left: 10px; display: inline-flex; align-items: center; text-decoration: none;
+      <a href="/espace-client" style="margin-left: 10px; display: inline-flex; align-items: center; text-decoration: none;
                font-family: 'IBM Plex Mono', monospace; font-size: 12.5px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: #ffffff;
                background: linear-gradient(135deg, #0b317c 0%, #185fcb 55%, #30c5ec 100%);
                padding: 11px 22px; border-radius: 100px;
@@ -80,11 +80,11 @@ class Component extends DCLogic {
       menuShift: open ? '0' : '-6px',
       caretTransform: open ? 'rotate(180deg)' : 'rotate(0deg)',
       products: [
-        { name: 'CCTP', href: 'CCTP.dc.html' },
-        { name: 'DPGF', href: 'DPGF.dc.html' },
-        { name: 'Ouverture des plis', href: 'OuvertureDesPlis.dc.html' },
-        { name: 'TCO', href: 'TCO.dc.html' },
-        { name: 'RAO', href: 'RAO.dc.html' },
+        { name: 'CCTP', href: '/cctp' },
+        { name: 'DPGF', href: '/dpgf' },
+        { name: 'Ouverture des plis', href: '/ouverture-des-plis' },
+        { name: 'TCO', href: '/tco' },
+        { name: 'RAO', href: '/rao' },
       ],
     };
   }
