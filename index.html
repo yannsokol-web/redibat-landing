@@ -625,5 +625,48 @@ class Component extends DCLogic {
   }
 }
 </script>
+
+<!-- Défilement automatique vers l'ancre (#contact, etc.) au chargement.
+     La page est rendue par dc-runtime : <x-dc> est remplacé par un arbre React
+     APRÈS le chargement, donc le saut natif du navigateur vers #contact échoue
+     (il vise le HTML initial, détruit ensuite). On réaligne la cible tant que la
+     mise en page bouge (rendu React, images, widget Turnstile), puis on relâche
+     dès que ça se stabilise ou que l'utilisateur défile. Hors <x-dc> = ignoré par
+     le framework, exécuté nativement par le navigateur. -->
+<script>
+(function () {
+  var id = (location.hash || '').replace(/^#/, '');
+  if (!id || !/^[A-Za-z][\w-]*$/.test(id)) return;   // rien à faire sans ancre valide
+  var OFFSET = 84;                                     // hauteur de l'en-tête collant + marge
+  if ('scrollRestoration' in history) { try { history.scrollRestoration = 'manual'; } catch (e) {} }
+  var userStopped = false, scheduled = false, obs;
+  function align() {
+    scheduled = false;
+    if (userStopped) return;
+    var el = document.getElementById(id);
+    if (!el) return;
+    var top = el.getBoundingClientRect().top;
+    if (Math.abs(top - OFFSET) > 2) window.scrollTo(0, window.pageYOffset + top - OFFSET);
+  }
+  function schedule() {
+    if (userStopped || scheduled) return;
+    scheduled = true;
+    requestAnimationFrame(align);
+  }
+  // 1) Réaligne à chaque mutation du DOM (rendu React, montage du formulaire/Turnstile).
+  obs = new MutationObserver(schedule);
+  obs.observe(document.documentElement, { childList: true, subtree: true });
+  // 2) Réaligne aussi à intervalles fixes : un <img> qui finit de charger AU-DESSUS de la
+  //    cible décale la mise en page SANS muter le DOM (donc invisible pour l'observer).
+  [0, 120, 300, 600, 1000, 1800, 3000].forEach(function (t) { setTimeout(schedule, t); });
+  window.addEventListener('load', function () { setTimeout(schedule, 60); });
+  // 3) Arrêt propre de l'observer au bout de 8 s.
+  setTimeout(function () { try { obs.disconnect(); } catch (e) {} }, 8000);
+  // 4) L'utilisateur reprend définitivement la main dès qu'il défile lui-même.
+  function userStop() { userStopped = true; try { obs.disconnect(); } catch (e) {} }
+  window.addEventListener('wheel', userStop, { passive: true, once: true });
+  window.addEventListener('touchmove', userStop, { passive: true, once: true });
+})();
+</script>
 </body>
 </html>
