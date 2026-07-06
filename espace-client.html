@@ -236,6 +236,17 @@ class Component extends DCLogic {
   static API_BASE = 'https://api.redibat.fr';
   static FOUNDER_EMAIL = 'yannsokolpro@gmail.com';
 
+  // Valide une URL de téléchargement renvoyée par l'API avant toute navigation : https
+  // obligatoire ET hôte attendu (l'API elle-même, ou le stockage objet Cloudflare R2).
+  static isTrustedDownloadUrl(u) {
+    try {
+      const url = new URL(u, Component.API_BASE);
+      if (url.protocol !== 'https:') return false;
+      const h = url.hostname.toLowerCase();
+      return h === 'api.redibat.fr' || h.endsWith('.r2.cloudflarestorage.com');
+    } catch (_) { return false; }
+  }
+
   state = {
     showPwd: false,
     loggedIn: false,
@@ -321,7 +332,10 @@ class Component extends DCLogic {
           // Mode R2 : URL pré-signée → navigation directe (déclenche le téléchargement).
           const data = await resp.json();
           this.setState({ downloading: false });
-          if (data && data.url) { window.location.href = data.url; return; }
+          // SÉCURITÉ : ne suivre l'URL renvoyée par l'API que si elle est en https ET pointe
+          // vers un hôte attendu (l'API ou le stockage R2). Évite qu'une réponse inattendue
+          // (backend compromis / mal configuré) redirige vers une URL arbitraire (open-redirect).
+          if (data && data.url && Component.isTrustedDownloadUrl(data.url)) { window.location.href = data.url; return; }
           this.setState({ downloadError: 'Lien de téléchargement indisponible. Réessayez.' });
           return;
         }
