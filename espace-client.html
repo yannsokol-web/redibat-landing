@@ -118,7 +118,7 @@
 
           <div style="margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--a-border-soft); text-align: center;">
             <p style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 14px; color: var(--a-muted); margin: 0 0 14px;">Pas encore de compte ?</p>
-            <a href="mailto:contact@redibat.fr" style="display: inline-flex; align-items: center; gap: 9px; text-decoration: none;
+            <a href="/#contact" style="display: inline-flex; align-items: center; gap: 9px; text-decoration: none;
                    font-family: 'IBM Plex Mono', monospace; font-size: 12px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: #1f3a5c;
                    background: #ffffff; border: 1px solid var(--a-border); padding: 13px 24px; border-radius: 100px; transition: border-color .18s ease, background .18s ease;"
                style-hover="border-color: var(--a-blue); background: var(--a-sel);">
@@ -200,9 +200,9 @@
 
       <div>
         <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-faint); margin-bottom: 18px;">Contact</div>
-        <a href="mailto:contact@redibat.fr" style="display: inline-flex; align-items: center; gap: 9px; font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 14.5px; color: var(--text-soft); text-decoration: none; transition: color .18s ease; margin-bottom: 20px;" style-hover="color: var(--cyan);">
+        <a href="/#contact" style="display: inline-flex; align-items: center; gap: 9px; font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 14.5px; color: var(--text-soft); text-decoration: none; transition: color .18s ease; margin-bottom: 20px;" style-hover="color: var(--cyan);">
           <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"></rect><polyline points="3 7 12 13 21 7"></polyline></svg>
-          contact@redibat.fr
+          Nous contacter
         </a>
         <a href="https://www.linkedin.com/company/r%C3%A9dibat" target="_blank" rel="noopener" aria-label="Rédibat sur LinkedIn"
            style="display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 10px;
@@ -345,7 +345,7 @@ class Component extends DCLogic {
         return;
       }
       if (resp.status === 403) {
-        this.setState({ downloading: false, downloadError: 'Votre licence n’est pas active. Contactez-nous à contact@redibat.fr.' });
+        this.setState({ downloading: false, downloadError: 'Votre licence n’est pas active. Contactez-nous depuis redibat.fr/#contact.' });
         return;
       }
       if (resp.status === 503) {

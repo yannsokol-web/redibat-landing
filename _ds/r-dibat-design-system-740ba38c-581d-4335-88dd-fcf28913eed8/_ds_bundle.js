@@ -778,12 +778,12 @@ function SiteFooter() {
       gap: 10
     }
   }, /*#__PURE__*/React.createElement("a", {
-    href: "mailto:contact@redibat.fr",
+    href: "/#contact",
     style: {
       color: "var(--text-soft)",
       textDecoration: "none"
     }
-  }, "contact@redibat.fr"), /*#__PURE__*/React.createElement("span", {
+  }, "Nous contacter"), /*#__PURE__*/React.createElement("span", {
     style: {
       width: 6,
       height: 6,
