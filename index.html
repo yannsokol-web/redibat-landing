@@ -2,6 +2,12 @@
 <html>
 <head>
 <meta charset="utf-8">
+<!-- Content-Security-Policy (défense en profondeur). GitHub Pages ne permet pas d'en-tête
+     serveur ; cette meta borne surtout les destinations réseau (connect-src) pour limiter
+     l'exfiltration en cas de XSS. 'unsafe-inline'/'unsafe-eval' sont requis par le runtime dc
+     (scripts inline + new Function). Turnstile (challenges.cloudflare.com) explicitement listé.
+     NB : frame-ancestors est ignoré en <meta> (anti-clickjacking = à traiter par en-tête/JS). -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; img-src 'self' data:; font-src 'self' data: https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://challenges.cloudflare.com; connect-src 'self' https://api.redibat.fr https://challenges.cloudflare.com; frame-src 'self' https://challenges.cloudflare.com">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="google-site-verification" content="mhPTCP68TrpTcAmag8yncBxiQrTVsYGOVHU3YdWS2K8">
 <title>Rédibat — Logiciel de rédaction de CCTP hors ligne pour le bâtiment</title>
