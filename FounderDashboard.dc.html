@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/logos/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/assets/logos/favicon-16.png">
+<link rel="apple-touch-icon" href="/assets/logos/favicon-256.png">
+<script>/* Garde-fou (cosmétique) : réservé à une session ayant ouvert l'accès fondateur depuis l'espace client. */try{if(sessionStorage.getItem('redibat_founder')!=='1')location.replace('EspaceClient.dc.html');}catch(e){}</script>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <title>Espace fondateur — Tableau de bord | Rédibat</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="stylesheet" href="_ds/r-dibat-design-system-740ba38c-581d-4335-88dd-fcf28913eed8/tokens/fonts.css">
+  <link rel="stylesheet" href="_ds/r-dibat-design-system-740ba38c-581d-4335-88dd-fcf28913eed8/tokens/colors.css">
+  <link rel="stylesheet" href="_ds/r-dibat-design-system-740ba38c-581d-4335-88dd-fcf28913eed8/tokens/typography.css">
+  <link rel="stylesheet" href="_ds/r-dibat-design-system-740ba38c-581d-4335-88dd-fcf28913eed8/tokens/spacing.css">
+  <link rel="stylesheet" href="_ds/r-dibat-design-system-740ba38c-581d-4335-88dd-fcf28913eed8/styles.css">
+  <script src="_ds/r-dibat-design-system-740ba38c-581d-4335-88dd-fcf28913eed8/_ds_bundle.js"></script>
+  <style>html, body { margin: 0; background: var(--a-bg); }</style>
+</helmet>
+
+<div style="min-height: 100vh; background: var(--a-bg); font-family: 'Hanken Grotesk', system-ui, sans-serif;">
+
+  <header style="position: sticky; top: 0; z-index: 40; background: rgba(255,255,255,0.85); backdrop-filter: blur(12px); border-bottom: 1px solid var(--a-border);">
+    <div style="max-width: 1180px; margin: 0 auto; padding: 13px 28px; display: flex; align-items: center; justify-content: space-between; gap: 20px;">
+      <div style="display: flex; align-items: center; gap: 14px;">
+        <img src="uploads/redibat-lockup-h.png" alt="Rédibat" style="height: 30px; width: auto; display: block;">
+        <span style="font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--a-blue); background: rgba(47,99,212,0.1); padding: 5px 10px; border-radius: 100px;">Espace fondateur</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 18px;">
+        <span style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 13.5px; color: var(--a-muted);">contact@redibat.fr</span>
+        <a href="EspaceClient.dc.html" style="display: inline-flex; align-items: center; gap: 7px; text-decoration: none; font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: #1f3a5c; border: 1px solid var(--a-border); padding: 8px 14px; border-radius: 100px; transition: border-color .16s ease, background .16s ease;" style-hover="border-color: var(--a-blue); background: var(--a-sel);">Se déconnecter</a>
+      </div>
+    </div>
+  </header>
+
+  <main style="max-width: 1180px; margin: 0 auto; padding: 40px 28px 72px;">
+    <div style="margin-bottom: 32px;">
+      <h1 style="font-family: 'Newsreader', Georgia, serif; font-weight: 500; letter-spacing: -0.02em; font-size: 34px; color: #16314f; margin: 0 0 6px;">Tableau de bord</h1>
+      <p style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 15px; color: var(--a-muted); margin: 0;">Gestion des utilisateurs, licences, téléchargements et retours.</p>
+    </div>
+
+    <!-- Stats -->
+    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; margin-bottom: 24px;">
+      <sc-for list="{{ stats }}" as="s" hint-placeholder-count="4">
+        <div style="background: #ffffff; border: 1px solid var(--a-border); border-radius: 14px; padding: 20px 22px; box-shadow: 0 1px 2px rgba(31,58,92,0.04);">
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--a-muted); margin-bottom: 12px;">{{ s.label }}</div>
+          <div style="display: flex; align-items: baseline; gap: 9px;">
+            <span style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 30px; font-weight: 700; color: #16314f;">{{ s.value }}</span>
+            <span style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 12.5px; font-weight: 500; color: {{ s.deltaColor }};">{{ s.delta }}</span>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+
+    <!-- Two columns -->
+    <div style="display: grid; grid-template-columns: 1.65fr 1fr; gap: 24px; align-items: start;">
+
+      <!-- Users -->
+      <div style="background: #ffffff; border: 1px solid var(--a-border); border-radius: 16px; box-shadow: 0 1px 2px rgba(31,58,92,0.04); overflow: hidden;">
+        <div style="display: flex; align-items: center; justify-content: space-between; padding: 20px 24px; border-bottom: 1px solid var(--a-border-soft);">
+          <h2 style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 17px; font-weight: 700; color: #16314f; margin: 0;">Utilisateurs</h2>
+          <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--a-muted);">{{ userCount }} comptes</span>
+        </div>
+        <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse; min-width: 560px;">
+          <thead>
+            <tr>
+              <th style="text-align: left; font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--a-faint); font-weight: 500; padding: 12px 24px;">Adresse e-mail</th>
+              <th style="text-align: left; font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--a-faint); font-weight: 500; padding: 12px 12px;">Société</th>
+              <th style="text-align: left; font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--a-faint); font-weight: 500; padding: 12px 12px;">Licence</th>
+              <th style="text-align: left; font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--a-faint); font-weight: 500; padding: 12px 12px;">Abonnement</th>
+              <th style="text-align: left; font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--a-faint); font-weight: 500; padding: 12px 24px;">Statut</th>
+            </tr>
+          </thead>
+          <tbody>
+            <sc-for list="{{ users }}" as="u" hint-placeholder-count="6">
+              <tr style="border-top: 1px solid var(--a-border-soft);">
+                <td style="padding: 14px 24px; font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 14px; color: #16314f; font-weight: 500;">{{ u.email }}</td>
+                <td style="padding: 14px 12px; font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 13.5px; color: var(--a-text);">{{ u.company }}</td>
+                <td style="padding: 14px 12px;">
+                  <span style="display: inline-block; font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; letter-spacing: 0.06em; padding: 4px 11px; border-radius: 100px; color: {{ u.licColor }}; background: {{ u.licBg }};">{{ u.licence }}</span>
+                </td>
+                <td style="padding: 14px 12px;">
+                  <div style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 13px; color: #16314f;">{{ u.duration }}</div>
+                  <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--a-muted); margin-top: 2px;">{{ u.period }}</div>
+                </td>
+                <td style="padding: 14px 24px;">
+                  <span style="display: inline-block; font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; letter-spacing: 0.04em; text-transform: uppercase; padding: 4px 10px; border-radius: 100px; color: {{ u.statusColor }}; background: {{ u.statusBg }};">{{ u.status }}</span>
+                </td>
+              </tr>
+            </sc-for>
+          </tbody>
+        </table>
+        </div>
+      </div>
+
+      <!-- Side column -->
+      <div style="display: flex; flex-direction: column; gap: 24px;">
+
+        <div style="background: #ffffff; border: 1px solid var(--a-border); border-radius: 16px; box-shadow: 0 1px 2px rgba(31,58,92,0.04); overflow: hidden;">
+          <div style="padding: 18px 22px; border-bottom: 1px solid var(--a-border-soft);">
+            <h2 style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 16px; font-weight: 700; color: #16314f; margin: 0;">Rapports de bugs</h2>
+          </div>
+          <sc-for list="{{ bugs }}" as="b" hint-placeholder-count="3">
+            <div style="padding: 15px 22px; border-top: 1px solid var(--a-border-soft);">
+              <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 5px;">
+                <span style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 14px; font-weight: 600; color: #16314f;">{{ b.title }}</span>
+                <span style="flex: none; font-family: 'IBM Plex Mono', monospace; font-size: 9.5px; letter-spacing: 0.04em; text-transform: uppercase; padding: 3px 8px; border-radius: 100px; color: {{ b.sevColor }}; background: {{ b.sevBg }};">{{ b.severity }}</span>
+              </div>
+              <div style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 12.5px; color: var(--a-muted);">{{ b.email }} · {{ b.date }}</div>
+            </div>
+          </sc-for>
+        </div>
+
+        <div style="background: #ffffff; border: 1px solid var(--a-border); border-radius: 16px; box-shadow: 0 1px 2px rgba(31,58,92,0.04); overflow: hidden;">
+          <div style="padding: 18px 22px; border-bottom: 1px solid var(--a-border-soft);">
+            <h2 style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 16px; font-weight: 700; color: #16314f; margin: 0;">Messages</h2>
+          </div>
+          <sc-for list="{{ messages }}" as="m" hint-placeholder-count="3">
+            <div style="padding: 15px 22px; border-top: 1px solid var(--a-border-soft);">
+              <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 4px;">
+                <span style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 13.5px; font-weight: 600; color: #16314f;">{{ m.email }}</span>
+                <span style="flex: none; font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--a-faint);">{{ m.date }}</span>
+              </div>
+              <div style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 13px; color: var(--a-text); margin-bottom: 2px;">{{ m.subject }}</div>
+              <div style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 12.5px; line-height: 1.45; color: var(--a-muted); text-wrap: pretty;">{{ m.snippet }}</div>
+            </div>
+          </sc-for>
+        </div>
+
+      </div>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals() {
+    const teal = 'var(--a-teal)', tealBg = 'rgba(47,138,114,0.12)';
+    const amber = '#b7791f', amberBg = 'rgba(183,121,31,0.12)';
+    const red = 'var(--a-red)', redBg = 'rgba(226,59,46,0.10)';
+    const muted = 'var(--a-muted)', mutedBg = 'rgba(138,148,163,0.14)';
+    const blue = 'var(--a-blue)', blueBg = 'rgba(47,99,212,0.12)';
+    const users = [
+      { email: 'a.morel@ateliermorel.fr', company: 'Atelier Morel Architecture', licence: 'PRO', duration: '12 mois', start: '02/07/2026', end: '02/07/2027', status: 'Actif' },
+      { email: 'contact@bet-durand.fr', company: 'BET Durand', licence: 'MAX', duration: '12 mois', start: '28/06/2026', end: '28/06/2027', status: 'Actif' },
+      { email: 'j.lefevre@ecobat-eco.fr', company: 'Écobat Économistes', licence: 'MAX', duration: '12 mois', start: '21/06/2026', end: '21/06/2027', status: 'Actif' },
+      { email: 's.nguyen@moe-atlantique.fr', company: 'MOE Atlantique', licence: 'PRO', duration: '1 mois', start: '14/06/2026', end: '14/07/2026', status: 'En attente' },
+      { email: 'p.girard@girardconstruction.fr', company: 'Girard Construction', licence: 'PRO', duration: '12 mois', start: '09/06/2026', end: '09/06/2027', status: 'Actif' },
+      { email: 'contact@studio-plan-b.fr', company: 'Studio Plan B', licence: 'MAX', duration: '1 mois', start: '30/05/2026', end: '30/06/2026', status: 'En attente' },
+    ].map(u => ({
+      ...u,
+      period: u.start + ' → ' + u.end,
+      licColor: u.licence === 'MAX' ? '#ffffff' : blue,
+      licBg: u.licence === 'MAX' ? 'linear-gradient(135deg, #185fcb, #30c5ec)' : blueBg,
+      statusColor: u.status === 'Actif' ? teal : amber,
+      statusBg: u.status === 'Actif' ? tealBg : amberBg,
+    }));
+    const bugs = [
+      { title: 'Export DPGF : colonne Qté vide', email: 'j.lefevre@ecobat-eco.fr', date: '03/07', severity: 'Élevée' },
+      { title: 'Lenteur ouverture bibliothèque', email: 'contact@bet-durand.fr', date: '01/07', severity: 'Moyenne' },
+      { title: 'Coquille libellé « page de garde »', email: 'a.morel@ateliermorel.fr', date: '27/06', severity: 'Faible' },
+    ].map(b => ({
+      ...b,
+      sevColor: b.severity === 'Élevée' ? red : (b.severity === 'Moyenne' ? amber : muted),
+      sevBg: b.severity === 'Élevée' ? redBg : (b.severity === 'Moyenne' ? amberBg : mutedBg),
+    }));
+    const messages = [
+      { email: 's.nguyen@moe-atlantique.fr', subject: 'Demande de licence multiposte', snippet: 'Bonjour, nous sommes 4 économistes et souhaitons équiper tous les postes…', date: '04/07' },
+      { email: 'p.girard@girardconstruction.fr', subject: 'Import de CCTP au format .docx', snippet: 'Est-il possible d\u2019importer nos anciens CCTP Word pour alimenter la bibliothèque ?', date: '02/07' },
+      { email: 'contact@studio-plan-b.fr', subject: 'Question tarif', snippet: 'Merci pour la démo. Quels sont vos tarifs pour un poste unique ?', date: '29/06' },
+    ];
+    const stats = [
+      { label: 'Utilisateurs', value: '128', delta: '+6 cette semaine', deltaColor: teal },
+      { label: 'Téléchargements', value: '112', delta: '+9', deltaColor: teal },
+      { label: 'Bugs ouverts', value: '3', delta: '1 élevée', deltaColor: red },
+      { label: 'Messages non lus', value: '3', delta: 'à traiter', deltaColor: amber },
+    ];
+    return { users, bugs, messages, stats, userCount: users.length };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,7 @@
+/* ============================================================
+   Rédibat — Webfonts
+   All three families are Google Fonts (free, official choices
+   used by the production landing page). Imported here so the
+   compiler ships the @font-face closure to consumers.
+   ============================================================ */
+@import url('https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Newsreader:ital,wght@0,400;0,500;1,400;1,500&display=swap');

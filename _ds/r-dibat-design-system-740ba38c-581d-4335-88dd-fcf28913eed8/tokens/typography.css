@@ -1,0 +1,47 @@
+/* ============================================================
+   Rédibat — Typography tokens
+   Display:  Newsreader (serif, light weight, italic emphasis)
+   Body/UI:  Hanken Grotesk
+   Mono:     IBM Plex Mono (eyebrows, labels, coordinates, code)
+   App UI:   Segoe UI (native Windows surface)
+   ============================================================ */
+
+:root {
+  --display: "Newsreader", Georgia, "Times New Roman", serif; /* @kind font */
+  --body:    "Hanken Grotesk", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; /* @kind font */
+  --mono:    "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace; /* @kind font */
+  --app-ui:  "Segoe UI", system-ui, -apple-system, "Helvetica Neue", sans-serif; /* @kind font */
+
+  /* Semantic font aliases */
+  --font-heading: var(--display);
+  --font-body:    var(--body);
+  --font-label:   var(--mono);
+
+  /* ---- Display / heading scale (fluid, serif) ---- */
+  --fs-hero:    clamp(2.6rem, 6.2vw, 4.3rem); /* @kind font */
+  --fs-h2:      clamp(2rem, 4vw, 2.8rem); /* @kind font */
+  --fs-h3:      1.24rem;                        /* @kind font */
+  --lh-display: 1.06; /* @kind font */
+  --ls-display: -0.022em; /* @kind font */
+  --wt-display: 400;                            /* @kind font */
+
+  /* ---- Body scale ---- */
+  --fs-lead: clamp(1.05rem, 2vw, 1.2rem);       /* @kind font */
+  --fs-body: 1rem; /* @kind font */
+  --fs-sm:   0.95rem; /* @kind font */
+  --lh-body: 1.6; /* @kind font */
+
+  /* ---- Mono / label scale ---- */
+  --fs-eyebrow: 12.5px; /* @kind font */
+  --fs-label:   12px; /* @kind font */
+  --fs-micro:   11.5px; /* @kind font */
+  --ls-eyebrow: 0.14em; /* @kind font */
+  --ls-label:   0.04em; /* @kind font */
+  --ls-caps:    0.06em; /* @kind font */
+
+  /* Weights */
+  --wt-regular: 400; /* @kind font */
+  --wt-medium:  500; /* @kind font */
+  --wt-semibold:600; /* @kind font */
+  --wt-bold:    700; /* @kind font */
+}

@@ -1,0 +1,72 @@
+/* ============================================================
+   Rédibat — Color tokens
+   Source of truth: yannsokol-web/redibat-landing (index.html :root)
+   Two surfaces:
+     • The MARKETING surface (dark navy, blueprint texture)
+     • The APP surface (light, the Windows desktop product)
+   ============================================================ */
+
+:root {
+  /* ---- Marine / navy scale (dark marketing surface) ---- */
+  --marine-950: oklch(0.15 0.045 256);
+  --marine-900: oklch(0.18 0.052 255);
+  --marine-850: oklch(0.205 0.058 254);
+  --marine-800: oklch(0.235 0.063 253);
+  --marine-700: oklch(0.275 0.072 252);
+  --marine-600: oklch(0.34 0.088 250);
+
+  /* ---- Brand gradient (deep navy → mid → cyan) ---- */
+  --brand-navy-deep: #0b317c;
+  --brand-navy:      #185fcb;
+  --brand-cyan:      #30c5ec;
+  --brand-grad: linear-gradient(135deg, #0b317c 0%, #185fcb 55%, #30c5ec 100%); /* @kind color */
+  /* Text-clip variant used on hero emphasis */
+  --brand-grad-text: linear-gradient(105deg, #4a9ef0 0%, #38c6ec 100%); /* @kind color */
+
+  /* ---- Accents (on dark) ---- */
+  --accent:        oklch(0.70 0.145 248);
+  --accent-bright: oklch(0.80 0.115 224);
+  --accent-soft:   oklch(0.70 0.145 248 / 0.14);
+  --accent-line:   oklch(0.72 0.13 240 / 0.32);
+  --cyan:          oklch(0.80 0.115 224);
+
+  /* ---- Text (on dark) ---- */
+  --text:       #eaf2fb;
+  --text-soft:  #a6bdd6;
+  --text-faint: #6c84a1;
+  --text-dim:   #4f627d;
+
+  /* ---- Hairlines & surfaces (on dark) ---- */
+  --line:        rgba(150, 195, 240, 0.085);
+  --line-strong: rgba(150, 195, 240, 0.16);
+  --card:        rgba(255, 255, 255, 0.022);
+  --card-border: rgba(150, 195, 240, 0.12);
+
+  /* ---- Semantic aliases (marketing) ---- */
+  --bg:            var(--marine-800);
+  --surface-card:  var(--card);
+  --border-card:   var(--card-border);
+  --text-body:     var(--text-soft);
+  --text-heading:  var(--text);
+  --text-muted:    var(--text-faint);
+
+  /* ============================================================
+     APP SURFACE — the light Windows desktop product palette
+     ============================================================ */
+  --a-bg:         #eef1f4;  /* window chrome / canvas */
+  --a-bg-2:       #f1f3f6;  /* home scroll canvas    */
+  --a-bg-3:       #f5f7fa;  /* editor canvas         */
+  --a-panel:      #ffffff;  /* panels, cards         */
+  --a-border:     #e3e7ec;
+  --a-border-soft:#edf0f3;
+  --a-navy:       #1f3a5c;  /* headings              */
+  --a-navy-deep:  #16314f;
+  --a-text:       #3c4654;  /* body                  */
+  --a-muted:      #8a94a3;
+  --a-faint:      #a9b2bd;
+  --a-sel:        #e6effb;  /* selected row tint     */
+  --a-blue:       #2f63d4;  /* primary action        */
+  --a-blue-deep:  #2350bd;
+  --a-teal:       #2f8a72;  /* success / date        */
+  --a-red:        #e23b2e;  /* destructive / accent  */
+}

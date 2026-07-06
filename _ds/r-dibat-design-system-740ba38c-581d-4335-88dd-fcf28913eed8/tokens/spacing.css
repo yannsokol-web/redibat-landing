@@ -1,0 +1,55 @@
+/* ============================================================
+   Rédibat — Spacing, radii, shadows, motion
+   ============================================================ */
+
+:root {
+  /* ---- Spacing scale (px) ---- */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 24px;
+  --sp-6: 32px;
+  --sp-7: 44px;
+  --sp-8: 64px;
+  --sp-9: 96px;
+
+  /* ---- Layout widths ---- */
+  --wrap:        1200px;
+  --wrap-narrow: 1060px;
+  --wrap-wide:   1460px;
+  --gutter:      32px;
+
+  /* ---- Radii (moderate, never pill-everything) ---- */
+  --r-sm:   8px;
+  --r-md:   9px;   /* buttons-as-pills use 100px; cards/inputs sit here */
+  --r-lg:   12px;  /* app cards / windows */
+  --r-xl:   14px;  /* feature cards       */
+  --r-2xl:  16px;  /* showcase frame      */
+  --r-pill: 100px; /* badges, CTA buttons */
+
+  /* ---- Grid texture ---- */
+  --grid-size: 58px; /* @kind spacing */
+
+  /* ---- Shadows (soft, no harsh relief) ---- */
+  /* On dark: glow-style shadows tinted with brand */
+  --shadow-cta:       0 6px 22px oklch(0.70 0.145 248 / 0.28);
+  --shadow-cta-hover: 0 10px 30px oklch(0.70 0.145 248 / 0.42);
+  --shadow-frame:
+      0 0 0 1px rgba(0,0,0,0.25),
+      0 50px 100px -36px rgba(0,0,0,0.78),
+      0 0 120px -30px oklch(0.74 0.125 245 / 0.35);
+
+  /* On light app surface: very soft, low elevation */
+  --a-shadow-card:  0 1px 2px rgba(20,40,70,0.04);
+  --a-shadow-hover: 0 8px 24px -10px rgba(20,40,70,0.20);
+  --a-shadow-menu:  0 16px 40px -12px rgba(20,40,70,0.30);
+  --a-shadow-btn:   0 3px 9px -2px rgba(35,80,189,0.45);
+
+  /* ---- Motion ---- */
+  --ease-out:    cubic-bezier(0.2, 0.8, 0.2, 1); /* @kind other */
+  --dur-fast:    0.15s; /* @kind other */
+  --dur-med:     0.18s; /* @kind other */
+  --dur-slow:    0.35s; /* @kind other */
+  --dur-reveal:  0.85s; /* @kind other */
+}
