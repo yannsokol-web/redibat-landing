@@ -38,7 +38,6 @@
   <link rel="stylesheet" href="_ds/r-dibat-design-system-740ba38c-581d-4335-88dd-fcf28913eed8/tokens/spacing.css">
   <link rel="stylesheet" href="_ds/r-dibat-design-system-740ba38c-581d-4335-88dd-fcf28913eed8/styles.css">
   <script src="_ds/r-dibat-design-system-740ba38c-581d-4335-88dd-fcf28913eed8/_ds_bundle.js"></script>
-  <script src="image-slot.js"></script>
   <style>html, body { margin: 0; background: #ffffff; }</style>
 </helmet>
 
@@ -95,14 +94,72 @@
       </div>
     </section>
 
-    <section style="max-width: 1280px; margin: 0 auto; padding: 8px 32px 24px;">
-      <div style="position: relative;">
-        <image-slot id="page-cctp-shot" style="display: block; width: 100%; height: 620px;" shape="rounded" radius="16" fit="contain" src="uploads/page-cctp-shot.webp" placeholder="Aperçu — Rédaction du CCTP"></image-slot>
-        <span style="position: absolute; top: -6px; left: -6px; width: 16px; height: 16px; border-top: 1.5px solid rgba(47,99,212,0.5); border-left: 1.5px solid rgba(47,99,212,0.5);"></span>
-        <span style="position: absolute; top: -6px; right: -6px; width: 16px; height: 16px; border-top: 1.5px solid rgba(47,99,212,0.5); border-right: 1.5px solid rgba(47,99,212,0.5);"></span>
-        <span style="position: absolute; bottom: -6px; left: -6px; width: 16px; height: 16px; border-bottom: 1.5px solid rgba(47,99,212,0.5); border-left: 1.5px solid rgba(47,99,212,0.5);"></span>
-        <span style="position: absolute; bottom: -6px; right: -6px; width: 16px; height: 16px; border-bottom: 1.5px solid rgba(47,99,212,0.5); border-right: 1.5px solid rgba(47,99,212,0.5);"></span>
-      </div>
+    <section style="max-width: 1160px; margin: 0 auto; padding: 8px 32px 24px;">
+
+      <!-- 01 · Page de travail -->
+      <figure style="margin: 0 0 92px;">
+        <figcaption style="max-width: 660px; margin: 0 auto 30px; text-align: center;">
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--a-blue); margin-bottom: 14px;">01 · Page de travail</div>
+          <h2 style="font-family: 'Newsreader', Georgia, serif; font-weight: 500; letter-spacing: -0.02em; line-height: 1.14; font-size: clamp(24px, 3vw, 31px); color: #16314f; margin: 0 0 12px;">Structurez l'affaire, article par article</h2>
+          <p style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: clamp(15px, 1.4vw, 16.5px); line-height: 1.6; color: var(--a-text); margin: 0; text-wrap: pretty;">Gérez toute l'arborescence de votre affaire : lots, articles, descriptifs techniques et localisations, réunis dans un seul espace de travail.</p>
+        </figcaption>
+        <div style="position: relative;">
+          <img src="assets/screenshots/cctp-1-page-travail.png" srcset="assets/screenshots/cctp-1-page-travail.png 1x, assets/screenshots/cctp-1-page-travail@2x.png 2x" alt="Page de travail Rédibat : arborescence des lots et articles à gauche, descriptif et localisation de l'article à droite." width="1120" height="672" decoding="async" fetchpriority="high" style="display: block; width: 100%; height: auto; border-radius: 14px; border: 1px solid var(--a-border); box-shadow: 0 26px 54px -28px rgba(31,58,92,0.42), 0 6px 18px -10px rgba(31,58,92,0.12);">
+          <span style="position: absolute; top: -6px; left: -6px; width: 16px; height: 16px; border-top: 1.5px solid rgba(47,99,212,0.5); border-left: 1.5px solid rgba(47,99,212,0.5);"></span>
+          <span style="position: absolute; top: -6px; right: -6px; width: 16px; height: 16px; border-top: 1.5px solid rgba(47,99,212,0.5); border-right: 1.5px solid rgba(47,99,212,0.5);"></span>
+          <span style="position: absolute; bottom: -6px; left: -6px; width: 16px; height: 16px; border-bottom: 1.5px solid rgba(47,99,212,0.5); border-left: 1.5px solid rgba(47,99,212,0.5);"></span>
+          <span style="position: absolute; bottom: -6px; right: -6px; width: 16px; height: 16px; border-bottom: 1.5px solid rgba(47,99,212,0.5); border-right: 1.5px solid rgba(47,99,212,0.5);"></span>
+        </div>
+      </figure>
+
+      <!-- 02 · Bibliothèque -->
+      <figure style="margin: 0 0 92px;">
+        <figcaption style="max-width: 660px; margin: 0 auto 30px; text-align: center;">
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--a-blue); margin-bottom: 14px;">02 · Bibliothèque</div>
+          <h2 style="font-family: 'Newsreader', Georgia, serif; font-weight: 500; letter-spacing: -0.02em; line-height: 1.14; font-size: clamp(24px, 3vw, 31px); color: #16314f; margin: 0 0 12px;">Rédigez par glisser-déposer</h2>
+          <p style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: clamp(15px, 1.4vw, 16.5px); line-height: 1.6; color: var(--a-text); margin: 0; text-wrap: pretty;">Alimentez votre CCTP en piochant vos articles dans une bibliothèque personnalisable, d'un simple glisser-déposer vers l'affaire en cours.</p>
+        </figcaption>
+        <div style="position: relative;">
+          <img src="assets/screenshots/cctp-2-bibliotheque.png" srcset="assets/screenshots/cctp-2-bibliotheque.png 1x, assets/screenshots/cctp-2-bibliotheque@2x.png 2x" alt="Espace de travail Rédibat avec la bibliothèque personnalisable ouverte à gauche pour glisser-déposer des articles dans le CCTP." width="1120" height="672" loading="lazy" decoding="async" style="display: block; width: 100%; height: auto; border-radius: 14px; border: 1px solid var(--a-border); box-shadow: 0 26px 54px -28px rgba(31,58,92,0.42), 0 6px 18px -10px rgba(31,58,92,0.12);">
+          <span style="position: absolute; top: -6px; left: -6px; width: 16px; height: 16px; border-top: 1.5px solid rgba(47,99,212,0.5); border-left: 1.5px solid rgba(47,99,212,0.5);"></span>
+          <span style="position: absolute; top: -6px; right: -6px; width: 16px; height: 16px; border-top: 1.5px solid rgba(47,99,212,0.5); border-right: 1.5px solid rgba(47,99,212,0.5);"></span>
+          <span style="position: absolute; bottom: -6px; left: -6px; width: 16px; height: 16px; border-bottom: 1.5px solid rgba(47,99,212,0.5); border-left: 1.5px solid rgba(47,99,212,0.5);"></span>
+          <span style="position: absolute; bottom: -6px; right: -6px; width: 16px; height: 16px; border-bottom: 1.5px solid rgba(47,99,212,0.5); border-right: 1.5px solid rgba(47,99,212,0.5);"></span>
+        </div>
+      </figure>
+
+      <!-- 03 · Page de garde -->
+      <figure style="margin: 0 0 92px;">
+        <figcaption style="max-width: 660px; margin: 0 auto 30px; text-align: center;">
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--a-blue); margin-bottom: 14px;">03 · Page de garde</div>
+          <h2 style="font-family: 'Newsreader', Georgia, serif; font-weight: 500; letter-spacing: -0.02em; line-height: 1.14; font-size: clamp(24px, 3vw, 31px); color: #16314f; margin: 0 0 12px;">Une page de garde à votre image</h2>
+          <p style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: clamp(15px, 1.4vw, 16.5px); line-height: 1.6; color: var(--a-text); margin: 0; text-wrap: pretty;">Composez la page de garde et positionnez librement les logos et coordonnées de chaque intervenant : maître d'ouvrage, architecte, BET…</p>
+        </figcaption>
+        <div style="position: relative;">
+          <img src="assets/screenshots/cctp-3-page-de-garde.png" srcset="assets/screenshots/cctp-3-page-de-garde.png 1x, assets/screenshots/cctp-3-page-de-garde@2x.png 2x" alt="Éditeur de page de garde Rédibat : formulaire des intervenants à gauche, aperçu de la page de garde avec logos et contacts à droite." width="1120" height="835" loading="lazy" decoding="async" style="display: block; width: 100%; height: auto; border-radius: 14px; border: 1px solid var(--a-border); box-shadow: 0 26px 54px -28px rgba(31,58,92,0.42), 0 6px 18px -10px rgba(31,58,92,0.12);">
+          <span style="position: absolute; top: -6px; left: -6px; width: 16px; height: 16px; border-top: 1.5px solid rgba(47,99,212,0.5); border-left: 1.5px solid rgba(47,99,212,0.5);"></span>
+          <span style="position: absolute; top: -6px; right: -6px; width: 16px; height: 16px; border-top: 1.5px solid rgba(47,99,212,0.5); border-right: 1.5px solid rgba(47,99,212,0.5);"></span>
+          <span style="position: absolute; bottom: -6px; left: -6px; width: 16px; height: 16px; border-bottom: 1.5px solid rgba(47,99,212,0.5); border-left: 1.5px solid rgba(47,99,212,0.5);"></span>
+          <span style="position: absolute; bottom: -6px; right: -6px; width: 16px; height: 16px; border-bottom: 1.5px solid rgba(47,99,212,0.5); border-right: 1.5px solid rgba(47,99,212,0.5);"></span>
+        </div>
+      </figure>
+
+      <!-- 04 · Mise en forme -->
+      <figure style="margin: 0;">
+        <figcaption style="max-width: 660px; margin: 0 auto 30px; text-align: center;">
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--a-blue); margin-bottom: 14px;">04 · Mise en forme</div>
+          <h2 style="font-family: 'Newsreader', Georgia, serif; font-weight: 500; letter-spacing: -0.02em; line-height: 1.14; font-size: clamp(24px, 3vw, 31px); color: #16314f; margin: 0 0 12px;">Une mise en forme maîtrisée</h2>
+          <p style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: clamp(15px, 1.4vw, 16.5px); line-height: 1.6; color: var(--a-text); margin: 0; text-wrap: pretty;">Réglez polices, titres, marges et en-têtes : votre export Word reprend fidèlement votre charte, avec un aperçu en temps réel.</p>
+        </figcaption>
+        <div style="position: relative;">
+          <img src="assets/screenshots/cctp-4-mise-en-forme.png" srcset="assets/screenshots/cctp-4-mise-en-forme.png 1x, assets/screenshots/cctp-4-mise-en-forme@2x.png 2x" alt="Réglages de mise en forme de l'export Word dans Rédibat : styles de titres et marges à gauche, aperçu du document généré à droite." width="1120" height="835" loading="lazy" decoding="async" style="display: block; width: 100%; height: auto; border-radius: 14px; border: 1px solid var(--a-border); box-shadow: 0 26px 54px -28px rgba(31,58,92,0.42), 0 6px 18px -10px rgba(31,58,92,0.12);">
+          <span style="position: absolute; top: -6px; left: -6px; width: 16px; height: 16px; border-top: 1.5px solid rgba(47,99,212,0.5); border-left: 1.5px solid rgba(47,99,212,0.5);"></span>
+          <span style="position: absolute; top: -6px; right: -6px; width: 16px; height: 16px; border-top: 1.5px solid rgba(47,99,212,0.5); border-right: 1.5px solid rgba(47,99,212,0.5);"></span>
+          <span style="position: absolute; bottom: -6px; left: -6px; width: 16px; height: 16px; border-bottom: 1.5px solid rgba(47,99,212,0.5); border-left: 1.5px solid rgba(47,99,212,0.5);"></span>
+          <span style="position: absolute; bottom: -6px; right: -6px; width: 16px; height: 16px; border-bottom: 1.5px solid rgba(47,99,212,0.5); border-right: 1.5px solid rgba(47,99,212,0.5);"></span>
+        </div>
+      </figure>
+
     </section>
 
     <section style="max-width: 1040px; margin: 0 auto; padding: 40px 32px 96px;">

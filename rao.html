@@ -38,7 +38,6 @@
   <link rel="stylesheet" href="_ds/r-dibat-design-system-740ba38c-581d-4335-88dd-fcf28913eed8/tokens/spacing.css">
   <link rel="stylesheet" href="_ds/r-dibat-design-system-740ba38c-581d-4335-88dd-fcf28913eed8/styles.css">
   <script src="_ds/r-dibat-design-system-740ba38c-581d-4335-88dd-fcf28913eed8/_ds_bundle.js"></script>
-  <script src="image-slot.js"></script>
   <style>html, body { margin: 0; background: #ffffff; }</style>
 </helmet>
 
@@ -95,14 +94,21 @@
       </div>
     </section>
 
-    <section style="max-width: 1280px; margin: 0 auto; padding: 8px 32px 24px;">
-      <div style="position: relative;">
-        <image-slot id="page-rao-shot" style="display: block; width: 100%; height: 620px;" shape="rounded" radius="16" fit="contain" src="uploads/RAO.png" placeholder="Aperçu — RAO"></image-slot>
-        <span style="position: absolute; top: -6px; left: -6px; width: 16px; height: 16px; border-top: 1.5px solid rgba(47,99,212,0.5); border-left: 1.5px solid rgba(47,99,212,0.5);"></span>
-        <span style="position: absolute; top: -6px; right: -6px; width: 16px; height: 16px; border-top: 1.5px solid rgba(47,99,212,0.5); border-right: 1.5px solid rgba(47,99,212,0.5);"></span>
-        <span style="position: absolute; bottom: -6px; left: -6px; width: 16px; height: 16px; border-bottom: 1.5px solid rgba(47,99,212,0.5); border-left: 1.5px solid rgba(47,99,212,0.5);"></span>
-        <span style="position: absolute; bottom: -6px; right: -6px; width: 16px; height: 16px; border-bottom: 1.5px solid rgba(47,99,212,0.5); border-right: 1.5px solid rgba(47,99,212,0.5);"></span>
-      </div>
+    <section style="max-width: 1160px; margin: 0 auto; padding: 8px 32px 24px;">
+      <figure style="margin: 0;">
+        <figcaption style="max-width: 660px; margin: 0 auto 30px; text-align: center;">
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--a-blue); margin-bottom: 14px;">Rapport d'analyse</div>
+          <h2 style="font-family: 'Newsreader', Georgia, serif; font-weight: 500; letter-spacing: -0.02em; line-height: 1.14; font-size: clamp(24px, 3vw, 31px); color: #16314f; margin: 0 0 12px;">Un rapport d'analyse prêt à argumenter</h2>
+          <p style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: clamp(15px, 1.4vw, 16.5px); line-height: 1.6; color: var(--a-text); margin: 0; text-wrap: pretty;">Présentation des offres, analyse lot par lot et conclusions : le rapport se pré-remplit depuis vos données pour justifier votre choix d'attributaire.</p>
+        </figcaption>
+        <div style="position: relative;">
+          <img src="assets/screenshots/rao-rapport.png" srcset="assets/screenshots/rao-rapport.png 1x, assets/screenshots/rao-rapport@2x.png 2x" alt="Rapport d'analyse des offres (RAO) dans Rédibat : présentation des offres et analyse par lot, avec les mentions de conformité au CCTP pré-rédigées." width="1120" height="672" decoding="async" fetchpriority="high" style="display: block; width: 100%; height: auto; border-radius: 14px; border: 1px solid var(--a-border); box-shadow: 0 26px 54px -28px rgba(31,58,92,0.42), 0 6px 18px -10px rgba(31,58,92,0.12);">
+          <span style="position: absolute; top: -6px; left: -6px; width: 16px; height: 16px; border-top: 1.5px solid rgba(47,99,212,0.5); border-left: 1.5px solid rgba(47,99,212,0.5);"></span>
+          <span style="position: absolute; top: -6px; right: -6px; width: 16px; height: 16px; border-top: 1.5px solid rgba(47,99,212,0.5); border-right: 1.5px solid rgba(47,99,212,0.5);"></span>
+          <span style="position: absolute; bottom: -6px; left: -6px; width: 16px; height: 16px; border-bottom: 1.5px solid rgba(47,99,212,0.5); border-left: 1.5px solid rgba(47,99,212,0.5);"></span>
+          <span style="position: absolute; bottom: -6px; right: -6px; width: 16px; height: 16px; border-bottom: 1.5px solid rgba(47,99,212,0.5); border-right: 1.5px solid rgba(47,99,212,0.5);"></span>
+        </div>
+      </figure>
     </section>
 
     <section style="max-width: 1040px; margin: 0 auto; padding: 40px 32px 96px;">
