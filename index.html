@@ -62,6 +62,11 @@
     ]
   }
   </script>
+<style>
+    .rdb-menu{opacity:0;transform:translateY(-6px);pointer-events:none;transition:opacity .18s ease, transform .18s ease;}
+    .rdb-drop:hover .rdb-menu,.rdb-drop:focus-within .rdb-menu{opacity:1;transform:translateY(0);pointer-events:auto;}
+    .rdb-drop:hover .rdb-caret,.rdb-drop:focus-within .rdb-caret{transform:rotate(180deg);}
+  </style>
 <script src="./support.js"></script>
 </head>
 <body>
@@ -105,56 +110,33 @@
        mask-image: radial-gradient(120% 100% at 50% 0%, #000 35%, transparent 80%);">
   </div>
 
-  <!-- Header -->
-  <div style="position: sticky; top: 0; z-index: 50; background: rgba(255,255,255,0.72); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border-bottom: 1px solid var(--a-border-soft);">
-  <header style="max-width: 1200px; margin: 0 auto; padding: 14px 32px;
-       display: flex; align-items: center; justify-content: space-between; gap: 32px;">
-
-    <a href="#" style="display: inline-flex; align-items: center; text-decoration: none; flex: none;">
+  <div style="position: sticky; top: 0; z-index: 50; background: rgba(255,255,255,0.72); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border-bottom: 1px solid var(--a-border-soft); font-family: 'Hanken Grotesk', system-ui, sans-serif;">
+  <header style="max-width: 1200px; margin: 0 auto; padding: 14px 32px; display: flex; align-items: center; justify-content: space-between; gap: 32px;">
+    <a href="/" style="display: inline-flex; align-items: center; text-decoration: none; flex: none;">
       <img src="uploads/redibat-lockup-h.png" alt="Rédibat" style="height: 38px; width: auto; display: block;">
     </a>
-
     <nav style="display: flex; align-items: center; gap: 6px; white-space: nowrap;">
-
-      <!-- Produits + dropdown -->
-      <div onMouseEnter="{{ openMenu }}" onMouseLeave="{{ closeMenu }}" style="position: relative;">
-        <button type="button" onClick="{{ toggleMenu }}" style="display: inline-flex; align-items: center; gap: 6px; background: none; border: none; cursor: pointer;
-                    font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 15px; font-weight: 500; color: #1f3a5c;
-                    padding: 9px 14px; border-radius: 8px; transition: background .18s ease;" style-hover="background: rgba(31,58,92,0.05);">
+      <div class="rdb-drop" style="position: relative;">
+        <button type="button" style="display: inline-flex; align-items: center; gap: 6px; background: none; border: none; cursor: pointer; font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 15px; font-weight: 500; color: #1f3a5c; padding: 9px 14px; border-radius: 8px; transition: background .18s ease;" style-hover="background: rgba(31,58,92,0.05);">
           Produits
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="transition: transform .2s ease; transform: {{ caretTransform }};">
-            <polyline points="6 9 12 15 18 9"></polyline>
-          </svg>
+          <svg class="rdb-caret" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="transition: transform .2s ease;"><polyline points="6 9 12 15 18 9"></polyline></svg>
         </button>
-
-        <div style="position: absolute; top: 100%; left: 0; z-index: 30; padding-top: 8px; display: {{ menuDisplay }};">
-          <div style="min-width: 210px; background: #ffffff; border: 1px solid var(--a-border); border-radius: 14px;
-                    box-shadow: 0 18px 44px -18px rgba(31,58,92,0.28), 0 2px 8px rgba(31,58,92,0.06);
-                    padding: 8px; opacity: {{ menuOpacity }}; transform: translateY({{ menuShift }}); transition: opacity .18s ease, transform .18s ease;">
-          <sc-for list="{{ products }}" as="p" hint-placeholder-count="5">
-            <a href="{{ p.href }}" style="display: block; text-decoration: none; padding: 10px 14px; border-radius: 9px;
-                        font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 15px; font-weight: 500; color: #1f3a5c;
-                        transition: background .15s ease;" style-hover="background: var(--a-sel);">{{ p.name }}</a>
-          </sc-for>
+        <div class="rdb-menu" style="position: absolute; top: 100%; left: 0; z-index: 30; padding-top: 8px;">
+          <div style="min-width: 210px; background: #ffffff; border: 1px solid var(--a-border); border-radius: 14px; box-shadow: 0 18px 44px -18px rgba(31,58,92,0.28), 0 2px 8px rgba(31,58,92,0.06); padding: 8px;">
+            <a href="/cctp" style="display: block; text-decoration: none; padding: 10px 14px; border-radius: 9px; font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 15px; font-weight: 500; color: #1f3a5c; transition: background .15s ease;" style-hover="background: var(--a-sel);">CCTP</a>
+            <a href="/dpgf" style="display: block; text-decoration: none; padding: 10px 14px; border-radius: 9px; font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 15px; font-weight: 500; color: #1f3a5c; transition: background .15s ease;" style-hover="background: var(--a-sel);">DPGF</a>
+            <a href="/ouverture-des-plis" style="display: block; text-decoration: none; padding: 10px 14px; border-radius: 9px; font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 15px; font-weight: 500; color: #1f3a5c; transition: background .15s ease;" style-hover="background: var(--a-sel);">Ouverture des plis</a>
+            <a href="/tco" style="display: block; text-decoration: none; padding: 10px 14px; border-radius: 9px; font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 15px; font-weight: 500; color: #1f3a5c; transition: background .15s ease;" style-hover="background: var(--a-sel);">TCO</a>
+            <a href="/rao" style="display: block; text-decoration: none; padding: 10px 14px; border-radius: 9px; font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 15px; font-weight: 500; color: #1f3a5c; transition: background .15s ease;" style-hover="background: var(--a-sel);">RAO</a>
           </div>
         </div>
       </div>
-
-      <a href="/a-propos" style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 15px; font-weight: 500; color: #1f3a5c;
-               text-decoration: none; padding: 9px 14px; border-radius: 8px; transition: background .18s ease;" style-hover="background: rgba(31,58,92,0.05);">À propos</a>
-
-      <a href="/faq" style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 15px; font-weight: 500; color: #1f3a5c;
-               text-decoration: none; padding: 9px 14px; border-radius: 8px; transition: background .18s ease;" style-hover="background: rgba(31,58,92,0.05);">FAQ</a>
-
-      <a href="/espace-client" style="margin-left: 10px; display: inline-flex; align-items: center; text-decoration: none;
-               font-family: 'IBM Plex Mono', monospace; font-size: 12.5px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: #ffffff;
-               background: linear-gradient(135deg, #0b317c 0%, #185fcb 55%, #30c5ec 100%);
-               padding: 11px 22px; border-radius: 100px;
-               box-shadow: 0 8px 22px -8px rgba(24,95,203,0.55); transition: transform .18s ease, box-shadow .18s ease, filter .18s ease;" style-hover="transform: translateY(-1px); filter: brightness(1.06); box-shadow: 0 12px 30px -8px rgba(24,95,203,0.7);">Espace client</a>
-
+      <a href="/a-propos" style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 15px; font-weight: 500; color: #1f3a5c; text-decoration: none; padding: 9px 14px; border-radius: 8px; transition: background .18s ease;" style-hover="background: rgba(31,58,92,0.05);">À propos</a>
+      <a href="/faq" style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 15px; font-weight: 500; color: #1f3a5c; text-decoration: none; padding: 9px 14px; border-radius: 8px; transition: background .18s ease;" style-hover="background: rgba(31,58,92,0.05);">FAQ</a>
+      <a href="/espace-client" style="margin-left: 10px; display: inline-flex; align-items: center; text-decoration: none; font-family: 'IBM Plex Mono', monospace; font-size: 12.5px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: #ffffff; background: linear-gradient(135deg, #0b317c 0%, #185fcb 55%, #30c5ec 100%); padding: 11px 22px; border-radius: 100px; box-shadow: 0 8px 22px -8px rgba(24,95,203,0.55); transition: transform .18s ease, box-shadow .18s ease, filter .18s ease;" style-hover="transform: translateY(-1px); filter: brightness(1.06); box-shadow: 0 12px 30px -8px rgba(24,95,203,0.7);">Espace client</a>
     </nav>
   </header>
-  </div>
+</div>
 
   <!-- Hero -->
   <section style="position: relative; z-index: 2; max-width: 980px; margin: 0 auto; padding: 64px 32px 92px; text-align: center; min-height: calc(88vh - 64px); display: flex; flex-direction: column; align-items: center; justify-content: center;">
