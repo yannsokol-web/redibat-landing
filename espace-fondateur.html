@@ -116,6 +116,15 @@
                 <span style="flex: none; font-family: 'IBM Plex Mono', monospace; font-size: 9.5px; letter-spacing: 0.04em; text-transform: uppercase; padding: 3px 8px; border-radius: 100px; color: {{ b.sevColor }}; background: {{ b.sevBg }};">{{ b.severity }}</span>
               </div>
               <div style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 12.5px; color: var(--a-muted);">{{ b.email }} · {{ b.date }}</div>
+              <sc-if value="{{ b.hasDescription }}">
+                <div style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 13px; line-height: 1.45; color: var(--a-text); margin-top: 6px; white-space: pre-wrap; text-wrap: pretty;">{{ b.description }}</div>
+              </sc-if>
+              <sc-if value="{{ b.hasLogs }}">
+                <details style="margin-top: 8px;">
+                  <summary style="cursor: pointer; font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--a-muted); user-select: none;">Logs techniques</summary>
+                  <pre style="margin: 6px 0 0; padding: 10px 12px; background: #f6f8fa; border: 1px solid var(--a-border-soft); border-radius: 8px; font-family: 'IBM Plex Mono', monospace; font-size: 11px; line-height: 1.5; color: #16314f; white-space: pre-wrap; word-break: break-word; max-height: 260px; overflow: auto;">{{ b.logs }}</pre>
+                </details>
+              </sc-if>
             </div>
           </sc-for>
         </div>
@@ -211,10 +220,16 @@ class Component extends DCLogic {
 
     const bugs = (s.bugs || []).map((b) => {
       const sev = b.severity === 'high' ? 'Élevée' : (b.severity === 'medium' ? 'Moyenne' : 'Faible');
+      const description = b.description || '';
+      const logs = b.logs || '';
       return {
         title: b.title,
         email: b.user_email,
         date: fmtDM(b.created_at),
+        description,
+        hasDescription: !!description.trim(),
+        logs,
+        hasLogs: !!logs.trim(),
         severity: sev,
         sevColor: sev === 'Élevée' ? red : (sev === 'Moyenne' ? amber : muted),
         sevBg: sev === 'Élevée' ? redBg : (sev === 'Moyenne' ? amberBg : mutedBg),
