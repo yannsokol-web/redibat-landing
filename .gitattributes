@@ -1,0 +1,5 @@
+# React vendorisé, vérifié par SRI (attribut integrity= dans support.js) : ces fichiers
+# DOIVENT rester en LF. Sinon (core.autocrlf=true sous Windows les passe en CRLF), leurs
+# octets changent, le hash ne correspond plus au SRI, le navigateur BLOQUE React et TOUTES
+# les pages restent blanches en local. GitHub Pages sert le blob LF, donc la prod est OK.
+vendor/*.js -text
