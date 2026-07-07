@@ -14,6 +14,27 @@
     .rdb-menu{opacity:0;transform:translateY(-6px);pointer-events:none;transition:opacity .18s ease, transform .18s ease;}
     .rdb-drop:hover .rdb-menu,.rdb-drop:focus-within .rdb-menu{opacity:1;transform:translateY(0);pointer-events:auto;}
     .rdb-drop:hover .rdb-caret,.rdb-drop:focus-within .rdb-caret{transform:rotate(180deg);}
+    /* --- En-tête mobile : navigation regroupée dans un menu déroulant (< 768px) --- */
+    .rdb-mobile{display:none;position:relative;}
+    .rdb-mobile>summary.rdb-burger{list-style:none;display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:10px;color:#1f3a5c;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:background .18s ease;}
+    .rdb-mobile>summary.rdb-burger::-webkit-details-marker{display:none;}
+    .rdb-mobile>summary.rdb-burger:hover{background:rgba(31,58,92,0.05);}
+    .rdb-mobile .rdb-icon-close{display:none;}
+    .rdb-mobile[open] .rdb-icon-open{display:none;}
+    .rdb-mobile[open] .rdb-icon-close{display:block;}
+    .rdb-mobile-panel{position:absolute;top:calc(100% + 12px);right:0;z-index:60;min-width:244px;max-width:min(320px,calc(100vw - 40px));background:#fff;border:1px solid var(--a-border);border-radius:16px;padding:8px;box-shadow:0 22px 54px -20px rgba(31,58,92,0.34),0 2px 8px rgba(31,58,92,0.06);display:flex;flex-direction:column;gap:2px;animation:rdb-menu-in .18s ease;}
+    @keyframes rdb-menu-in{from{opacity:0;transform:translateY(-8px);}to{opacity:1;transform:translateY(0);}}
+    .rdb-mobile-label{font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--a-muted);padding:12px 14px 6px;}
+    .rdb-mobile-link{display:block;text-decoration:none;padding:12px 14px;border-radius:10px;font-family:'Hanken Grotesk',system-ui,sans-serif;font-size:16px;font-weight:500;color:#1f3a5c;transition:background .15s ease;}
+    .rdb-mobile-link:hover,.rdb-mobile-link:active{background:var(--a-sel);}
+    .rdb-mobile-sep{height:1px;background:var(--a-border);margin:8px 6px;}
+    .rdb-mobile-cta{display:block;text-align:center;text-decoration:none;margin-top:6px;font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:#fff;background:linear-gradient(135deg,#0b317c 0%,#185fcb 55%,#30c5ec 100%);padding:14px 22px;border-radius:100px;box-shadow:0 8px 22px -8px rgba(24,95,203,0.55);}
+    @media (prefers-reduced-motion: reduce){.rdb-mobile-panel{animation:none;}}
+    @media (max-width:768px){
+      .rdb-nav{display:none !important;}
+      .rdb-mobile{display:block;}
+      .rdb-header{padding-left:20px !important;padding-right:20px !important;gap:16px !important;}
+    }
   </style>
 <script src="./support.js"></script>
 </head>
@@ -41,11 +62,11 @@
        background-size: 58px 58px; -webkit-mask-image: radial-gradient(120% 100% at 50% 0%, #000 35%, transparent 80%); mask-image: radial-gradient(120% 100% at 50% 0%, #000 35%, transparent 80%);"></div>
 
 <div style="position: sticky; top: 0; z-index: 50; background: rgba(255,255,255,0.72); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border-bottom: 1px solid var(--a-border-soft); font-family: 'Hanken Grotesk', system-ui, sans-serif;">
-  <header style="max-width: 1200px; margin: 0 auto; padding: 14px 32px; display: flex; align-items: center; justify-content: space-between; gap: 32px;">
+  <header class="rdb-header" style="max-width: 1200px; margin: 0 auto; padding: 14px 32px; display: flex; align-items: center; justify-content: space-between; gap: 32px;">
     <a href="/" style="display: inline-flex; align-items: center; text-decoration: none; flex: none;">
       <img src="uploads/redibat-lockup-h.png" alt="Rédibat" style="height: 38px; width: auto; display: block;">
     </a>
-    <nav style="display: flex; align-items: center; gap: 6px; white-space: nowrap;">
+    <nav class="rdb-nav" style="display: flex; align-items: center; gap: 6px; white-space: nowrap;">
       <div class="rdb-drop" style="position: relative;">
         <button type="button" style="display: inline-flex; align-items: center; gap: 6px; background: none; border: none; cursor: pointer; font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 15px; font-weight: 500; color: #1f3a5c; padding: 9px 14px; border-radius: 8px; transition: background .18s ease;" style-hover="background: rgba(31,58,92,0.05);">
           Produits
@@ -65,6 +86,26 @@
       <a href="/faq" style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 15px; font-weight: 500; color: #1f3a5c; text-decoration: none; padding: 9px 14px; border-radius: 8px; transition: background .18s ease;" style-hover="background: rgba(31,58,92,0.05);">FAQ</a>
       <a href="/espace-client" style="margin-left: 10px; display: inline-flex; align-items: center; text-decoration: none; font-family: 'IBM Plex Mono', monospace; font-size: 12.5px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: #ffffff; background: linear-gradient(135deg, #0b317c 0%, #185fcb 55%, #30c5ec 100%); padding: 11px 22px; border-radius: 100px; box-shadow: 0 8px 22px -8px rgba(24,95,203,0.55); transition: transform .18s ease, box-shadow .18s ease, filter .18s ease;" style-hover="transform: translateY(-1px); filter: brightness(1.06); box-shadow: 0 12px 30px -8px rgba(24,95,203,0.7);">Espace client</a>
     </nav>
+
+    <!-- Navigation mobile : menu déroulant natif (<details>), affiché sous 768px. Pur CSS, aucun JS. -->
+    <details class="rdb-mobile">
+      <summary class="rdb-burger" aria-label="Ouvrir le menu">
+        <svg class="rdb-icon-open" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><line x1="3" y1="7" x2="21" y2="7"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="17" x2="21" y2="17"></line></svg>
+        <svg class="rdb-icon-close" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><line x1="5" y1="5" x2="19" y2="19"></line><line x1="19" y1="5" x2="5" y2="19"></line></svg>
+      </summary>
+      <div class="rdb-mobile-panel">
+        <div class="rdb-mobile-label">Produits</div>
+        <a href="/cctp" class="rdb-mobile-link">CCTP</a>
+        <a href="/dpgf" class="rdb-mobile-link">DPGF</a>
+        <a href="/ouverture-des-plis" class="rdb-mobile-link">Ouverture des plis</a>
+        <a href="/tco" class="rdb-mobile-link">TCO</a>
+        <a href="/rao" class="rdb-mobile-link">RAO</a>
+        <div class="rdb-mobile-sep"></div>
+        <a href="/a-propos" class="rdb-mobile-link">À propos</a>
+        <a href="/faq" class="rdb-mobile-link">FAQ</a>
+        <a href="/espace-client" class="rdb-mobile-cta">Espace client</a>
+      </div>
+    </details>
   </header>
 </div>
 
