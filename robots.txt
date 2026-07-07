@@ -2,6 +2,7 @@ User-agent: *
 Allow: /
 Disallow: /espace-client
 Disallow: /espace-fondateur
+Disallow: /creer-mot-de-passe
 Disallow: /design-system/
 
 Sitemap: https://redibat.fr/sitemap.xml

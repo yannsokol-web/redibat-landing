@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<!-- Content-Security-Policy (défense en profondeur) : borne les destinations réseau
+     (connect-src -> l'API uniquement) pour limiter l'exfiltration en cas de XSS.
+     'unsafe-inline'/'unsafe-eval' requis par le runtime dc. frame-ancestors ignoré en <meta>. -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; img-src 'self' data:; font-src 'self' data: https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://challenges.cloudflare.com; connect-src 'self' https://api.redibat.fr https://challenges.cloudflare.com; frame-src 'self' https://challenges.cloudflare.com">
+<!-- Le lien contient un jeton en query : ne jamais le divulguer via l'en-tête Referer. -->
+<meta name="referrer" content="no-referrer">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/logos/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/assets/logos/favicon-16.png">
+<link rel="apple-touch-icon" href="/assets/logos/favicon-256.png">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <title>Créer votre mot de passe | Rédibat</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="stylesheet" href="_ds/r-dibat-design-system-740ba38c-581d-4335-88dd-fcf28913eed8/tokens/fonts.css">
+  <link rel="stylesheet" href="_ds/r-dibat-design-system-740ba38c-581d-4335-88dd-fcf28913eed8/tokens/colors.css">
+  <link rel="stylesheet" href="_ds/r-dibat-design-system-740ba38c-581d-4335-88dd-fcf28913eed8/tokens/typography.css">
+  <link rel="stylesheet" href="_ds/r-dibat-design-system-740ba38c-581d-4335-88dd-fcf28913eed8/tokens/spacing.css">
+  <link rel="stylesheet" href="_ds/r-dibat-design-system-740ba38c-581d-4335-88dd-fcf28913eed8/styles.css">
+  <script src="_ds/r-dibat-design-system-740ba38c-581d-4335-88dd-fcf28913eed8/_ds_bundle.js"></script>
+  <style>html, body { margin: 0; background: #ffffff; } input::placeholder { color: var(--a-faint); }</style>
+</helmet>
+
+<div style="position: relative; min-height: 100vh; background: #ffffff; font-family: 'Hanken Grotesk', system-ui, sans-serif; overflow-x: clip; display: flex; flex-direction: column;">
+
+  <div aria-hidden="true" style="position: fixed; inset: 0; z-index: 0; pointer-events: none;
+       background: radial-gradient(1100px 620px at 82% -10%, rgba(48, 197, 236, 0.10), transparent 60%), radial-gradient(1000px 720px at 4% 2%, rgba(24, 95, 203, 0.07), transparent 62%), #ffffff;"></div>
+
+  <div style="position: sticky; top: 0; z-index: 50; background: rgba(255,255,255,0.72); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border-bottom: 1px solid var(--a-border-soft);">
+    <header style="max-width: 1200px; margin: 0 auto; padding: 14px 32px; display: flex; align-items: center; gap: 32px;">
+      <a href="/" style="display: inline-flex; align-items: center; text-decoration: none; flex: none;">
+        <img src="uploads/redibat-lockup-h.png" alt="Rédibat" style="height: 38px; width: auto; display: block;">
+      </a>
+    </header>
+  </div>
+
+  <main style="position: relative; z-index: 2; flex: 1; display: flex; align-items: center; justify-content: center; padding: 64px 32px 80px;">
+    <div style="width: 100%; max-width: 440px;">
+
+      <!-- Chargement : validation du lien -->
+      <sc-if value="{{ isLoading }}" hint-placeholder-val="{{ true }}">
+        <div style="text-align: center; padding: 40px 0;">
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--a-blue); margin-bottom: 14px;">Espace client</div>
+          <p style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 15px; color: var(--a-muted); margin: 0;">Vérification de votre lien…</p>
+        </div>
+      </sc-if>
+
+      <!-- Lien invalide / expiré -->
+      <sc-if value="{{ isInvalid }}" hint-placeholder-val="{{ false }}">
+        <div style="background: #ffffff; border: 1px solid var(--a-border); border-radius: 18px; padding: 40px 34px; box-shadow: 0 24px 56px -32px rgba(31,58,92,0.35); text-align: center;">
+          <span style="display: inline-flex; align-items: center; justify-content: center; width: 60px; height: 60px; border-radius: 50%; background: rgba(226,59,46,0.10); color: var(--a-red); margin-bottom: 20px;">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+          </span>
+          <h1 style="font-family: 'Newsreader', Georgia, serif; font-weight: 500; letter-spacing: -0.02em; font-size: 28px; color: #16314f; margin: 0 0 10px;">Lien invalide ou expiré</h1>
+          <p style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 15px; line-height: 1.6; color: var(--a-text); margin: 0 0 26px;">Ce lien de création de mot de passe n'est plus valide (déjà utilisé ou expiré). Contactez-nous pour en recevoir un nouveau.</p>
+          <a href="/#contact" style="display: inline-flex; align-items: center; gap: 9px; text-decoration: none; font-family: 'IBM Plex Mono', monospace; font-size: 12px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: #1f3a5c; background: #ffffff; border: 1px solid var(--a-border); padding: 13px 24px; border-radius: 100px; transition: border-color .18s ease, background .18s ease;" style-hover="border-color: var(--a-blue); background: var(--a-sel);">Nous contacter</a>
+        </div>
+      </sc-if>
+
+      <!-- Formulaire de création -->
+      <sc-if value="{{ isForm }}" hint-placeholder-val="{{ false }}">
+        <div>
+          <div style="text-align: center; margin-bottom: 30px;">
+            <div style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--a-blue); margin-bottom: 14px;">Espace client</div>
+            <h1 style="font-family: 'Newsreader', Georgia, serif; font-weight: 500; letter-spacing: -0.024em; line-height: 1.08; font-size: clamp(28px, 4vw, 38px); color: #16314f; margin: 0 0 10px;">Créez votre mot de passe</h1>
+            <p style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 14.5px; line-height: 1.55; color: var(--a-muted); margin: 0;">Pour le compte <strong style="color: #16314f;">{{ email }}</strong></p>
+          </div>
+
+          <form onSubmit="{{ onSubmit }}" style="background: #ffffff; border: 1px solid var(--a-border); border-radius: 18px; padding: 32px 30px 34px; box-shadow: 0 24px 56px -32px rgba(31,58,92,0.35);">
+            <label style="display: block; margin-bottom: 20px;">
+              <span style="display: block; font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--a-muted); margin-bottom: 8px;">Nouveau mot de passe</span>
+              <span style="position: relative; display: block;">
+                <input type="{{ pwdType }}" name="password" autocomplete="new-password" placeholder="Au moins 12 caractères" required
+                       style="width: 100%; box-sizing: border-box; font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 15px; color: #16314f; padding: 13px 46px 13px 15px; border: 1px solid var(--a-border); border-radius: 10px; background: var(--a-bg-3); outline: none; transition: border-color .18s ease, box-shadow .18s ease;"
+                       style-focus="border-color: var(--a-blue); box-shadow: 0 0 0 3px rgba(47,99,212,0.14); background: #ffffff;">
+                <button type="button" onClick="{{ togglePwd }}" aria-label="Afficher ou masquer le mot de passe"
+                        style="position: absolute; top: 50%; right: 8px; transform: translateY(-50%); display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border: none; background: none; cursor: pointer; color: var(--a-muted); transition: color .15s ease;"
+                        style-hover="color: var(--a-blue);">
+                  <sc-if value="{{ showPwd }}" hint-placeholder-val="{{ false }}">
+                    <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 10 8 10 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><path d="M6.61 6.61A18.5 18.5 0 0 0 2 12s3 8 10 8a9.12 9.12 0 0 0 5.39-1.61"></path><line x1="2" y1="2" x2="22" y2="22"></line></svg>
+                  </sc-if>
+                  <sc-if value="{{ hidePwd }}" hint-placeholder-val="{{ true }}">
+                    <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-8 10-8 10 8 10 8-3 8-10 8-10-8-10-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                  </sc-if>
+                </button>
+              </span>
+            </label>
+
+            <label style="display: block; margin-bottom: 22px;">
+              <span style="display: block; font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--a-muted); margin-bottom: 8px;">Confirmer le mot de passe</span>
+              <input type="{{ pwdType }}" name="confirm" autocomplete="new-password" placeholder="Retapez votre mot de passe" required
+                     style="width: 100%; box-sizing: border-box; font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 15px; color: #16314f; padding: 13px 15px; border: 1px solid var(--a-border); border-radius: 10px; background: var(--a-bg-3); outline: none; transition: border-color .18s ease, box-shadow .18s ease;"
+                     style-focus="border-color: var(--a-blue); box-shadow: 0 0 0 3px rgba(47,99,212,0.14); background: #ffffff;">
+            </label>
+
+            <sc-if value="{{ hasError }}" hint-placeholder-val="{{ false }}">
+              <div role="alert" style="margin: 0 0 20px; padding: 11px 14px; border-radius: 10px; background: rgba(226,59,46,0.08); border: 1px solid rgba(226,59,46,0.28); font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 13.5px; line-height: 1.4; color: #b3261e;">{{ error }}</div>
+            </sc-if>
+
+            <button type="submit" style="width: 100%; display: inline-flex; align-items: center; justify-content: center; text-decoration: none; border: none; cursor: pointer; font-family: 'IBM Plex Mono', monospace; font-size: 13px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: #ffffff; background: linear-gradient(135deg, #0b317c 0%, #185fcb 55%, #30c5ec 100%); padding: 15px 24px; border-radius: 100px; box-shadow: 0 10px 26px -10px rgba(24,95,203,0.6); transition: transform .18s ease, filter .18s ease;" style-hover="transform: translateY(-1px); filter: brightness(1.06);">{{ submitLabel }}</button>
+
+            <p style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 12.5px; line-height: 1.5; color: var(--a-faint); margin: 18px 0 0; text-align: center;">Utilisez au moins 12 caractères. Ce mot de passe vous servira pour l'espace client et l'application Rédibat.</p>
+          </form>
+        </div>
+      </sc-if>
+
+      <!-- Succès -->
+      <sc-if value="{{ isDone }}" hint-placeholder-val="{{ false }}">
+        <div style="background: #ffffff; border: 1px solid var(--a-border); border-radius: 18px; padding: 40px 34px; box-shadow: 0 24px 56px -32px rgba(31,58,92,0.35); text-align: center;">
+          <span style="display: inline-flex; align-items: center; justify-content: center; width: 60px; height: 60px; border-radius: 50%; background: rgba(47,138,114,0.12); color: var(--a-teal); margin-bottom: 20px;">
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          </span>
+          <h1 style="font-family: 'Newsreader', Georgia, serif; font-weight: 500; letter-spacing: -0.02em; font-size: 30px; color: #16314f; margin: 0 0 8px;">Mot de passe créé</h1>
+          <p style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 15px; line-height: 1.6; color: var(--a-text); margin: 0 0 28px;">Votre compte est prêt. Connectez-vous à votre espace client pour télécharger Rédibat, ou lancez directement l'application.</p>
+          <a href="/espace-client" style="width: 100%; box-sizing: border-box; display: inline-flex; align-items: center; justify-content: center; gap: 10px; text-decoration: none; border: none; cursor: pointer; font-family: 'IBM Plex Mono', monospace; font-size: 13px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: #ffffff; background: linear-gradient(135deg, #0b317c 0%, #185fcb 55%, #30c5ec 100%); padding: 15px 24px; border-radius: 100px; box-shadow: 0 10px 26px -10px rgba(24,95,203,0.6); transition: transform .18s ease, filter .18s ease;" style-hover="transform: translateY(-1px); filter: brightness(1.06);">Aller à l'espace client</a>
+        </div>
+      </sc-if>
+
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  // Backend redibat-auth (autre origine, CORS autorise https://redibat.fr). Le jeton de
+  // création reste EN MÉMOIRE (this.token) ; il n'est jamais persisté ni journalisé.
+  static API_BASE = 'https://api.redibat.fr';
+
+  state = { phase: 'loading', email: '', showPwd: false, submitting: false, error: '' };
+  token = null;
+
+  componentDidMount() {
+    if (this._started) return;       // garde : un seul appel même si le runtime re-monte
+    this._started = true;
+    let token = '';
+    try { token = new URLSearchParams(location.search).get('token') || ''; } catch (_) {}
+    // Purger le jeton de la barre d'URL (historique / partage d'onglet) dès qu'il est lu.
+    try { history.replaceState(null, '', location.pathname); } catch (_) {}
+    if (!token) { this.setState({ phase: 'invalid' }); return; }
+    this.token = token;
+    fetch(Component.API_BASE + '/v1/setup-token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({ token }),
+    }).then((r) => (r.ok ? r.json() : null)).then((data) => {
+      if (data && data.valid) { this.setState({ phase: 'form', email: data.email || '' }); }
+      else { this.setState({ phase: 'invalid' }); }
+    }).catch(() => this.setState({ phase: 'invalid' }));
+  }
+
+  togglePwd = () => this.setState((s) => ({ showPwd: !s.showPwd }));
+
+  onSubmit = async (e) => {
+    e.preventDefault();
+    if (this.state.submitting) return;
+    // Lire les valeurs AVANT tout await (React libère e.currentTarget après le handler).
+    const form = e.currentTarget || e.target;
+    const password = (form.password && form.password.value) || '';
+    const confirm = (form.confirm && form.confirm.value) || '';
+    if (password.length < 12) {
+      this.setState({ error: 'Le mot de passe doit contenir au moins 12 caractères.' });
+      return;
+    }
+    if (password !== confirm) {
+      this.setState({ error: 'Les deux mots de passe ne correspondent pas.' });
+      return;
+    }
+    this.setState({ submitting: true, error: '' });
+    try {
+      const resp = await fetch(Component.API_BASE + '/v1/set-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({ token: this.token, password }),
+      });
+      if (resp.status === 200) { this.setState({ submitting: false, phase: 'done', error: '' }); return; }
+      if (resp.status === 400) {
+        let err = '';
+        try { err = (await resp.json()).error || ''; } catch (_) {}
+        if (err === 'weak_password') {
+          this.setState({ submitting: false, error: 'Mot de passe trop court : au moins 12 caractères.' });
+          return;
+        }
+        // invalid_token : lien devenu invalide entre-temps.
+        this.setState({ submitting: false, phase: 'invalid', error: '' });
+        return;
+      }
+      if (resp.status === 429) {
+        this.setState({ submitting: false, error: 'Trop de tentatives. Réessayez dans quelques minutes.' });
+        return;
+      }
+      this.setState({ submitting: false, error: 'Impossible d’enregistrer le mot de passe. Réessayez.' });
+    } catch (_) {
+      this.setState({ submitting: false, error: 'Impossible de joindre le serveur. Vérifiez votre connexion.' });
+    }
+  };
+
+  renderVals() {
+    const s = this.state;
+    return {
+      isLoading: s.phase === 'loading',
+      isInvalid: s.phase === 'invalid',
+      isForm: s.phase === 'form',
+      isDone: s.phase === 'done',
+      email: s.email,
+      showPwd: s.showPwd,
+      hidePwd: !s.showPwd,
+      pwdType: s.showPwd ? 'text' : 'password',
+      hasError: !!s.error,
+      error: s.error,
+      submitLabel: s.submitting ? 'Enregistrement…' : 'Créer mon mot de passe',
+      togglePwd: this.togglePwd,
+      onSubmit: this.onSubmit,
+    };
+  }
+}
+</script>
+</body>
+</html>

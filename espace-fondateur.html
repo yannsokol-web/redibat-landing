@@ -48,6 +48,12 @@
       <sc-if value="{{ hasError }}" hint-placeholder-val="{{ false }}">
         <div role="alert" style="margin-top: 16px; padding: 12px 16px; border-radius: 12px; background: rgba(226,59,46,0.08); border: 1px solid rgba(226,59,46,0.28); font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 14px; color: #b3261e;">{{ error }}</div>
       </sc-if>
+      <sc-if value="{{ hasBanner }}" hint-placeholder-val="{{ false }}">
+        <div style="margin-top: 16px; padding: 12px 16px; border-radius: 12px; background: rgba(47,138,114,0.10); border: 1px solid rgba(47,138,114,0.30); font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 14px; color: #1f6f57; display: flex; align-items: center; justify-content: space-between; gap: 12px;">
+          <span>{{ banner }}</span>
+          <button type="button" onClick="{{ onClearBanner }}" aria-label="Fermer" style="border: none; background: transparent; cursor: pointer; font-size: 18px; line-height: 1; color: #1f6f57; padding: 2px 6px;">✕</button>
+        </div>
+      </sc-if>
     </div>
 
     <!-- Stats -->
@@ -68,22 +74,37 @@
 
       <!-- Users -->
       <div style="background: #ffffff; border: 1px solid var(--a-border); border-radius: 16px; box-shadow: 0 1px 2px rgba(31,58,92,0.04); overflow: hidden;">
-        <div style="display: flex; align-items: center; justify-content: space-between; padding: 20px 24px; border-bottom: 1px solid var(--a-border-soft);">
-          <h2 style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 17px; font-weight: 700; color: #16314f; margin: 0;">Utilisateurs</h2>
-          <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--a-muted);">{{ userCount }} comptes</span>
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 20px 24px; border-bottom: 1px solid var(--a-border-soft); flex-wrap: wrap;">
+          <div style="display: flex; align-items: baseline; gap: 10px;">
+            <h2 style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 17px; font-weight: 700; color: #16314f; margin: 0;">Utilisateurs</h2>
+            <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--a-muted);">{{ userCount }} comptes</span>
+          </div>
+          <button type="button" onClick="{{ onOpenAddUser }}" style="display: inline-flex; align-items: center; gap: 7px; cursor: pointer; border: none; font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; font-weight: 500; letter-spacing: 0.04em; text-transform: uppercase; color: #ffffff; background: linear-gradient(135deg, #0b317c 0%, #185fcb 55%, #30c5ec 100%); padding: 9px 15px; border-radius: 100px; box-shadow: 0 8px 20px -10px rgba(24,95,203,0.6);">+ Ajouter une licence</button>
+        </div>
+        <!-- Filtres -->
+        <div style="display: flex; gap: 6px; padding: 12px 24px; border-bottom: 1px solid var(--a-border-soft); flex-wrap: wrap;">
+          <button type="button" onClick="{{ onUserFilterAll }}" style="cursor: pointer; border: 1px solid var(--a-border); background: {{ uAllBg }}; color: {{ uAllColor }}; font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.04em; padding: 6px 12px; border-radius: 100px;">Tous ({{ uCountAll }})</button>
+          <button type="button" onClick="{{ onUserFilterActive }}" style="cursor: pointer; border: 1px solid var(--a-border); background: {{ uActiveBg }}; color: {{ uActiveColor }}; font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.04em; padding: 6px 12px; border-radius: 100px;">Actifs ({{ uCountActive }})</button>
+          <button type="button" onClick="{{ onUserFilterPaused }}" style="cursor: pointer; border: 1px solid var(--a-border); background: {{ uPausedBg }}; color: {{ uPausedColor }}; font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.04em; padding: 6px 12px; border-radius: 100px;">En pause ({{ uCountPaused }})</button>
+          <button type="button" onClick="{{ onUserFilterInvited }}" style="cursor: pointer; border: 1px solid var(--a-border); background: {{ uInvitedBg }}; color: {{ uInvitedColor }}; font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.04em; padding: 6px 12px; border-radius: 100px;">Invités ({{ uCountInvited }})</button>
+          <button type="button" onClick="{{ onUserFilterExpired }}" style="cursor: pointer; border: 1px solid var(--a-border); background: {{ uExpiredBg }}; color: {{ uExpiredColor }}; font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.04em; padding: 6px 12px; border-radius: 100px;">Expirés ({{ uCountExpired }})</button>
         </div>
         <div style="overflow-x: auto;">
-        <table style="width: 100%; border-collapse: collapse; min-width: 560px;">
+        <table style="width: 100%; border-collapse: collapse; min-width: 720px;">
           <thead>
             <tr>
               <th style="text-align: left; font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--a-faint); font-weight: 500; padding: 12px 24px;">Adresse e-mail</th>
               <th style="text-align: left; font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--a-faint); font-weight: 500; padding: 12px 12px;">Société</th>
-              <th style="text-align: left; font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--a-faint); font-weight: 500; padding: 12px 12px;">Licence</th>
+              <th style="text-align: left; font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--a-faint); font-weight: 500; padding: 12px 12px;">Offre</th>
               <th style="text-align: left; font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--a-faint); font-weight: 500; padding: 12px 12px;">Abonnement</th>
-              <th style="text-align: left; font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--a-faint); font-weight: 500; padding: 12px 24px;">Statut</th>
+              <th style="text-align: left; font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--a-faint); font-weight: 500; padding: 12px 12px;">Statut</th>
+              <th style="text-align: right; font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--a-faint); font-weight: 500; padding: 12px 24px;">Actions</th>
             </tr>
           </thead>
           <tbody>
+            <sc-if value="{{ isUsersEmpty }}">
+              <tr><td colspan="6" style="padding: 30px 24px; text-align: center; font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 14px; color: var(--a-muted);">Aucun compte dans ce filtre.</td></tr>
+            </sc-if>
             <sc-for list="{{ users }}" as="u" hint-placeholder-count="6">
               <tr style="border-top: 1px solid var(--a-border-soft);">
                 <td style="padding: 14px 24px; font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 14px; color: #16314f; font-weight: 500;">{{ u.email }}</td>
@@ -95,8 +116,17 @@
                   <div style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 13px; color: #16314f;">{{ u.duration }}</div>
                   <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--a-muted); margin-top: 2px;">{{ u.period }}</div>
                 </td>
-                <td style="padding: 14px 24px;">
+                <td style="padding: 14px 12px;">
                   <span style="display: inline-block; font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; letter-spacing: 0.04em; text-transform: uppercase; padding: 4px 10px; border-radius: 100px; color: {{ u.statusColor }}; background: {{ u.statusBg }};">{{ u.status }}</span>
+                  <div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: {{ u.pwColor }}; margin-top: 5px;">{{ u.pwNote }}</div>
+                </td>
+                <td style="padding: 14px 24px;">
+                  <div style="display: flex; gap: 6px; justify-content: flex-end; flex-wrap: wrap;">
+                    <sc-if value="{{ u.canResend }}"><button type="button" onClick="{{ u.onResend }}" style="cursor: pointer; border: 1px solid var(--a-border); background: #ffffff; color: #16314f; font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 12px; font-weight: 500; padding: 6px 11px; border-radius: 8px;">Renvoyer</button></sc-if>
+                    <sc-if value="{{ u.isPaused }}"><button type="button" onClick="{{ u.onResume }}" style="cursor: pointer; border: 1px solid var(--a-border); background: #ffffff; color: #16314f; font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 12px; font-weight: 500; padding: 6px 11px; border-radius: 8px;">Réactiver</button></sc-if>
+                    <sc-if value="{{ u.canPause }}"><button type="button" onClick="{{ u.onPause }}" style="cursor: pointer; border: 1px solid var(--a-border); background: #ffffff; color: #16314f; font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 12px; font-weight: 500; padding: 6px 11px; border-radius: 8px;">Pause</button></sc-if>
+                    <button type="button" onClick="{{ u.onDelete }}" style="cursor: pointer; border: 1px solid rgba(226,59,46,0.35); background: rgba(226,59,46,0.06); color: var(--a-red); font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 12px; font-weight: 500; padding: 6px 11px; border-radius: 8px;">Suppr.</button>
+                  </div>
                 </td>
               </tr>
             </sc-for>
@@ -140,10 +170,11 @@
           </div>
           <sc-for list="{{ messages }}" as="m" hint-placeholder-count="3">
             <div style="padding: 15px 22px; border-top: 1px solid var(--a-border-soft);">
-              <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 4px;">
-                <span style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 13.5px; font-weight: 600; color: #16314f;">{{ m.email }}</span>
+              <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 2px;">
+                <span style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 13.5px; font-weight: 600; color: #16314f;">{{ m.who }}</span>
                 <span style="flex: none; font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--a-faint);">{{ m.date }}</span>
               </div>
+              <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--a-muted); margin-bottom: 6px;">{{ m.email }}</div>
               <div style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 13px; color: var(--a-text); margin-bottom: 2px;">{{ m.subject }}</div>
               <div style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 12.5px; line-height: 1.45; color: var(--a-muted); text-wrap: pretty;">{{ m.snippet }}</div>
             </div>
@@ -217,6 +248,50 @@
       </div>
     </div>
   </sc-if>
+
+  <!-- Modale : ajouter une licence -->
+  <sc-if value="{{ showAddUser }}">
+    <div onClick="{{ onCloseAddUser }}" style="position: fixed; inset: 0; z-index: 100; background: rgba(16,31,58,0.55); backdrop-filter: blur(3px); display: flex; align-items: flex-start; justify-content: center; padding: 56px 20px; overflow-y: auto;">
+      <div onClick="{{ onPanelClick }}" style="width: 100%; max-width: 460px; background: #ffffff; border-radius: 18px; box-shadow: 0 24px 70px rgba(16,31,58,0.4); overflow: hidden;">
+        <div style="display: flex; align-items: center; justify-content: space-between; padding: 20px 24px; border-bottom: 1px solid var(--a-border-soft);">
+          <h2 style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 18px; font-weight: 700; color: #16314f; margin: 0;">Ajouter une licence</h2>
+          <button type="button" onClick="{{ onCloseAddUser }}" aria-label="Fermer" style="border: none; background: transparent; cursor: pointer; font-size: 22px; line-height: 1; color: var(--a-muted); padding: 4px 8px; border-radius: 8px;">✕</button>
+        </div>
+        <form onSubmit="{{ onAddUser }}" style="padding: 22px 24px 26px;">
+          <label style="display: block; margin-bottom: 16px;">
+            <span style="display: block; font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--a-muted); margin-bottom: 8px;">Adresse e-mail</span>
+            <input type="email" name="email" required placeholder="client@entreprise.fr"
+                   style="width: 100%; box-sizing: border-box; font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 15px; color: #16314f; padding: 12px 14px; border: 1px solid var(--a-border); border-radius: 10px; background: var(--a-bg-3); outline: none;">
+          </label>
+          <label style="display: block; margin-bottom: 16px;">
+            <span style="display: block; font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--a-muted); margin-bottom: 8px;">Offre</span>
+            <select name="role"
+                    style="width: 100%; box-sizing: border-box; font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 15px; color: #16314f; padding: 12px 14px; border: 1px solid var(--a-border); border-radius: 10px; background: var(--a-bg-3); outline: none;">
+              <option value="pro">PRO — rédaction CCTP</option>
+              <option value="max">MAX — CCTP + Analyse des offres</option>
+            </select>
+          </label>
+          <label style="display: block; margin-bottom: 16px;">
+            <span style="display: block; font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--a-muted); margin-bottom: 8px;">Société <span style="text-transform: none; letter-spacing: 0; color: var(--a-faint);">(optionnel)</span></span>
+            <input type="text" name="company" placeholder="Société du client"
+                   style="width: 100%; box-sizing: border-box; font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 15px; color: #16314f; padding: 12px 14px; border: 1px solid var(--a-border); border-radius: 10px; background: var(--a-bg-3); outline: none;">
+          </label>
+          <label style="display: block; margin-bottom: 20px;">
+            <span style="display: block; font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--a-muted); margin-bottom: 8px;">Durée d'abonnement <span style="text-transform: none; letter-spacing: 0; color: var(--a-faint);">(mois, optionnel)</span></span>
+            <input type="number" name="months" min="1" max="120" step="1" placeholder="12"
+                   style="width: 100%; box-sizing: border-box; font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 15px; color: #16314f; padding: 12px 14px; border: 1px solid var(--a-border); border-radius: 10px; background: var(--a-bg-3); outline: none;">
+          </label>
+
+          <sc-if value="{{ hasAddError }}" hint-placeholder-val="{{ false }}">
+            <div role="alert" style="margin: 0 0 16px; padding: 10px 14px; border-radius: 10px; background: rgba(226,59,46,0.08); border: 1px solid rgba(226,59,46,0.28); font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 13px; color: #b3261e;">{{ addError }}</div>
+          </sc-if>
+
+          <button type="submit" style="width: 100%; display: inline-flex; align-items: center; justify-content: center; border: none; cursor: pointer; font-family: 'IBM Plex Mono', monospace; font-size: 13px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: #ffffff; background: linear-gradient(135deg, #0b317c 0%, #185fcb 55%, #30c5ec 100%); padding: 14px 24px; border-radius: 100px; box-shadow: 0 10px 26px -10px rgba(24,95,203,0.6);">{{ addLabel }}</button>
+          <p style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 12.5px; line-height: 1.5; color: var(--a-faint); margin: 16px 0 0; text-align: center;">Un e-mail invitera le client à créer son mot de passe. Vous pourrez suivre l'état dans la liste.</p>
+        </form>
+      </div>
+    </div>
+  </sc-if>
 </div>
 </x-dc>
 <script type="text/x-dc" data-dc-script>
@@ -225,24 +300,26 @@ class Component extends DCLogic {
   // persisté en sessionStorage au login (espace-client.html) : on le relit ici.
   static API_BASE = 'https://api.redibat.fr';
 
-  state = { loading: true, error: '', users: [], bugs: [], messages: [], stats: null,
+  state = { loading: true, error: '', banner: '', users: [], bugs: [], messages: [], stats: null,
     overlay: null, filter: 'all', expandedKey: null,
-    allBugs: [], allMessages: [], inboxLoaded: false, actionError: '' };
+    allBugs: [], allMessages: [], inboxLoaded: false, actionError: '',
+    userFilter: 'all', showAddUser: false, addError: '', addBusy: false };
 
   componentDidMount() {
     if (this._fetchStarted) return;   // garde : un seul appel même si le runtime re-monte
     this._fetchStarted = true;
-    let token = '';
-    try { token = sessionStorage.getItem('redibat_token') || ''; } catch (_) {}
-    if (!token) { location.replace('/espace-client'); return; }   // pas de session -> login
+    this.loadOverview();
+  }
+
+  // Charge (ou recharge) l'aperçu fondateur : utilisateurs, bugs, messages, stats. Appelée
+  // au montage ET après chaque action sur un compte (re-synchronise la source de vérité).
+  loadOverview() {
+    const token = this._token();
+    if (!token) { this._authFailed(); return; }   // pas de session -> login
     fetch(Component.API_BASE + '/v1/founder/overview', {
       headers: { 'Authorization': 'Bearer ' + token, 'Accept': 'application/json' },
     }).then((r) => {
-      if (r.status === 401 || r.status === 403) {                 // expiré / non-fondateur
-        try { sessionStorage.removeItem('redibat_token'); sessionStorage.removeItem('redibat_founder'); } catch (_) {}
-        location.replace('/espace-client');
-        return null;
-      }
+      if (r.status === 401 || r.status === 403) { this._authFailed(); return null; }
       if (!r.ok) throw new Error('http ' + r.status);
       return r.json();
     }).then((data) => {
@@ -318,6 +395,74 @@ class Component extends DCLogic {
     });
   };
 
+  // --- Gestion des licences ---
+  clearBanner = () => this.setState({ banner: '' });
+  setUserFilter = (f) => this.setState({ userFilter: f });
+  openAddUser = () => this.setState({ showAddUser: true, addError: '' });
+  closeAddUser = () => this.setState({ showAddUser: false, addError: '' });
+
+  // Création d'une licence : compte invité + e-mail d'invitation. Formulaire non contrôlé
+  // (valeurs lues au submit, comme le login / le contact). Rafraîchit la liste au succès.
+  addUser = async (e) => {
+    e.preventDefault();
+    if (this.state.addBusy) return;
+    const form = e.currentTarget || e.target;
+    const email = (form.email && form.email.value || '').trim();
+    const role = (form.role && form.role.value) || 'pro';
+    const company = (form.company && form.company.value || '').trim();
+    const months = (form.months && form.months.value || '').trim();
+    if (!email) { this.setState({ addError: 'Renseignez une adresse e-mail.' }); return; }
+    const token = this._token();
+    if (!token) { this._authFailed(); return; }
+    this.setState({ addBusy: true, addError: '' });
+    const payload = { email, role };
+    if (company) payload.company = company;
+    if (months) payload.plan_months = Number(months);
+    try {
+      const r = await fetch(Component.API_BASE + '/v1/founder/user', {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      if (r.status === 401 || r.status === 403) { this._authFailed(); return; }
+      if (r.status === 409) { this.setState({ addBusy: false, addError: 'Un compte existe déjà pour cette adresse.' }); return; }
+      if (!r.ok) { this.setState({ addBusy: false, addError: 'Création impossible. Vérifiez les informations saisies.' }); return; }
+      const data = await r.json().catch(() => ({}));
+      const banner = (data && data.mail_status === 'sent')
+        ? ('Invitation envoyée à ' + email + '.')
+        : ('Compte créé pour ' + email + '. L’e-mail n’a pas pu être envoyé — utilisez « Renvoyer ».');
+      this.setState({ addBusy: false, showAddUser: false, banner });
+      this.loadOverview();
+    } catch (_) {
+      this.setState({ addBusy: false, addError: 'Impossible de joindre le serveur. Réessayez.' });
+    }
+  };
+
+  // Action sur un compte (pause/reprise/renvoi/suppression), puis rechargement de l'aperçu.
+  _userMutate(id, method, sub, okMsg, errMsg) {
+    const token = this._token();
+    if (!token) { this._authFailed(); return; }
+    fetch(Component.API_BASE + '/v1/founder/user/' + id + sub, {
+      method, headers: { 'Authorization': 'Bearer ' + token, 'Accept': 'application/json' },
+    }).then((r) => {
+      if (r.status === 401 || r.status === 403) { this._authFailed(); return null; }
+      return r;
+    }).then((r) => {
+      if (!r) return;
+      if (r.ok) { this.setState({ banner: okMsg || '', error: '' }); this.loadOverview(); }
+      else if (r.status === 409) { this.setState({ error: 'Action impossible sur ce compte (compte fondateur protégé).' }); }
+      else { this.setState({ error: errMsg }); }
+    }).catch(() => this.setState({ error: errMsg }));
+  }
+
+  pauseUser = (id) => this._userMutate(id, 'POST', '/pause', 'Licence mise en pause.', 'Mise en pause impossible. Réessayez.');
+  resumeUser = (id) => this._userMutate(id, 'POST', '/resume', 'Licence réactivée.', 'Réactivation impossible. Réessayez.');
+  resendInvite = (id) => this._userMutate(id, 'POST', '/resend-invite', 'Invitation renvoyée.', 'Envoi impossible. Réessayez.');
+  removeUser = (id, email) => {
+    if (!window.confirm('Supprimer définitivement le compte ' + email + ' ? Cette action est irréversible.')) return;
+    this._userMutate(id, 'DELETE', '', 'Compte supprimé.', 'Suppression impossible. Réessayez.');
+  };
+
   renderVals() {
     const teal = 'var(--a-teal)', tealBg = 'rgba(47,138,114,0.12)';
     const amber = '#b7791f', amberBg = 'rgba(183,121,31,0.12)';
@@ -330,25 +475,58 @@ class Component extends DCLogic {
     const fmtFR = (iso) => { if (!iso) return '—'; const p = String(iso).slice(0, 10).split('-'); return p[2] + '/' + p[1] + '/' + p[0]; };
     const fmtDM = (iso) => { if (!iso) return ''; const p = String(iso).slice(0, 10).split('-'); return p[2] + '/' + p[1]; };
 
-    const users = (s.users || []).map((u) => {
-      const licence = (u.role || '').toUpperCase();          // 'PRO' | 'MAX'
-      const active = u.license_active === 1
-        && (!u.subscription_start || u.subscription_start <= today)
-        && (!u.subscription_end || u.subscription_end >= today);
-      const status = active ? 'Actif' : 'En attente';
-      return {
-        email: u.email,
-        company: u.company || '—',
-        licence,
-        duration: u.plan_months ? (u.plan_months + ' mois') : '—',
-        period: fmtFR(u.subscription_start) + ' → ' + fmtFR(u.subscription_end),
-        status,
-        licColor: licence === 'MAX' ? '#ffffff' : blue,
-        licBg: licence === 'MAX' ? 'linear-gradient(135deg, #185fcb, #30c5ec)' : blueBg,
-        statusColor: status === 'Actif' ? teal : amber,
-        statusBg: status === 'Actif' ? tealBg : amberBg,
-      };
-    });
+    // Fenêtre d'abonnement (dates 'AAAA-MM-JJ', comparaison lexicographique = chronologique).
+    const withinWindow = (u) => (!u.subscription_start || u.subscription_start <= today)
+      && (!u.subscription_end || u.subscription_end >= today);
+    // Catégorie de statut, PRIORITÉ : invité (mdp non défini) > en pause > expiré > actif.
+    const cat = (u) => {
+      if (u.password_set === 0) return 'invited';
+      if (u.license_active === 0) return 'paused';
+      return withinWindow(u) ? 'active' : 'expired';
+    };
+    const allUsers = s.users || [];
+    const counts = { all: allUsers.length, active: 0, paused: 0, invited: 0, expired: 0 };
+    allUsers.forEach((u) => { counts[cat(u)]++; });
+
+    const users = allUsers
+      .filter((u) => s.userFilter === 'all' ? true : cat(u) === s.userFilter)
+      .map((u) => {
+        const licence = (u.role || '').toUpperCase();          // 'PRO' | 'MAX'
+        const c = cat(u);
+        const statusMap = {
+          invited: ['Invité', blue, blueBg],
+          paused:  ['En pause', red, redBg],
+          expired: ['Expiré', amber, amberBg],
+          active:  ['Actif', teal, tealBg],
+        };
+        const [status, statusColor, statusBg] = statusMap[c];
+        // Note mot de passe / invitation.
+        let pwNote, pwColor;
+        if (u.password_set === 1) { pwNote = 'Mot de passe créé'; pwColor = muted; }
+        else if (u.mail_status === 'sent') { pwNote = 'Invitation envoyée'; pwColor = blue; }
+        else if (u.mail_status === 'failed') { pwNote = 'Échec e-mail — renvoyer'; pwColor = red; }
+        else { pwNote = 'E-mail à envoyer'; pwColor = amber; }
+        return {
+          email: u.email,
+          company: u.company || '—',
+          licence,
+          duration: u.plan_months ? (u.plan_months + ' mois') : '—',
+          period: fmtFR(u.subscription_start) + ' → ' + fmtFR(u.subscription_end),
+          status, statusColor, statusBg,
+          pwNote, pwColor,
+          licColor: licence === 'MAX' ? '#ffffff' : blue,
+          licBg: licence === 'MAX' ? 'linear-gradient(135deg, #185fcb, #30c5ec)' : blueBg,
+          canResend: u.password_set === 0,
+          isPaused: u.license_active === 0,
+          canPause: u.license_active === 1,
+          onResend: () => this.resendInvite(u.id),
+          onResume: () => this.resumeUser(u.id),
+          onPause: () => this.pauseUser(u.id),
+          onDelete: () => this.removeUser(u.id, u.email),
+        };
+      });
+    const uTabBg = (f) => s.userFilter === f ? '#16314f' : 'transparent';
+    const uTabColor = (f) => s.userFilter === f ? '#ffffff' : 'var(--a-muted)';
 
     // Aperçu des cartes : une fois la boîte de réception chargée, on dérive des listes
     // COMPLÈTES (source de vérité après une action) ; sinon des données de l'overview.
@@ -371,8 +549,15 @@ class Component extends DCLogic {
       };
     });
 
+    // Identité du demandeur (prénom + nom, société optionnelle) ; repli sur l'e-mail si absente.
+    const whoOf = (m) => {
+      const name = [m.first_name, m.last_name].filter(Boolean).join(' ').trim();
+      if (!name) return m.from_email;
+      return m.company ? (name + ' · ' + m.company) : name;
+    };
     const msgSource = s.inboxLoaded ? (s.allMessages || []).filter((m) => m.state !== 'done') : (s.messages || []);
     const messages = msgSource.map((m) => ({
+      who: whoOf(m),
       email: m.from_email,
       subject: m.subject,
       snippet: (m.snippet != null ? m.snippet : (m.body || '').slice(0, 140)),
@@ -430,8 +615,9 @@ class Component extends DCLogic {
         it.logs = x.logs || '';
         it.hasLogs = !!(x.logs && String(x.logs).trim());
       } else {
-        it.title = x.from_email;
-        it.meta = x.subject + ' · ' + fmtFR(x.created_at);
+        const who = whoOf(x);
+        it.title = who;
+        it.meta = (who !== x.from_email ? x.from_email + ' · ' : '') + x.subject + ' · ' + fmtFR(x.created_at);
         it.hasSeverity = false; it.severity = ''; it.sevColor = muted; it.sevBg = mutedBg;
         it.body = x.body || '';
         it.hasBody = !!(x.body && String(x.body).trim());
@@ -444,9 +630,33 @@ class Component extends DCLogic {
 
     return {
       users, bugs, messages, stats,
-      userCount: users.length,
+      userCount: counts.all,
+      isUsersEmpty: !s.loading && users.length === 0,
       hasError: !!s.error,
       error: s.error,
+      hasBanner: !!s.banner,
+      banner: s.banner,
+      onClearBanner: this.clearBanner,
+      // --- Gestion des licences : filtres, actions, modale d'ajout ---
+      uCountAll: counts.all, uCountActive: counts.active, uCountPaused: counts.paused,
+      uCountInvited: counts.invited, uCountExpired: counts.expired,
+      uAllBg: uTabBg('all'), uAllColor: uTabColor('all'),
+      uActiveBg: uTabBg('active'), uActiveColor: uTabColor('active'),
+      uPausedBg: uTabBg('paused'), uPausedColor: uTabColor('paused'),
+      uInvitedBg: uTabBg('invited'), uInvitedColor: uTabColor('invited'),
+      uExpiredBg: uTabBg('expired'), uExpiredColor: uTabColor('expired'),
+      onUserFilterAll: () => this.setUserFilter('all'),
+      onUserFilterActive: () => this.setUserFilter('active'),
+      onUserFilterPaused: () => this.setUserFilter('paused'),
+      onUserFilterInvited: () => this.setUserFilter('invited'),
+      onUserFilterExpired: () => this.setUserFilter('expired'),
+      onOpenAddUser: this.openAddUser,
+      onCloseAddUser: this.closeAddUser,
+      onAddUser: this.addUser,
+      showAddUser: s.showAddUser,
+      hasAddError: !!s.addError,
+      addError: s.addError,
+      addLabel: s.addBusy ? 'Création…' : 'Créer la licence et inviter',
       // --- Overlay boîte de réception ---
       onOpenBugs: () => this.openInbox('bugs'),
       onOpenMessages: () => this.openInbox('messages'),

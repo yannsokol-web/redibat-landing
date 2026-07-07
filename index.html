@@ -393,6 +393,26 @@
 
       <sc-if value="{{ notSent }}" hint-placeholder-val="{{ true }}">
         <form onSubmit="{{ onContact }}">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+            <label style="display: block; margin-bottom: 18px;">
+              <span style="display: block; font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--a-muted); margin-bottom: 8px;">Prénom</span>
+              <input type="text" name="first_name" autocomplete="given-name" placeholder="Camille" required
+                     style="width: 100%; box-sizing: border-box; font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 15px; color: #16314f; padding: 13px 15px; border: 1px solid var(--a-border); border-radius: 10px; background: var(--a-bg-3); outline: none; transition: border-color .18s ease, box-shadow .18s ease;"
+                     style-focus="border-color: var(--a-blue); box-shadow: 0 0 0 3px rgba(47,99,212,0.14); background: #ffffff;">
+            </label>
+            <label style="display: block; margin-bottom: 18px;">
+              <span style="display: block; font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--a-muted); margin-bottom: 8px;">Nom</span>
+              <input type="text" name="last_name" autocomplete="family-name" placeholder="Durand" required
+                     style="width: 100%; box-sizing: border-box; font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 15px; color: #16314f; padding: 13px 15px; border: 1px solid var(--a-border); border-radius: 10px; background: var(--a-bg-3); outline: none; transition: border-color .18s ease, box-shadow .18s ease;"
+                     style-focus="border-color: var(--a-blue); box-shadow: 0 0 0 3px rgba(47,99,212,0.14); background: #ffffff;">
+            </label>
+          </div>
+          <label style="display: block; margin-bottom: 18px;">
+            <span style="display: block; font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--a-muted); margin-bottom: 8px;">Société <span style="text-transform: none; letter-spacing: 0; color: var(--a-faint);">(optionnel)</span></span>
+            <input type="text" name="company" autocomplete="organization" placeholder="Votre société"
+                   style="width: 100%; box-sizing: border-box; font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 15px; color: #16314f; padding: 13px 15px; border: 1px solid var(--a-border); border-radius: 10px; background: var(--a-bg-3); outline: none; transition: border-color .18s ease, box-shadow .18s ease;"
+                   style-focus="border-color: var(--a-blue); box-shadow: 0 0 0 3px rgba(47,99,212,0.14); background: #ffffff;">
+          </label>
           <label style="display: block; margin-bottom: 18px;">
             <span style="display: block; font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--a-muted); margin-bottom: 8px;">Adresse e-mail</span>
             <input type="email" name="email" autocomplete="email" placeholder="vous@entreprise.fr" required
@@ -556,12 +576,15 @@ class Component extends DCLogic {
     if (this.state.sending) return;
     // Lire les valeurs AVANT tout await (React libère e.currentTarget après le handler).
     const form = e.currentTarget || e.target;
+    const firstName = (form.first_name && form.first_name.value || '').trim();
+    const lastName = (form.last_name && form.last_name.value || '').trim();
+    const company = (form.company && form.company.value || '').trim();
     const email = (form.email && form.email.value || '').trim();
     const subject = (form.subject && form.subject.value || '').trim();
     const body = (form.body && form.body.value || '').trim();
     const website = (form.website && form.website.value || '').trim();   // honeypot
-    if (!email || !subject || !body) {
-      this.setState({ error: 'Merci de renseigner votre e-mail, un sujet et un message.' });
+    if (!firstName || !lastName || !email || !subject || !body) {
+      this.setState({ error: 'Merci de renseigner vos prénom, nom, e-mail, un sujet et un message.' });
       return;
     }
     let token = '';
@@ -575,7 +598,7 @@ class Component extends DCLogic {
     }
     this.setState({ sending: true, error: '' });
     try {
-      const payload = { email, subject, body, website };
+      const payload = { first_name: firstName, last_name: lastName, company, email, subject, body, website };
       if (token) payload.turnstile = token;
       const resp = await fetch(Component.API_BASE + '/v1/contact', {
         method: 'POST',
