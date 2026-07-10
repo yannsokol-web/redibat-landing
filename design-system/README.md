@@ -22,12 +22,14 @@ chaque page via `<helmet>` :
 
 ---
 
-## Les deux systèmes de rendu du site
+## Le système de rendu du site
 
-| Système | Pages | Base | Nouvelle page ? |
-|---|---|---|---|
-| **x-dc** (celui-ci) | `index`, `cctp`, `dpgf`, `ouverture-des-plis`, `tco`, `rao`, `faq`, `a-propos`, `espace-client`, `mentions-legales`, `confidentialite` | `support.js` (runtime React) + tokens `_ds/` | ✅ **Oui — c'est le canonique.** |
-| **site.css** (ancien) | `guides/*`, `404`, `espace-fondateur` | `assets/css/site.css` (statique) | ❌ Éviter pour du nouveau contenu. |
+Toutes les pages sont désormais en **x-dc** (`support.js`, runtime React + tokens `_ds/`) :
+`index`, `cctp`, `dpgf`, `ouverture-des-plis`, `tco`, `rao`, `faq`, `a-propos`,
+`espace-client`, `espace-fondateur`, `mentions-legales`, `confidentialite`, `404`.
+
+> L'ancien gabarit statique (`assets/css/site.css` + `assets/js/site.js`, ex-pages
+> `guides/*` et ancienne `404`) a été **supprimé en juillet 2026** avec les guides.
 
 Ce design system documente **le système x-dc**.
 
@@ -131,7 +133,6 @@ Le **styleguide** (`styleguide.html`) rend ces composants en vrai — ouvrez-le 
 
 ## Pièges
 
-- **En-tête dupliqué sur 9 pages x-dc** : l'en-tête/pied n'est pas partagé par include — il est **copié à l'identique** dans chaque page. Une modif d'en-tête doit être répliquée partout (ou repartir de `template.html`).
+- **En-tête dupliqué sur toutes les pages x-dc** (y compris `404.html`) : l'en-tête/pied n'est pas partagé par include — il est **copié à l'identique** dans chaque page. Une modif d'en-tête doit être répliquée partout (ou repartir de `template.html`).
 - **`style-hover` sans runtime = pas de survol** : ne pas transposer ces pages en HTML statique sans `support.js`.
-- **`data-reveal`** : mécanisme d'apparition au scroll des pages `site.css` **uniquement** (pas x-dc). Ne jamais envelopper un très grand bloc dans un seul `[data-reveal]` (l'IntersectionObserver, seuil 0.14, ne se déclenche pas → contenu invisible).
 - **Chemins & `<base href="/">`** : `support.js` charge `vendor/react*.js` en chemin **relatif au document**. Une page servie **hors racine** (ex. `/design-system/`) le chercherait donc dans `/design-system/vendor/` → 404, et **React ne démarrerait pas** (contenu affiché en brut, tokens et `style-hover` inactifs). `template.html` et `styleguide.html` incluent donc `<base href="/">` (+ chemins absolus `/support.js`, `/_ds/…`, `/uploads/…`). À la racine, `<base href="/">` est neutre : une page copiée à la racine marche avec ou sans.

@@ -48,46 +48,4 @@
     <changefreq>yearly</changefreq>
     <priority>0.5</priority>
   </url>
-  <url>
-    <loc>https://redibat.fr/guides/</loc>
-    <lastmod>2026-07-06</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://redibat.fr/guides/qu-est-ce-qu-un-cctp/</loc>
-    <lastmod>2026-07-06</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  <url>
-    <loc>https://redibat.fr/guides/comment-rediger-un-cctp/</loc>
-    <lastmod>2026-07-06</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  <url>
-    <loc>https://redibat.fr/guides/difference-cctp-ccap/</loc>
-    <lastmod>2026-07-06</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  <url>
-    <loc>https://redibat.fr/guides/qu-est-ce-que-la-dpgf/</loc>
-    <lastmod>2026-07-06</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  <url>
-    <loc>https://redibat.fr/guides/modele-cctp/</loc>
-    <lastmod>2026-07-06</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  <url>
-    <loc>https://redibat.fr/guides/analyse-des-offres-methode/</loc>
-    <lastmod>2026-07-06</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.5</priority>
-  </url>
 </urlset>
