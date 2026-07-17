@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
 <head>
 <meta charset="utf-8">
 <!-- Content-Security-Policy (défense en profondeur). GitHub Pages ne permet pas d'en-tête
@@ -13,7 +13,7 @@
 <title>Rédibat — Logiciel de rédaction de CCTP hors ligne pour le bâtiment</title>
 <meta name="description" content="Rédibat est une application de bureau pour les professionnels du bâtiment : rédigez vos CCTP par lots et articles, générez la DPGF, gérez l'ouverture des plis, le TCO et le RAO. Vos données restent en local, sans connexion permanente.">
 <link rel="canonical" href="https://redibat.fr/">
-<meta name="robots" content="index, follow">
+<meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large">
 <meta name="language" content="fr-FR">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Rédibat">
@@ -39,15 +39,31 @@
         "name": "Rédibat",
         "legalName": "YSCORP",
         "url": "https://redibat.fr/",
+        "logo": "https://redibat.fr/assets/logos/redibat-icon-256.png",
         "description": "Éditeur de Rédibat, un logiciel de bureau de rédaction de CCTP hors ligne pour les professionnels du bâtiment.",
+        "founder": { "@type": "Person", "name": "Yann Sokol", "jobTitle": "Économiste de la construction" },
         "sameAs": ["https://www.linkedin.com/company/r%C3%A9dibat"]
       },
       {
+        "@type": "WebSite",
+        "@id": "https://redibat.fr/#website",
+        "url": "https://redibat.fr/",
+        "name": "Rédibat",
+        "inLanguage": "fr-FR",
+        "publisher": { "@id": "https://redibat.fr/#organization" }
+      },
+      {
         "@type": "SoftwareApplication",
+        "@id": "https://redibat.fr/#software",
         "name": "Rédibat",
         "operatingSystem": "Windows",
         "applicationCategory": "BusinessApplication",
+        "applicationSubCategory": "Logiciel de rédaction de CCTP",
         "url": "https://redibat.fr/",
+        "inLanguage": "fr-FR",
+        "image": "https://redibat.fr/assets/og-image.png",
+        "screenshot": "https://redibat.fr/assets/screenshots/01-accueil.png",
+        "softwareHelp": { "@type": "CreativeWork", "url": "https://redibat.fr/faq" },
         "description": "Application de bureau pour les professionnels du bâtiment : rédaction de CCTP par lots et articles, génération de la DPGF, ouverture des plis, tableau comparatif des offres (TCO) et rapport d'analyse des offres (RAO). Données en local, fonctionnement hors ligne.",
         "featureList": ["Rédaction de CCTP", "Décomposition du prix global et forfaitaire (DPGF)", "Ouverture des plis", "Tableau comparatif des offres (TCO)", "Rapport d'analyse des offres (RAO)", "Bibliothèque d'articles types réutilisable", "Fonctionnement hors ligne, données en local"],
         "audience": {
@@ -61,8 +77,11 @@
         "mainEntity": [
           { "@type": "Question", "name": "Qu'est-ce qu'un logiciel de rédaction de CCTP ?", "acceptedAnswer": { "@type": "Answer", "text": "Un logiciel de rédaction de CCTP aide les professionnels du bâtiment à structurer et rédiger leurs cahiers des clauses techniques particulières, par lots et par articles, puis à les exporter en Word ou PDF. Rédibat va plus loin en vous laissant capitaliser vos propres articles types dans une bibliothèque réutilisable d'un projet à l'autre." } },
           { "@type": "Question", "name": "À qui s'adresse Rédibat ?", "acceptedAnswer": { "@type": "Answer", "text": "Aux maîtres d'œuvre, maîtres d'ouvrage (MOE/MOA), économistes de la construction, architectes et bureaux d'études qui rédigent régulièrement des pièces écrites : CCTP, descriptifs et DPGF." } },
-          { "@type": "Question", "name": "Mes données restent-elles en local ?", "acceptedAnswer": { "@type": "Answer", "text": "Vos affaires sont enregistrées en local, dans un format ouvert, et l'application fonctionne sans connexion permanente. Vous gardez la main sur vos données, sans dépendre du cloud d'un éditeur." } },
-          { "@type": "Question", "name": "Rédibat couvre-t-il la DPGF, l'ouverture des plis, le TCO et le RAO ?", "acceptedAnswer": { "@type": "Answer", "text": "Oui. À partir de vos descriptifs, Rédibat génère la décomposition de prix (DPGF), puis vous accompagne sur l'ouverture des plis, le tableau comparatif des offres (TCO) et le rapport d'analyse des offres (RAO)." } }
+          { "@type": "Question", "name": "Puis-je repartir de mes CCTP existants ?", "acceptedAnswer": { "@type": "Answer", "text": "Oui. Rédibat importe vos documents existants pour repartir de votre travail plutôt que d'une page blanche, et alimenter votre bibliothèque avec vos propres contenus." } },
+          { "@type": "Question", "name": "Mes données restent-elles en local ? Faut-il une connexion Internet permanente ?", "acceptedAnswer": { "@type": "Answer", "text": "Vos affaires sont enregistrées en local, dans un format ouvert, et l'application fonctionne sans connexion permanente. Vous gardez la main sur vos données, sans dépendre du cloud d'un éditeur." } },
+          { "@type": "Question", "name": "Comment fonctionne la bibliothèque d'articles types ?", "acceptedAnswer": { "@type": "Answer", "text": "Vous capitalisez vos propres articles types au fil des projets et les réutilisez d'une affaire à l'autre. Votre bibliothèque vous appartient et s'enrichit à chaque CCTP rédigé, au lieu de louer une base imposée." } },
+          { "@type": "Question", "name": "Rédibat couvre-t-il la DPGF, l'ouverture des plis, le TCO et le RAO ?", "acceptedAnswer": { "@type": "Answer", "text": "Oui. À partir de vos descriptifs, Rédibat génère la décomposition de prix (DPGF), puis vous accompagne jusqu'au bout de la consultation : l'ouverture des plis pour réceptionner les offres, le tableau comparatif des offres (TCO) qui intègre les propositions des entreprises consultées, et le rapport d'analyse des offres (RAO) qui justifie votre choix." } },
+          { "@type": "Question", "name": "En quoi Rédibat se distingue des logiciels de CCTP en ligne ?", "acceptedAnswer": { "@type": "Answer", "text": "Là où beaucoup d'outils sont 100 % en ligne et reposent sur une bibliothèque louée, Rédibat est une application de bureau : vos données en local, votre propre bibliothèque, un format ouvert et l'import de vos documents existants. Pas d'abonnement au cloud pour accéder à votre travail." } }
         ]
       }
     ]
@@ -195,7 +214,7 @@
                font-size: clamp(44px, 7vw, 80px); color: #16314f; margin: 0 0 28px;">Rédibat : la rédaction de CCTP <em style="font-style: italic; font-weight: 500; display: inline-block; padding-right: 0.08em; background: linear-gradient(100deg, rgb(11, 49, 124) 0%, rgb(24, 95, 203) 45%, rgb(48, 197, 236) 100%) text; -webkit-text-fill-color: transparent; color: transparent;">simplifiée</em></h1>
 
     <p style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: clamp(17px, 1.6vw, 19px); font-weight: 400; line-height: 1.62;
-              color: var(--a-text); max-width: 640px; margin: 0 auto; text-wrap: pretty;">Structurez vos affaires en toute simplicité, personnalisez votre bibliothèque d'articles et donnez à vos documents une mise en forme sans contrainte, jusqu'à la préparation de votre ACT. Le tout en local, sans connexion, sans jamais perdre la main sur vos données.</p>
+              color: var(--a-text); max-width: 640px; margin: 0 auto; text-wrap: pretty;">Rédibat est un logiciel de rédaction de CCTP pour le bâtiment : structurez vos affaires en toute simplicité, personnalisez votre bibliothèque d'articles et donnez à vos documents une mise en forme sans contrainte, jusqu'à la préparation de votre ACT. Le tout en local, sans connexion, sans jamais perdre la main sur vos données.</p>
 
     <div style="display: flex; justify-content: center; margin-top: 40px;">
       <a href="#contact" style="position: relative; display: inline-flex; align-items: center; justify-content: center; overflow: hidden;
@@ -352,6 +371,35 @@
         </a>
       </div>
 
+    </div>
+  </section>
+
+  <!-- Logiciel CCTP : section éditoriale (SEO/GEO) -->
+  <section id="logiciel-cctp" style="position: relative; z-index: 2; background: #f4f7fb; border-bottom: 1px solid var(--a-border-soft); padding: 96px 32px 100px;">
+    <div style="max-width: 1200px; margin: 0 auto;">
+      <div style="text-align: center; max-width: 760px; margin: 0 auto 54px;">
+        <div style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--a-blue); margin-bottom: 16px;">Logiciel CCTP</div>
+        <h2 style="font-family: 'Newsreader', Georgia, serif; font-weight: 500; letter-spacing: -0.025em; line-height: 1.08;
+                   font-size: clamp(30px, 4.2vw, 44px); color: #16314f; margin: 0 0 18px;">Le logiciel de rédaction de CCTP <em style="font-style: italic; font-weight: 500; display: inline-block; padding-right: 0.09em; background: linear-gradient(100deg, #185fcb, #30c5ec) text; -webkit-text-fill-color: transparent; color: transparent;">pensé pour le terrain</em></h2>
+        <p style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: clamp(15.5px, 1.5vw, 17px); line-height: 1.65; color: var(--a-text); margin: 0; text-wrap: pretty;">Rédibat a été conçu par un économiste de la construction pour ceux qui rédigent des pièces écrites au quotidien : maîtres d'œuvre, architectes, économistes et bureaux d'études.</p>
+      </div>
+
+      <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 26px;">
+        <div style="background: #ffffff; border: 1px solid var(--a-border); border-radius: 16px; flex: 1 1 300px; max-width: 368px; box-sizing: border-box; padding: 30px 28px 32px; box-shadow: 0 1px 2px rgba(31,58,92,0.04);">
+          <h3 style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-weight: 700; font-size: 19px; color: #16314f; margin: 0 0 12px;">Un vrai outil métier, pas un traitement de texte</h3>
+          <p style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 15px; line-height: 1.62; color: var(--a-text); margin: 0; text-wrap: pretty;">Structurez chaque affaire par lots et articles, rédigez vos descriptifs techniques depuis votre bibliothèque personnelle et générez un cahier des clauses techniques particulières mis en forme, prêt à intégrer votre DCE en Word ou PDF.</p>
+        </div>
+        <div style="background: #ffffff; border: 1px solid var(--a-border); border-radius: 16px; flex: 1 1 300px; max-width: 368px; box-sizing: border-box; padding: 30px 28px 32px; box-shadow: 0 1px 2px rgba(31,58,92,0.04);">
+          <h3 style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-weight: 700; font-size: 19px; color: #16314f; margin: 0 0 12px;">Du CCTP au RAO, sans ressaisie</h3>
+          <p style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 15px; line-height: 1.62; color: var(--a-text); margin: 0; text-wrap: pretty;">La DPGF se génère directement depuis vos descriptifs. L'ouverture des plis, le tableau comparatif des offres (TCO) et le rapport d'analyse des offres (RAO) s'enchaînent ensuite dans le même outil, jusqu'à l'attribution du marché.</p>
+        </div>
+        <div style="background: #ffffff; border: 1px solid var(--a-border); border-radius: 16px; flex: 1 1 300px; max-width: 368px; box-sizing: border-box; padding: 30px 28px 32px; box-shadow: 0 1px 2px rgba(31,58,92,0.04);">
+          <h3 style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-weight: 700; font-size: 19px; color: #16314f; margin: 0 0 12px;">Hors ligne, vos données chez vous</h3>
+          <p style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 15px; line-height: 1.62; color: var(--a-text); margin: 0; text-wrap: pretty;">Rédibat fonctionne sans connexion permanente : vos affaires sont enregistrées en local, dans un format ouvert. Pas de cloud imposé, pas de bibliothèque louée, votre travail vous appartient.</p>
+        </div>
+      </div>
+
+      <p style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 15px; line-height: 1.7; color: var(--a-text); max-width: 760px; margin: 46px auto 0; text-align: center; text-wrap: pretty;">Découvrez chaque module en détail : la <a href="/cctp" style="color: var(--a-blue); text-decoration: none; font-weight: 600;" style-hover="color: var(--a-blue-deep);">rédaction de CCTP</a>, la <a href="/dpgf" style="color: var(--a-blue); text-decoration: none; font-weight: 600;" style-hover="color: var(--a-blue-deep);">génération de la DPGF</a>, l'<a href="/ouverture-des-plis" style="color: var(--a-blue); text-decoration: none; font-weight: 600;" style-hover="color: var(--a-blue-deep);">ouverture des plis</a>, le <a href="/tco" style="color: var(--a-blue); text-decoration: none; font-weight: 600;" style-hover="color: var(--a-blue-deep);">tableau comparatif des offres</a> et le <a href="/rao" style="color: var(--a-blue); text-decoration: none; font-weight: 600;" style-hover="color: var(--a-blue-deep);">rapport d'analyse des offres</a>.</p>
     </div>
   </section>
 

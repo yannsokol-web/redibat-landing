@@ -1,9 +1,8 @@
 User-agent: *
 Allow: /
-Disallow: /espace-client
-Disallow: /espace-fondateur
-Disallow: /creer-mot-de-passe
-Disallow: /mot-de-passe-oublie
-Disallow: /design-system/
+
+# Les pages utilitaires (espace client, mots de passe, design system) portent une
+# balise meta robots "noindex" : elles restent volontairement CRAWLABLES pour que
+# les moteurs voient cette directive et les retirent de l'index.
 
 Sitemap: https://redibat.fr/sitemap.xml
