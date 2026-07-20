@@ -60,8 +60,11 @@
     <!-- Stats -->
     <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; margin-bottom: 24px;">
       <sc-for list="{{ stats }}" as="s" hint-placeholder-count="4">
-        <div style="background: #ffffff; border: 1px solid var(--a-border); border-radius: 14px; padding: 20px 22px; box-shadow: 0 1px 2px rgba(31,58,92,0.04);">
-          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--a-muted); margin-bottom: 12px;">{{ s.label }}</div>
+        <div onClick="{{ s.onClick }}" style="background: #ffffff; border: 1px solid var(--a-border); border-radius: 14px; padding: 20px 22px; box-shadow: 0 1px 2px rgba(31,58,92,0.04); cursor: {{ s.cursor }};">
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 12px;">
+            <span style="font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--a-muted);">{{ s.label }}</span>
+            <span style="font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; letter-spacing: 0.04em; color: var(--a-blue); white-space: nowrap;">{{ s.hint }}</span>
+          </div>
           <div style="display: flex; align-items: baseline; gap: 9px;">
             <span style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 30px; font-weight: 700; color: #16314f;">{{ s.value }}</span>
             <span style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 12.5px; font-weight: 500; color: {{ s.deltaColor }};">{{ s.delta }}</span>
@@ -253,6 +256,46 @@
     </div>
   </sc-if>
 
+  <!-- Journal des téléchargements (overlay) : qui, quand, IP, navigateur -->
+  <sc-if value="{{ isDownloadsOpen }}">
+    <div onClick="{{ onCloseDownloads }}" style="position: fixed; inset: 0; z-index: 100; background: rgba(16,31,58,0.55); backdrop-filter: blur(3px); display: flex; align-items: flex-start; justify-content: center; padding: 40px 20px; overflow-y: auto;">
+      <div onClick="{{ onPanelClick }}" style="width: 100%; max-width: 680px; background: #ffffff; border-radius: 18px; box-shadow: 0 24px 70px rgba(16,31,58,0.4); overflow: hidden;">
+
+        <div style="display: flex; align-items: center; justify-content: space-between; padding: 20px 24px; border-bottom: 1px solid var(--a-border-soft);">
+          <div style="display: flex; align-items: baseline; gap: 10px;">
+            <h2 style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 19px; font-weight: 700; color: #16314f; margin: 0;">Téléchargements</h2>
+            <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--a-muted);">{{ dlCount }}</span>
+          </div>
+          <button type="button" onClick="{{ onCloseDownloads }}" aria-label="Fermer" style="border: none; background: transparent; cursor: pointer; font-size: 22px; line-height: 1; color: var(--a-muted); padding: 4px 8px; border-radius: 8px;">✕</button>
+        </div>
+
+        <sc-if value="{{ hasDlError }}">
+          <div role="alert" style="margin: 12px 24px 0; padding: 10px 14px; border-radius: 10px; background: rgba(226,59,46,0.08); border: 1px solid rgba(226,59,46,0.28); font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 13px; color: #b3261e;">{{ dlError }}</div>
+        </sc-if>
+
+        <div style="max-height: 62vh; overflow-y: auto;">
+          <sc-if value="{{ isDlLoading }}">
+            <div style="padding: 44px 24px; text-align: center; font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 14px; color: var(--a-muted);">Chargement…</div>
+          </sc-if>
+          <sc-if value="{{ isDlEmpty }}">
+            <div style="padding: 44px 24px; text-align: center; font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 14px; color: var(--a-muted);">Aucun téléchargement pour l'instant.</div>
+          </sc-if>
+          <sc-for list="{{ dlItems }}" as="d">
+            <div style="padding: 14px 24px; border-top: 1px solid var(--a-border-soft);">
+              <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;">
+                <span style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 14px; font-weight: 600; color: #16314f;">{{ d.email }}</span>
+                <span style="flex: none; font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--a-muted);">{{ d.when }}</span>
+              </div>
+              <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--a-muted); margin-top: 4px;">IP {{ d.ip }}</div>
+              <div style="font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; color: var(--a-faint); margin-top: 2px; word-break: break-word;">{{ d.ua }}</div>
+            </div>
+          </sc-for>
+        </div>
+
+      </div>
+    </div>
+  </sc-if>
+
   <!-- Modale : ajouter une licence -->
   <sc-if value="{{ showAddUser }}">
     <div onClick="{{ onCloseAddUser }}" style="position: fixed; inset: 0; z-index: 100; background: rgba(16,31,58,0.55); backdrop-filter: blur(3px); display: flex; align-items: flex-start; justify-content: center; padding: 56px 20px; overflow-y: auto;">
@@ -307,7 +350,8 @@ class Component extends DCLogic {
   state = { loading: true, error: '', banner: '', users: [], bugs: [], messages: [], stats: null,
     overlay: null, filter: 'all', expandedKey: null,
     allBugs: [], allMessages: [], inboxLoaded: false, actionError: '',
-    userFilter: 'all', showAddUser: false, addError: '', addBusy: false };
+    userFilter: 'all', showAddUser: false, addError: '', addBusy: false,
+    downloads: [], dlOpen: false, dlLoading: false, dlError: '' };
 
   componentDidMount() {
     if (this._fetchStarted) return;   // garde : un seul appel même si le runtime re-monte
@@ -361,6 +405,25 @@ class Component extends DCLogic {
       this.setState({ allBugs: data.bugs || [], allMessages: data.messages || [], inboxLoaded: true });
     }).catch(() => this.setState({ actionError: 'Impossible de charger la boîte de réception.' }));
   };
+
+  // Journal des téléchargements : rechargé à CHAQUE ouverture (contrairement à la boîte de
+  // réception, mise en cache) — un journal doit montrer les derniers clics sans F5.
+  openDownloads = () => {
+    this.setState({ dlOpen: true, dlLoading: true, dlError: '' });
+    const token = this._token();
+    if (!token) { this._authFailed(); return; }
+    fetch(Component.API_BASE + '/v1/founder/downloads', {
+      headers: { 'Authorization': 'Bearer ' + token, 'Accept': 'application/json' },
+    }).then((r) => {
+      if (r.status === 401 || r.status === 403) { this._authFailed(); return null; }
+      if (!r.ok) throw new Error('http ' + r.status);
+      return r.json();
+    }).then((data) => {
+      if (!data) return;
+      this.setState({ downloads: data.downloads || [], dlLoading: false });
+    }).catch(() => this.setState({ dlLoading: false, dlError: 'Impossible de charger le journal. Réessayez.' }));
+  };
+  closeDownloads = () => this.setState({ dlOpen: false });
 
   closeInbox = () => this.setState({ overlay: null, expandedKey: null, actionError: '' });
   setFilter = (f) => this.setState({ filter: f });
@@ -484,6 +547,13 @@ class Component extends DCLogic {
     // Dates d'abonnement en 'AAAA-MM-JJ' -> comparaison lexicographique = chronologique.
     const fmtFR = (iso) => { if (!iso) return '—'; const p = String(iso).slice(0, 10).split('-'); return p[2] + '/' + p[1] + '/' + p[0]; };
     const fmtDM = (iso) => { if (!iso) return ''; const p = String(iso).slice(0, 10).split('-'); return p[2] + '/' + p[1]; };
+    // Date + HEURE locales pour le journal des téléchargements (created_at est en ISO/UTC,
+    // l'heure compte pour distinguer plusieurs clics le même jour).
+    const fmtDT = (iso) => {
+      const d = new Date(iso); if (isNaN(d)) return '—';
+      const p = (n) => String(n).padStart(2, '0');
+      return p(d.getDate()) + '/' + p(d.getMonth() + 1) + '/' + d.getFullYear() + ' à ' + p(d.getHours()) + ':' + p(d.getMinutes());
+    };
 
     // Fenêtre d'abonnement (dates 'AAAA-MM-JJ', comparaison lexicographique = chronologique).
     const withinWindow = (u) => (!u.subscription_start || u.subscription_start <= today)
@@ -583,12 +653,23 @@ class Component extends DCLogic {
     const bugsOpen = s.inboxLoaded ? (s.allBugs || []).filter((b) => b.state !== 'done').length : (st ? st.bugs_open : 0);
     const bugsHigh = s.inboxLoaded ? (s.allBugs || []).filter((b) => b.state !== 'done' && b.severity === 'high').length : (st ? st.bugs_high : 0);
     const msgUnread = s.inboxLoaded ? (s.allMessages || []).filter((m) => m.state === 'new').length : (st ? st.messages_unread : 0);
+    // Seule la carte « Téléchargements » est cliquable (ouvre le journal détaillé).
+    const noop = () => {};
     const stats = st ? [
-      { label: 'Utilisateurs', value: String(st.users_total), delta: '+' + st.users_week + ' cette semaine', deltaColor: teal },
-      { label: 'Téléchargements', value: String(st.downloads_total), delta: '+' + st.downloads_week, deltaColor: teal },
-      { label: 'Bugs ouverts', value: String(bugsOpen), delta: bugsHigh + (bugsHigh > 1 ? ' élevées' : ' élevée'), deltaColor: red },
-      { label: 'Messages non lus', value: String(msgUnread), delta: 'à traiter', deltaColor: amber },
+      { label: 'Utilisateurs', value: String(st.users_total), delta: '+' + st.users_week + ' cette semaine', deltaColor: teal, hint: '', cursor: 'default', onClick: noop },
+      { label: 'Téléchargements', value: String(st.downloads_total), delta: '+' + st.downloads_week, deltaColor: teal, hint: 'Voir →', cursor: 'pointer', onClick: this.openDownloads },
+      { label: 'Bugs ouverts', value: String(bugsOpen), delta: bugsHigh + (bugsHigh > 1 ? ' élevées' : ' élevée'), deltaColor: red, hint: '', cursor: 'default', onClick: noop },
+      { label: 'Messages non lus', value: String(msgUnread), delta: 'à traiter', deltaColor: amber, hint: '', cursor: 'default', onClick: noop },
     ] : [];
+
+    // Journal des téléchargements : IP / navigateur à « — » pour les événements antérieurs
+    // à la traçabilité (colonnes NULL en base).
+    const dlItems = (s.downloads || []).map((x) => ({
+      email: x.user_email || '—',
+      when: fmtDT(x.created_at),
+      ip: x.ip || '—',
+      ua: x.user_agent || '—',
+    }));
 
     // --- Boîte de réception (overlay) : liste unifiée bugs/messages + handlers par item ---
     const stateLabel = { new: 'Nouveau', pending: 'En attente', done: 'Traité' };
@@ -671,6 +752,15 @@ class Component extends DCLogic {
       hasAddError: !!s.addError,
       addError: s.addError,
       addLabel: s.addBusy ? 'Création…' : 'Créer la licence et inviter',
+      // --- Journal des téléchargements (overlay) ---
+      isDownloadsOpen: s.dlOpen,
+      onCloseDownloads: this.closeDownloads,
+      dlItems,
+      dlCount: (st ? st.downloads_total : dlItems.length) + ' au total',
+      isDlLoading: s.dlLoading,
+      isDlEmpty: !s.dlLoading && !s.dlError && dlItems.length === 0,
+      hasDlError: !!s.dlError,
+      dlError: s.dlError,
       // --- Overlay boîte de réception ---
       onOpenBugs: () => this.openInbox('bugs'),
       onOpenMessages: () => this.openInbox('messages'),
