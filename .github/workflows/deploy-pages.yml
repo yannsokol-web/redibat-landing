@@ -22,9 +22,18 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          # sitemap-lastmod.py interroge `git log` : il lui faut l'historique.
+          # blob:none évite de rapatrier les ~130 Mo de blobs (uploads/) au
+          # passage : commits et arbres suffisent à dater un fichier.
+          fetch-depth: 0
+          filter: blob:none
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
+
+      - name: Rafraîchir les lastmod du sitemap
+        run: python3 scripts/sitemap-lastmod.py
 
       - name: Upload site artifact
         uses: actions/upload-pages-artifact@v3

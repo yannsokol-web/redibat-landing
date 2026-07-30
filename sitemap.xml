@@ -1,4 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Ne maintenez PAS les <lastmod> à la main : scripts/sitemap-lastmod.py les
+  recalcule au déploiement depuis la date du dernier commit de chaque page. Les
+  dates ci-dessous sont donc périmées dans le dépôt, mais justes sur le site
+  publié. Le script échoue si une <loc> ne correspond à aucun fichier : pensez à
+  retirer d'ici toute page supprimée.
+-->
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://redibat.fr/</loc>
