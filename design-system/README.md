@@ -1,10 +1,10 @@
-# Design System — Rédibat
+# Design System - Rédibat
 
 Charte visuelle du site **redibat.fr**, extraite des pages réellement en ligne
 (`index`, `a-propos`, `faq`, pages produits…). Objectif : **toute nouvelle page
 part de ce dossier** et reste cohérente avec le reste du site.
 
-> ⚠️ **Règle d'or** — Pour créer une page, **copiez `template.html`**. Ne
+> ⚠️ **Règle d'or** - Pour créer une page, **copiez `template.html`**. Ne
 > reconstruisez jamais une page sur une autre base CSS. C'est ce qui avait fait
 > diverger les pages légales (bâties par erreur sur `assets/css/site.css`).
 
@@ -71,7 +71,7 @@ Le corps des pages est **clair** (fond `#ffffff`).
 |---|---|---|
 | **Newsreader** (serif) | `--display` | Titres. Poids 500, `letter-spacing:-.02em`. Emphase en *italique* avec dégradé `text`. |
 | **Hanken Grotesk** | `--body` | Corps, lede, UI. |
-| **IBM Plex Mono** | `--mono` | Eyebrows, labels, mentions (`letter-spacing:.14–.18em; text-transform:uppercase`). |
+| **IBM Plex Mono** | `--mono` | Eyebrows, labels, mentions (`letter-spacing:.14-.18em; text-transform:uppercase`). |
 
 Échelle : `--fs-hero` clamp(2.6rem, 6.2vw, 4.3rem) · `--fs-h2` clamp(2rem, 4vw,
 2.8rem) · `--fs-h3` 1.24rem · `--fs-lead` clamp(1.05rem, 2vw, 1.2rem) ·
@@ -79,8 +79,8 @@ Le corps des pages est **clair** (fond `#ffffff`).
 
 ## 3. Espacements, rayons, ombres, motion
 
-- **Largeurs** : `--wrap` 1200px · `--wrap-narrow` 1060px · `--gutter` 32px. Contenu lu : 760–820px.
-- **Rayons** : `--r-sm` 8px · `--r-xl` 14px · cartes 16–18px · `--r-pill` 100px (badges, CTA).
+- **Largeurs** : `--wrap` 1200px · `--wrap-narrow` 1060px · `--gutter` 32px. Contenu lu : 760-820px.
+- **Rayons** : `--r-sm` 8px · `--r-xl` 14px · cartes 16-18px · `--r-pill` 100px (badges, CTA).
 - **Ombres** : cartes `0 20px 50px -30px rgba(31,58,92,.3)` · CTA `0 8px 22px -8px rgba(24,95,203,.55)`.
 - **Motion** : `--dur-med` .18s · `--ease-out` cubic-bezier(.2,.8,.2,1). Respecter `prefers-reduced-motion`.
 
@@ -98,7 +98,7 @@ Le corps des pages est **clair** (fond `#ffffff`).
 <h1 style="font-family:'Newsreader',Georgia,serif;font-weight:500;letter-spacing:-.028em;line-height:1.06;font-size:clamp(36px,5.4vw,60px);color:#16314f;">Titre <em style="font-style:italic;font-weight:500;background:linear-gradient(100deg,#185fcb,#30c5ec) text;-webkit-text-fill-color:transparent;color:transparent;">accentué</em></h1>
 ```
 
-**CTA principal (pilule dégradée)** — le survol passe par `style-hover` (voir Conventions)
+**CTA principal (pilule dégradée)** - le survol passe par `style-hover` (voir Conventions)
 ```html
 <a href="/#contact" style="display:inline-flex;align-items:center;text-decoration:none;font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:#fff;background:linear-gradient(135deg,#0b317c 0%,#185fcb 55%,#30c5ec 100%);padding:14px 28px;border-radius:100px;box-shadow:0 8px 22px -8px rgba(24,95,203,0.55);transition:transform .18s ease,filter .18s ease,box-shadow .18s ease;" style-hover="transform:translateY(-1px);filter:brightness(1.06);box-shadow:0 12px 30px -8px rgba(24,95,203,0.7);">Appel à l'action</a>
 ```
@@ -108,7 +108,7 @@ Le corps des pages est **clair** (fond `#ffffff`).
 <div style="background:#fff;border:1px solid var(--a-border);border-radius:18px;padding:clamp(28px,4vw,48px);box-shadow:0 20px 50px -30px rgba(31,58,92,0.3);">…</div>
 ```
 
-Le **styleguide** (`styleguide.html`) rend ces composants en vrai — ouvrez-le pour voir.
+Le **styleguide** (`styleguide.html`) rend ces composants en vrai - ouvrez-le pour voir.
 
 ---
 
@@ -126,13 +126,13 @@ Le **styleguide** (`styleguide.html`) rend ces composants en vrai — ouvrez-le 
 ## Conventions x-dc (à connaître)
 
 - **Runtime** : `support.js` compile le gabarit `<x-dc>…</x-dc>` en React. Le `<helmet>` est déplacé dans le `<head>` (tokens + polices). Un `Component` minimal (`renderVals(){return {}}`) suffit pour une page statique.
-- **`style-hover` / `style-focus`** : attributs personnalisés convertis en vraies classes CSS par le runtime. **Indispensables pour les survols** — un `:hover` inline classique n'existe pas. Ils ne fonctionnent QUE via le runtime x-dc.
+- **`style-hover` / `style-focus`** : attributs personnalisés convertis en vraies classes CSS par le runtime. **Indispensables pour les survols** - un `:hover` inline classique n'existe pas. Ils ne fonctionnent QUE via le runtime x-dc.
 - **`class` / `for` / `on*`** : écrits normalement, le runtime les convertit (`className`, `htmlFor`, `onClick`…).
 - **Blocs `<style>` du `<head>`** : ce sont de vraies feuilles de style (les media queries fonctionnent). C'est là que vivent le dropdown « Produits » et le menu burger mobile (`<details>`, pur CSS).
 - **Pas d'interpolation** `{{ }}` dans une page statique (sinon le runtime tente de résoudre des variables).
 
 ## Pièges
 
-- **En-tête dupliqué sur toutes les pages x-dc** (y compris `404.html`) : l'en-tête/pied n'est pas partagé par include — il est **copié à l'identique** dans chaque page. Une modif d'en-tête doit être répliquée partout (ou repartir de `template.html`).
+- **En-tête dupliqué sur toutes les pages x-dc** (y compris `404.html`) : l'en-tête/pied n'est pas partagé par include - il est **copié à l'identique** dans chaque page. Une modif d'en-tête doit être répliquée partout (ou repartir de `template.html`).
 - **`style-hover` sans runtime = pas de survol** : ne pas transposer ces pages en HTML statique sans `support.js`.
 - **Chemins & `<base href="/">`** : `support.js` charge `vendor/react*.js` en chemin **relatif au document**. Une page servie **hors racine** (ex. `/design-system/`) le chercherait donc dans `/design-system/vendor/` → 404, et **React ne démarrerait pas** (contenu affiché en brut, tokens et `style-hover` inactifs). `template.html` et `styleguide.html` incluent donc `<base href="/">` (+ chemins absolus `/support.js`, `/_ds/…`, `/uploads/…`). À la racine, `<base href="/">` est neutre : une page copiée à la racine marche avec ou sans.

@@ -17,7 +17,7 @@
 <body>
 <x-dc>
 <helmet>
-  <title>Espace fondateur — Tableau de bord | Rédibat</title>
+  <title>Espace fondateur - Tableau de bord | Rédibat</title>
   <meta name="robots" content="noindex, nofollow">
   <link rel="stylesheet" href="_ds/r-dibat-design-system-740ba38c-581d-4335-88dd-fcf28913eed8/tokens/fonts.css">
   <link rel="stylesheet" href="_ds/r-dibat-design-system-740ba38c-581d-4335-88dd-fcf28913eed8/tokens/colors.css">
@@ -314,8 +314,8 @@
             <span style="display: block; font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--a-muted); margin-bottom: 8px;">Offre</span>
             <select name="role"
                     style="width: 100%; box-sizing: border-box; font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 15px; color: #16314f; padding: 12px 14px; border: 1px solid var(--a-border); border-radius: 10px; background: var(--a-bg-3); outline: none;">
-              <option value="pro">PRO — rédaction CCTP</option>
-              <option value="max">MAX — CCTP + Analyse des offres</option>
+              <option value="pro">PRO - rédaction CCTP</option>
+              <option value="max">MAX - CCTP + Analyse des offres</option>
             </select>
           </label>
           <label style="display: block; margin-bottom: 16px;">
@@ -407,7 +407,7 @@ class Component extends DCLogic {
   };
 
   // Journal des téléchargements : rechargé à CHAQUE ouverture (contrairement à la boîte de
-  // réception, mise en cache) — un journal doit montrer les derniers clics sans F5.
+  // réception, mise en cache) - un journal doit montrer les derniers clics sans F5.
   openDownloads = () => {
     this.setState({ dlOpen: true, dlLoading: true, dlError: '' });
     const token = this._token();
@@ -497,7 +497,7 @@ class Component extends DCLogic {
       const data = await r.json().catch(() => ({}));
       const banner = (data && data.mail_status === 'sent')
         ? ('Invitation envoyée à ' + email + '.')
-        : ('Compte créé pour ' + email + '. L’e-mail n’a pas pu être envoyé — utilisez « Renvoyer ».');
+        : ('Compte créé pour ' + email + '. L’e-mail n’a pas pu être envoyé - utilisez « Renvoyer ».');
       this.setState({ addBusy: false, showAddUser: false, banner });
       this.loadOverview();
     } catch (_) {
@@ -584,7 +584,7 @@ class Component extends DCLogic {
         let pwNote, pwColor;
         if (u.password_set === 1) { pwNote = 'Mot de passe créé'; pwColor = muted; }
         else if (u.mail_status === 'sent') { pwNote = 'Invitation envoyée'; pwColor = blue; }
-        else if (u.mail_status === 'failed') { pwNote = 'Échec e-mail — renvoyer'; pwColor = red; }
+        else if (u.mail_status === 'failed') { pwNote = 'Échec e-mail - renvoyer'; pwColor = red; }
         else { pwNote = 'E-mail à envoyer'; pwColor = amber; }
         return {
           email: u.email,

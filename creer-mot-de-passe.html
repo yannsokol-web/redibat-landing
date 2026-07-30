@@ -136,7 +136,7 @@ class Component extends DCLogic {
 
   state = { phase: 'loading', email: '', showPwd: false, submitting: false, error: '' };
   token = null;
-  mode = 'create';       // 'create' (invitation) | 'reset' (mot de passe oublié) — cf. ?mode=reset
+  mode = 'create';       // 'create' (invitation) | 'reset' (mot de passe oublié) - cf. ?mode=reset
 
   componentDidMount() {
     if (this._started) return;       // garde : un seul appel même si le runtime re-monte

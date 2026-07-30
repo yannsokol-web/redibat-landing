@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <!-- ============================================================================
-     RÉDIBAT — STYLEGUIDE (référence visuelle vivante)
+     RÉDIBAT - STYLEGUIDE (référence visuelle vivante)
      Rendu avec le vrai design system (_ds/) : ce que vous voyez ici est
      exactement ce qui s'affiche en production. Consultable sur
      /design-system/styleguide. Pour créer une page : partez de template.html.
@@ -11,7 +11,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <!-- Runtime (support.js) charge vendor/react*.js en relatif → base racine obligatoire hors racine. -->
 <base href="/">
-<title>Design System — Rédibat</title>
+<title>Design System - Rédibat</title>
 <meta name="description" content="Référence visuelle du design system Rédibat : couleurs, typographie et composants.">
 <meta name="robots" content="noindex, nofollow">
 <link rel="icon" type="image/png" sizes="32x32" href="/assets/logos/favicon-32.png">
@@ -131,12 +131,12 @@
     <section style="max-width: 1060px; margin: 0 auto; padding: 66px 32px 26px;">
       <div style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--a-blue); margin-bottom: 16px;">Design System</div>
       <h1 style="font-family: 'Newsreader', Georgia, serif; font-weight: 500; letter-spacing: -0.028em; line-height: 1.05; font-size: clamp(38px, 5.6vw, 62px); color: #16314f; margin: 0 0 18px;">La charte de <em style="font-style: italic; font-weight: 500; background: linear-gradient(100deg, #185fcb, #30c5ec) text; -webkit-text-fill-color: transparent; color: transparent;">Rédibat</em></h1>
-      <p style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: clamp(16px, 1.5vw, 18px); line-height: 1.62; color: var(--a-text); max-width: 620px; margin: 0; text-wrap: pretty;">Tokens et composants tels qu'affichés en production. Pour créer une page, partez de <b style="color:#16314f">design-system/template.html</b> — ne réinventez pas la mise en page.</p>
+      <p style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: clamp(16px, 1.5vw, 18px); line-height: 1.62; color: var(--a-text); max-width: 620px; margin: 0; text-wrap: pretty;">Tokens et composants tels qu'affichés en production. Pour créer une page, partez de <b style="color:#16314f">design-system/template.html</b> - ne réinventez pas la mise en page.</p>
     </section>
 
     <!-- ===================== COULEURS ===================== -->
     <section class="sg-wrap sg-block">
-      <p class="sg-eyebrow">01 — Couleurs</p>
+      <p class="sg-eyebrow">01 - Couleurs</p>
       <h2 class="sg-h2">Surface claire (pages &amp; contenu)</h2>
       <p class="sg-note">Le corps des pages est clair. Titres en <code>--a-navy-deep</code>, texte en <code>--a-text</code>, action en <code>--a-blue</code>.</p>
       <div class="sg-grid">
@@ -168,11 +168,11 @@
 
     <!-- ===================== TYPOGRAPHIE ===================== -->
     <section class="sg-wrap sg-block">
-      <p class="sg-eyebrow">02 — Typographie</p>
+      <p class="sg-eyebrow">02 - Typographie</p>
       <h2 class="sg-h2">Trois familles</h2>
       <p class="sg-note">Newsreader (titres, serif, italique d'emphase) · Hanken Grotesk (corps &amp; UI) · IBM Plex Mono (eyebrows, labels).</p>
 
-      <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--a-blue);">Eyebrow / kicker — IBM Plex Mono</div>
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--a-blue);">Eyebrow / kicker - IBM Plex Mono</div>
       <div class="sg-spec">--mono · 12px · letter-spacing .18em · uppercase · var(--a-blue)</div>
 
       <div style="font-family:'Newsreader',Georgia,serif;font-weight:500;letter-spacing:-.028em;line-height:1.05;font-size:clamp(36px,5.4vw,60px);color:#16314f;margin-top:22px;">Titre héros <em style="font-style:italic;font-weight:500;background:linear-gradient(100deg,#185fcb,#30c5ec) text;-webkit-text-fill-color:transparent;color:transparent;">accentué</em></div>
@@ -181,16 +181,16 @@
       <div style="font-family:'Newsreader',Georgia,serif;font-weight:500;letter-spacing:-.02em;line-height:1.15;font-size:clamp(24px,3vw,34px);color:#16314f;margin-top:22px;">Titre de section (h2)</div>
       <div class="sg-spec">--display · clamp(2rem, 4vw, 2.8rem) · weight 500 · #16314f</div>
 
-      <p style="font-family:'Hanken Grotesk',system-ui,sans-serif;font-size:clamp(16px,1.5vw,18.5px);line-height:1.62;color:var(--a-text);max-width:620px;margin-top:22px;margin-bottom:0;">Lede / chapô — introduit une page ou une section en une ou deux phrases, en Hanken Grotesk légèrement agrandi.</p>
+      <p style="font-family:'Hanken Grotesk',system-ui,sans-serif;font-size:clamp(16px,1.5vw,18.5px);line-height:1.62;color:var(--a-text);max-width:620px;margin-top:22px;margin-bottom:0;">Lede / chapô - introduit une page ou une section en une ou deux phrases, en Hanken Grotesk légèrement agrandi.</p>
       <div class="sg-spec">--body · clamp(1.05rem, 2vw, 1.2rem) · line-height 1.6 · var(--a-text)</div>
 
       <p style="font-family:'Hanken Grotesk',system-ui,sans-serif;font-size:16px;line-height:1.72;color:var(--a-text);max-width:620px;margin-top:18px;margin-bottom:0;">Corps de texte courant. Le <strong style="color:#16314f">gras</strong> se met en <code>--a-navy-deep</code> pour rester lisible et discret.</p>
-      <div class="sg-spec">--body · 1rem · line-height 1.6–1.72 · var(--a-text)</div>
+      <div class="sg-spec">--body · 1rem · line-height 1.6-1.72 · var(--a-text)</div>
     </section>
 
     <!-- ===================== COMPOSANTS ===================== -->
     <section class="sg-wrap sg-block">
-      <p class="sg-eyebrow">03 — Composants</p>
+      <p class="sg-eyebrow">03 - Composants</p>
       <h2 class="sg-h2">Boutons</h2>
       <p class="sg-note">Pilule (rayon 100px). Le CTA principal porte le dégradé de marque ; le fantôme reste discret.</p>
       <div class="sg-row">
@@ -202,7 +202,7 @@
       </div>
 
       <h2 class="sg-h2" style="margin-top:30px">Carte</h2>
-      <p class="sg-note">Surface blanche, bord <code>--a-border</code>, rayon 16–18px, ombre portée douce.</p>
+      <p class="sg-note">Surface blanche, bord <code>--a-border</code>, rayon 16-18px, ombre portée douce.</p>
       <div class="sg-card">
         <div style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--a-blue);margin-bottom:12px;">Étiquette</div>
         <h3 style="font-family:'Newsreader',Georgia,serif;font-weight:500;letter-spacing:-.01em;font-size:22px;color:#16314f;margin:0 0 8px;">Titre de carte</h3>
@@ -223,7 +223,7 @@
 
     <!-- ===================== RAYONS / OMBRES / MOTION ===================== -->
     <section class="sg-wrap sg-block">
-      <p class="sg-eyebrow">04 — Rayons, ombres &amp; motion</p>
+      <p class="sg-eyebrow">04 - Rayons, ombres &amp; motion</p>
       <h2 class="sg-h2">Rayons</h2>
       <div class="sg-row">
         <div style="width:96px;height:64px;background:#fff;border:1px solid var(--a-border);border-radius:8px;"></div>
@@ -231,7 +231,7 @@
         <div style="width:96px;height:64px;background:#fff;border:1px solid var(--a-border);border-radius:18px;"></div>
         <div style="width:130px;height:44px;background:#fff;border:1px solid var(--a-border);border-radius:100px;"></div>
       </div>
-      <div class="sg-spec">--r-sm 8px · --r-xl 14px · carte 16–18px · --r-pill 100px (badges, CTA)</div>
+      <div class="sg-spec">--r-sm 8px · --r-xl 14px · carte 16-18px · --r-pill 100px (badges, CTA)</div>
       <p class="sg-note" style="margin-top:22px;margin-bottom:0;">Motion : <code>--dur-med .18s</code> / <code>--ease-out cubic-bezier(.2,.8,.2,1)</code>. Toujours respecter <code>prefers-reduced-motion</code>.</p>
     </section>
 
