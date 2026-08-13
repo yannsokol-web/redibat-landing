@@ -159,6 +159,25 @@ check('renderVals() survit à stats = null (premier rendu)', !!nv,
 if (nv) check('et n\'annonce rien de faux', nv.telemSummary === 'aucun poste ne remonte de données',
   nv.telemSummary);
 
+console.log('\n5. Un backend EN ARRIÈRE ne fait pas afficher « undefined »');
+// 🔴 Cas RÉEL et non théorique : la landing se déploie instantanément (Pages, au push)
+// alors que le backend demande un `git pull` + un redémarrage MANUEL. Pendant ce
+// décalage, `getStats` ne porte pas encore les champs de télémétrie. Sans lecture
+// défensive, le bandeau affiche « undefined postes actifs sur 48 h » — constaté en vrai.
+const vieux = new Cls();
+vieux.state = { ...vieux.state, loading: false, stats: {
+  users_total: 4, users_week: 1, downloads_total: 9, downloads_week: 2,
+  bugs_open: 1, bugs_high: 0, messages_unread: 0 } };   // AUCUN champ telemetry_*
+const ov = vieux.renderVals();
+check('aucun « undefined » dans le bandeau',
+  !String(ov.telemSummary).includes('undefined')
+  && !String(ov.telemCrashes).includes('undefined'),
+  `${ov.telemSummary} / ${ov.telemCrashes}`);
+check('il annonce l\'absence de données, pas un faux chiffre',
+  ov.telemSummary === 'aucun poste ne remonte de données', ov.telemSummary);
+check('et le reste du tableau de bord est intact',
+  ov.stats.length === 4 && ov.stats[0].value === '4', JSON.stringify(ov.stats.map((c) => c.value)));
+
 console.log(`\n${ok} contrôle(s) réussi(s), ${fails.length} en échec.`);
 if (fails.length) { fails.forEach((f) => console.log('  - ' + f)); process.exit(1); }
 console.log('✓ l\'espace fondateur se charge, et aucune clé de gabarit ne manque.');

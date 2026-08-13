@@ -771,9 +771,15 @@ class Component extends DCLogic {
     // --- Télémétrie ---------------------------------------------------------------
     // Le RÉSUMÉ vient des stats (donc sans clic) ; le DÉTAIL de l'endpoint dédié, chargé à
     // l'ouverture de l'overlay.
-    const tDevices = st ? st.telemetry_devices_48h : 0;
-    const tCrashes = st ? st.telemetry_crashes_48h : 0;
-    const tTop = st ? (st.telemetry_top_version || '') : '';
+    // 🔴 `Number(…) || 0` et JAMAIS une lecture directe : la landing se déploie
+    // INSTANTANÉMENT (Pages, au push) alors que le backend demande un `git pull` + un
+    // redémarrage MANUEL. Le décalage n'est donc pas un accident à éviter par la
+    // discipline, il est STRUCTUREL — et pendant sa durée `getStats` ne porte pas encore
+    // ces champs. Constaté en vrai : le bandeau affichait « undefined postes actifs sur
+    // 48 h ». Le même raisonnement vaut pour un client qui reste en arrière.
+    const tDevices = Number(st && st.telemetry_devices_48h) || 0;
+    const tCrashes = Number(st && st.telemetry_crashes_48h) || 0;
+    const tTop = (st && st.telemetry_top_version) || '';
     const telemSummary = tDevices === 0
       ? 'aucun poste ne remonte de données'
       : tDevices + (tDevices > 1 ? ' postes actifs' : ' poste actif') + ' sur 48 h'
