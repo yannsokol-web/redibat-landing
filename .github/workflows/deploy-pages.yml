@@ -29,8 +29,24 @@ jobs:
           fetch-depth: 0
           filter: blob:none
 
+      # ⚠ Épinglé plutôt que de s'en remettre au Node par défaut du runner : une
+      # dépendance implicite change sous vos pieds à la faveur d'une mise à jour d'image,
+      # et l'on découvre la panne au moment d'un déploiement.
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '22'
+
       - name: Configure Pages
         uses: actions/configure-pages@v6
+
+      # 🔴 BARRIÈRE AVANT PUBLICATION. L'espace fondateur est un composant à gabarit
+      # maison : une clé `{{ … }}` absente de `renderVals()` ne lève AUCUNE erreur, la
+      # zone reste simplement VIDE. Une coquille se déploierait donc sans un signe, sur la
+      # page qui sert précisément à surveiller le produit. Le vérificateur exécute le
+      # composant et confronte gabarit et valeurs rendues, dans les deux sens.
+      # ⚠ Placé AVANT l'upload : un tableau de bord amputé ne doit pas atteindre Pages.
+      - name: Vérifier l'espace fondateur
+        run: node scripts/check-espace-fondateur.mjs
 
       - name: Rafraîchir les lastmod du sitemap
         run: python3 scripts/sitemap-lastmod.py

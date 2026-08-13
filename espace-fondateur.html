@@ -73,6 +73,20 @@
       </sc-for>
     </div>
 
+    <!-- Télémétrie : santé du parc. 🔴 Un BANDEAU et non une 5e carte : la grille est en
+         `repeat(4, 1fr)`, une carte de plus laisserait un orphelin sur une seconde rangée ;
+         et ce n'est pas un compteur commercial mais la santé du parc, qui mérite une phrase.
+         🔴 Le nombre de crashes est LU SANS CLIQUER : tout l'intérêt est de le voir avant
+         que le téléphone ne sonne. -->
+    <div onClick="{{ onOpenTelemetry }}" style="background: #ffffff; border: 1px solid var(--a-border); border-left: 3px solid {{ telemAccent }}; border-radius: 14px; padding: 14px 22px; margin-bottom: 24px; box-shadow: 0 1px 2px rgba(31,58,92,0.04); cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap;">
+      <div style="display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap;">
+        <span style="font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--a-muted);">Télémétrie</span>
+        <span style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 14px; font-weight: 600; color: #16314f;">{{ telemSummary }}</span>
+        <span style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 13px; font-weight: 600; color: {{ telemAccent }};">{{ telemCrashes }}</span>
+      </div>
+      <span style="flex: none; font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; letter-spacing: 0.04em; color: var(--a-blue);">Voir le détail →</span>
+    </div>
+
     <!-- Two columns -->
     <div style="display: grid; grid-template-columns: 1.65fr 1fr; gap: 24px; align-items: start;">
 
@@ -296,6 +310,63 @@
     </div>
   </sc-if>
 
+  <!-- Overlay : télémétrie détaillée. Décalque du journal des téléchargements. -->
+  <sc-if value="{{ isTelemetryOpen }}">
+    <div onClick="{{ onCloseTelemetry }}" style="position: fixed; inset: 0; z-index: 100; background: rgba(16,31,58,0.55); backdrop-filter: blur(3px); display: flex; align-items: flex-start; justify-content: center; padding: 40px 20px; overflow-y: auto;">
+      <div onClick="{{ onPanelClick }}" style="width: 100%; max-width: 760px; background: #ffffff; border-radius: 18px; box-shadow: 0 24px 70px rgba(16,31,58,0.4); overflow: hidden;">
+
+        <div style="display: flex; align-items: center; justify-content: space-between; padding: 20px 24px; border-bottom: 1px solid var(--a-border-soft);">
+          <div style="display: flex; align-items: baseline; gap: 10px;">
+            <h2 style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 19px; font-weight: 700; color: #16314f; margin: 0;">Télémétrie</h2>
+            <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--a-muted);">{{ telemWindow }}</span>
+          </div>
+          <button type="button" onClick="{{ onCloseTelemetry }}" aria-label="Fermer" style="border: none; background: transparent; cursor: pointer; font-size: 22px; line-height: 1; color: var(--a-muted); padding: 4px 8px; border-radius: 8px;">✕</button>
+        </div>
+
+        <sc-if value="{{ hasTelemError }}">
+          <div role="alert" style="margin: 12px 24px 0; padding: 10px 14px; border-radius: 10px; background: rgba(226,59,46,0.08); border: 1px solid rgba(226,59,46,0.28); font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 13px; color: #b3261e;">{{ telemError }}</div>
+        </sc-if>
+
+        <div style="max-height: 66vh; overflow-y: auto;">
+          <sc-if value="{{ isTelemLoading }}">
+            <div style="padding: 44px 24px; text-align: center; font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 14px; color: var(--a-muted);">Chargement…</div>
+          </sc-if>
+          <sc-if value="{{ isTelemEmpty }}">
+            <div style="padding: 40px 24px; text-align: center; font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 14px; line-height: 1.6; color: var(--a-muted);">Aucun poste ne remonte de données.<br><span style="font-size: 13px; color: var(--a-faint);">La télémétrie est facultative : elle ne part que si l'utilisateur l'a acceptée.</span></div>
+          </sc-if>
+
+          <!-- Par VERSION : c'est la seule comparaison qui répond à « cette version
+               plante-t-elle plus que la précédente ? ». -->
+          <sc-for list="{{ telemVersions }}" as="v">
+            <div style="padding: 16px 24px; border-top: 1px solid var(--a-border-soft);">
+              <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 10px; flex-wrap: wrap;">
+                <span style="font-family: 'IBM Plex Mono', monospace; font-size: 14px; font-weight: 500; color: #16314f;">{{ v.version }}</span>
+                <span style="flex: none; font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 13px; font-weight: 600; color: {{ v.crashColor }};">{{ v.crashes }}</span>
+              </div>
+              <div style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 13px; color: var(--a-muted); margin-top: 5px;">{{ v.postes }}</div>
+              <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--a-faint); margin-top: 3px;">{{ v.detail }}</div>
+            </div>
+          </sc-for>
+
+          <!-- Ce que les gens FONT réellement : le second manque que cette télémétrie
+               comble (« quels modules ouvre-t-on ? »). -->
+          <sc-if value="{{ hasTelemEvents }}">
+            <div style="padding: 16px 24px; border-top: 1px solid var(--a-border);">
+              <div style="font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--a-muted); margin-bottom: 10px;">Usage sur la période</div>
+              <sc-for list="{{ telemEvents }}" as="e">
+                <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 4px 0;">
+                  <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: {{ e.color }};">{{ e.name }}</span>
+                  <span style="flex: none; font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 13px; font-weight: 600; color: #16314f;">{{ e.count }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </sc-if>
+        </div>
+
+      </div>
+    </div>
+  </sc-if>
+
   <!-- Modale : ajouter une licence -->
   <sc-if value="{{ showAddUser }}">
     <div onClick="{{ onCloseAddUser }}" style="position: fixed; inset: 0; z-index: 100; background: rgba(16,31,58,0.55); backdrop-filter: blur(3px); display: flex; align-items: flex-start; justify-content: center; padding: 56px 20px; overflow-y: auto;">
@@ -351,7 +422,8 @@ class Component extends DCLogic {
     overlay: null, filter: 'all', expandedKey: null,
     allBugs: [], allMessages: [], inboxLoaded: false, actionError: '',
     userFilter: 'all', showAddUser: false, addError: '', addBusy: false,
-    downloads: [], dlOpen: false, dlLoading: false, dlError: '' };
+    downloads: [], dlOpen: false, dlLoading: false, dlError: '',
+    telem: null, telemOpen: false, telemLoading: false, telemError: '' };
 
   componentDidMount() {
     if (this._fetchStarted) return;   // garde : un seul appel même si le runtime re-monte
@@ -424,6 +496,31 @@ class Component extends DCLogic {
     }).catch(() => this.setState({ dlLoading: false, dlError: 'Impossible de charger le journal. Réessayez.' }));
   };
   closeDownloads = () => this.setState({ dlOpen: false });
+
+  // Télémétrie détaillée : rechargée à CHAQUE ouverture, comme le journal des
+  // téléchargements - on vient y voir l'état du parc MAINTENANT, pas celui du chargement
+  // de la page.
+  //
+  // ⚠ Endpoint DÉDIÉ (/v1/founder/telemetry) et non /v1/founder/overview : le détail par
+  // jour, version et événement représente des centaines de lignes, qu'on ne doit pas payer
+  // à chaque ouverture du tableau de bord. Le RÉSUMÉ, lui, arrive avec les stats - c'est ce
+  // qui permet de lire le nombre de crashes sans cliquer.
+  openTelemetry = () => {
+    this.setState({ telemOpen: true, telemLoading: true, telemError: '' });
+    const token = this._token();
+    if (!token) { this._authFailed(); return; }
+    fetch(Component.API_BASE + '/v1/founder/telemetry?days=30', {
+      headers: { 'Authorization': 'Bearer ' + token, 'Accept': 'application/json' },
+    }).then((r) => {
+      if (r.status === 401 || r.status === 403) { this._authFailed(); return null; }
+      if (!r.ok) throw new Error('http ' + r.status);
+      return r.json();
+    }).then((data) => {
+      if (!data) return;
+      this.setState({ telem: data, telemLoading: false });
+    }).catch(() => this.setState({ telemLoading: false, telemError: 'Impossible de charger la télémétrie. Réessayez.' }));
+  };
+  closeTelemetry = () => this.setState({ telemOpen: false });
 
   closeInbox = () => this.setState({ overlay: null, expandedKey: null, actionError: '' });
   setFilter = (f) => this.setState({ filter: f });
@@ -671,6 +768,72 @@ class Component extends DCLogic {
       ua: x.user_agent || '—',
     }));
 
+    // --- Télémétrie ---------------------------------------------------------------
+    // Le RÉSUMÉ vient des stats (donc sans clic) ; le DÉTAIL de l'endpoint dédié, chargé à
+    // l'ouverture de l'overlay.
+    const tDevices = st ? st.telemetry_devices_48h : 0;
+    const tCrashes = st ? st.telemetry_crashes_48h : 0;
+    const tTop = st ? (st.telemetry_top_version || '') : '';
+    const telemSummary = tDevices === 0
+      ? 'aucun poste ne remonte de données'
+      : tDevices + (tDevices > 1 ? ' postes actifs' : ' poste actif') + ' sur 48 h'
+        + (tTop ? ' · ' + tTop : '');
+    // 🔴 Un crash pour dix postes n'est pas dix crashes pour un poste : l'accent devient
+    // rouge quand les crashes DÉPASSENT le nombre de postes, ambre au premier crash.
+    const telemAccent = tCrashes === 0 ? teal : (tCrashes > tDevices ? red : amber);
+
+    const tel = s.telem;
+    // Agrégation par VERSION sur toute la fenêtre : les lignes arrivent par (jour, version,
+    // os, événement), la mise en forme appartient à la landing (même contrat que getStats).
+    const byVersion = new Map();
+    const ensureV = (v) => {
+      if (!byVersion.has(v)) byVersion.set(v, { version: v, devices: 0, crashes: 0, beats: 0, oses: new Set() });
+      return byVersion.get(v);
+    };
+    (tel ? (tel.devices || []) : []).forEach((d) => {
+      const e = ensureV(d.version);
+      // ⚠ On SOMME les postes par jour : un même poste actif 5 jours compte 5 fois. C'est
+      // voulu et c'est dit (« jours-postes ») - la somme des DISTINCTS sur 30 jours n'est pas
+      // reconstituable depuis un agrégat quotidien, et l'inventer serait faux.
+      e.devices += d.devices || 0;
+      e.beats += d.beats || 0;
+      if (d.os) e.oses.add(d.os);
+    });
+    (tel ? (tel.counters || []) : []).forEach((c) => {
+      if (c.event === 'crash.python' || c.event === 'crash.natif') ensureV(c.version).crashes += c.count || 0;
+    });
+    const medianOf = (v) => (tel ? (tel.startupMedian || []) : []).find((m) => m.version === v);
+    const telemVersions = [...byVersion.values()]
+      .sort((a, b) => (b.devices - a.devices) || (a.version < b.version ? 1 : -1))
+      .map((e) => {
+        const med = medianOf(e.version);
+        return {
+          version: e.version,
+          crashes: e.crashes === 0 ? 'aucun crash' : e.crashes + (e.crashes > 1 ? ' crashes' : ' crash'),
+          crashColor: e.crashes === 0 ? teal : red,
+          postes: e.devices + (e.devices > 1 ? ' jours-postes' : ' jour-poste')
+            + ' · ' + [...e.oses].join(', '),
+          detail: 'démarrage ' + (med ? med.median_ms + ' ms (médiane, ' + med.samples + ')' : 'non mesuré')
+            + ' · ' + e.beats + ' battements',
+        };
+      });
+
+    // Usage : les compteurs hors crashes, du plus employé au moins employé. Le seau
+    // « autre » est TEINTÉ en ambre - il signale que le client envoie un événement que le
+    // serveur ne sait pas encore nommer (cf. KNOWN_EVENTS côté backend).
+    const evTotals = new Map();
+    (tel ? (tel.counters || []) : []).forEach((c) => {
+      if (c.event === 'crash.python' || c.event === 'crash.natif') return;
+      evTotals.set(c.event, (evTotals.get(c.event) || 0) + (c.count || 0));
+    });
+    const telemEvents = [...evTotals.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .map(([name, count]) => ({
+        name,
+        count: String(count),
+        color: name === 'autre' ? amber : 'var(--a-muted)',
+      }));
+
     // --- Boîte de réception (overlay) : liste unifiée bugs/messages + handlers par item ---
     const stateLabel = { new: 'Nouveau', pending: 'En attente', done: 'Traité' };
     const stateCol = { new: blue, pending: amber, done: teal };
@@ -761,6 +924,21 @@ class Component extends DCLogic {
       isDlEmpty: !s.dlLoading && !s.dlError && dlItems.length === 0,
       hasDlError: !!s.dlError,
       dlError: s.dlError,
+      // --- Télémétrie ---
+      telemSummary,
+      telemAccent,
+      telemCrashes: tCrashes === 0 ? '0 crash' : tCrashes + (tCrashes > 1 ? ' crashes' : ' crash'),
+      onOpenTelemetry: this.openTelemetry,
+      onCloseTelemetry: this.closeTelemetry,
+      isTelemetryOpen: s.telemOpen,
+      isTelemLoading: s.telemLoading,
+      isTelemEmpty: !s.telemLoading && !s.telemError && telemVersions.length === 0,
+      hasTelemError: !!s.telemError,
+      telemError: s.telemError,
+      telemWindow: tel ? ('depuis le ' + fmtFR(tel.since)) : '30 derniers jours',
+      telemVersions,
+      telemEvents,
+      hasTelemEvents: telemEvents.length > 0,
       // --- Overlay boîte de réception ---
       onOpenBugs: () => this.openInbox('bugs'),
       onOpenMessages: () => this.openInbox('messages'),
