@@ -17,6 +17,7 @@ Contact : formulaire sur https://redibat.fr/#contact
 - [Accueil](https://redibat.fr/) : présentation du logiciel, vue d'ensemble des modules, FAQ et contact.
 - [CCTP & DPGF](https://redibat.fr/cctp) : rédaction du cahier des clauses techniques particulières et génération du bordereau DPGF, structuration par lots et articles, bibliothèque d'articles types personnelle, page de garde, archives par phase (APS/PRO/DCE), recherche dans toutes les affaires, modèles de mise en forme et export Word/PDF/Excel.
 - [Quantitatif](https://redibat.fr/quantitatif) : métré sur plans PDF relié à l'arborescence du CCTP, organisation des plans par zones et emprises, comptage automatique des menuiseries par recherche de texte, déduction des ouvertures pour obtenir des surfaces nettes, génération de la DPGF quantitative en Excel (une colonne par zone) et des plans annotés en PDF.
+- [Estimation](https://redibat.fr/estimation) : estimation prévisionnelle des travaux chiffrée depuis les quantités du métré, bibliothèque de prix alimentée par les anciennes estimations et par les prix remis par les entreprises, indicateurs (SHAB, SDP, surface de façade) et ratios en euros HT par mètre carré, objectif de maîtrise d'ouvrage et écart, ventilation par zone, export Excel personnalisable.
 - [Ouverture des plis](https://redibat.fr/ouverture-des-plis) : réception et enregistrement des offres des entreprises, lot par lot.
 - [TCO](https://redibat.fr/tco) : tableau comparatif des offres, préparé depuis le CCTP, la DPGF et l'ouverture des plis.
 - [RAO](https://redibat.fr/rao) : rapport d'analyse des offres, pré-rempli depuis l'affaire, complété par vos conclusions.
@@ -28,5 +29,5 @@ Contact : formulaire sur https://redibat.fr/#contact
 - Application de bureau hors ligne : les affaires sont enregistrées en local, format ouvert.
 - Bibliothèque d'articles types personnelle, enrichie projet après projet (pas de base louée).
 - Import des CCTP existants pour ne pas repartir d'une page blanche.
-- Chaîne complète sans ressaisie : CCTP → quantitatif → DPGF → ouverture des plis → TCO → RAO.
+- Chaîne complète sans ressaisie : CCTP → quantitatif → estimation → DPGF → ouverture des plis → TCO → RAO.
 - Export Word et PDF avec mise en forme personnalisée (charte, page de garde).

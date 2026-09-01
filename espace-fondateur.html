@@ -642,12 +642,12 @@ class Component extends DCLogic {
     const s = this.state;
     const today = new Date().toISOString().slice(0, 10);   // 'AAAA-MM-JJ' (UTC)
     // Dates d'abonnement en 'AAAA-MM-JJ' -> comparaison lexicographique = chronologique.
-    const fmtFR = (iso) => { if (!iso) return '—'; const p = String(iso).slice(0, 10).split('-'); return p[2] + '/' + p[1] + '/' + p[0]; };
+    const fmtFR = (iso) => { if (!iso) return '-'; const p = String(iso).slice(0, 10).split('-'); return p[2] + '/' + p[1] + '/' + p[0]; };
     const fmtDM = (iso) => { if (!iso) return ''; const p = String(iso).slice(0, 10).split('-'); return p[2] + '/' + p[1]; };
     // Date + HEURE locales pour le journal des téléchargements (created_at est en ISO/UTC,
     // l'heure compte pour distinguer plusieurs clics le même jour).
     const fmtDT = (iso) => {
-      const d = new Date(iso); if (isNaN(d)) return '—';
+      const d = new Date(iso); if (isNaN(d)) return '-';
       const p = (n) => String(n).padStart(2, '0');
       return p(d.getDate()) + '/' + p(d.getMonth() + 1) + '/' + d.getFullYear() + ' à ' + p(d.getHours()) + ':' + p(d.getMinutes());
     };
@@ -685,9 +685,9 @@ class Component extends DCLogic {
         else { pwNote = 'E-mail à envoyer'; pwColor = amber; }
         return {
           email: u.email,
-          company: u.company || '—',
+          company: u.company || '-',
           licence,
-          duration: u.plan_months ? (u.plan_months + ' mois') : '—',
+          duration: u.plan_months ? (u.plan_months + ' mois') : '-',
           period: fmtFR(u.subscription_start) + ' → ' + fmtFR(u.subscription_end),
           status, statusColor, statusBg,
           pwNote, pwColor,
@@ -759,13 +759,13 @@ class Component extends DCLogic {
       { label: 'Messages non lus', value: String(msgUnread), delta: 'à traiter', deltaColor: amber, hint: '', cursor: 'default', onClick: noop },
     ] : [];
 
-    // Journal des téléchargements : IP / navigateur à « — » pour les événements antérieurs
+    // Journal des téléchargements : IP / navigateur à « - » pour les événements antérieurs
     // à la traçabilité (colonnes NULL en base).
     const dlItems = (s.downloads || []).map((x) => ({
-      email: x.user_email || '—',
+      email: x.user_email || '-',
       when: fmtDT(x.created_at),
-      ip: x.ip || '—',
-      ua: x.user_agent || '—',
+      ip: x.ip || '-',
+      ua: x.user_agent || '-',
     }));
 
     // --- Télémétrie ---------------------------------------------------------------
@@ -774,7 +774,7 @@ class Component extends DCLogic {
     // 🔴 `Number(…) || 0` et JAMAIS une lecture directe : la landing se déploie
     // INSTANTANÉMENT (Pages, au push) alors que le backend demande un `git pull` + un
     // redémarrage MANUEL. Le décalage n'est donc pas un accident à éviter par la
-    // discipline, il est STRUCTUREL — et pendant sa durée `getStats` ne porte pas encore
+    // discipline, il est STRUCTUREL, et pendant sa durée `getStats` ne porte pas encore
     // ces champs. Constaté en vrai : le bandeau affichait « undefined postes actifs sur
     // 48 h ». Le même raisonnement vaut pour un client qui reste en arrière.
     const tDevices = Number(st && st.telemetry_devices_48h) || 0;

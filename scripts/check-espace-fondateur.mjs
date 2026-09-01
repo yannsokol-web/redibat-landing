@@ -1,10 +1,10 @@
-// Vérificateur de l'espace fondateur — outil de développement.
+// Vérificateur de l'espace fondateur : outil de développement.
 //
 // 🔴 POURQUOI. Cette page est un composant à gabarit maison (`<sc-if>`, `<sc-for>`,
 // `{{ clé }}`) dont les valeurs viennent d'un unique `renderVals()`. Une clé du gabarit
 // qui n'existe pas dans `renderVals` **ne produit AUCUNE erreur** : la zone reste
 // simplement vide. Une coquille passe donc inaperçue jusqu'à ce qu'un utilisateur
-// constate un tableau de bord amputé — et c'est le pire endroit pour cela, puisque cette
+// constate un tableau de bord amputé, et c'est le pire endroit pour cela, puisque cette
 // page sert précisément à surveiller le produit.
 //
 // Deux contrôles, et le second est le vrai :
@@ -27,7 +27,7 @@ const html = fs.readFileSync(FILE, 'utf8');
 let ok = 0; const fails = [];
 const check = (label, cond, detail = '') => {
   if (cond) { ok += 1; console.log(`  ✓ ${label}`); }
-  else { fails.push(label + (detail ? ` — ${detail}` : '')); console.log(`  ✗ ${label}${detail ? '\n      ' + detail : ''}`); }
+  else { fails.push(label + (detail ? ` : ${detail}` : '')); console.log(`  ✗ ${label}${detail ? '\n      ' + detail : ''}`); }
 };
 
 // --- Découpage : gabarit (<x-dc>…</x-dc>) et script du composant -------------
@@ -163,7 +163,7 @@ console.log('\n5. Un backend EN ARRIÈRE ne fait pas afficher « undefined »');
 // 🔴 Cas RÉEL et non théorique : la landing se déploie instantanément (Pages, au push)
 // alors que le backend demande un `git pull` + un redémarrage MANUEL. Pendant ce
 // décalage, `getStats` ne porte pas encore les champs de télémétrie. Sans lecture
-// défensive, le bandeau affiche « undefined postes actifs sur 48 h » — constaté en vrai.
+// défensive, le bandeau affiche « undefined postes actifs sur 48 h », constaté en vrai.
 const vieux = new Cls();
 vieux.state = { ...vieux.state, loading: false, stats: {
   users_total: 4, users_week: 1, downloads_total: 9, downloads_week: 2,

@@ -50,7 +50,7 @@
           { "@type": "Question", "name": "Dans quels formats le CCTP est-il exporté ?", "acceptedAnswer": { "@type": "Answer", "text": "Le CCTP est généré en Word ou en PDF, avec une mise en forme fidèle à votre charte : polices, styles de titres, marges, en-têtes et page de garde personnalisée." } },
           { "@type": "Question", "name": "Le CCTP alimente-t-il la DPGF ?", "acceptedAnswer": { "@type": "Answer", "text": "Oui. La décomposition du prix global et forfaitaire (DPGF) est générée depuis les lots et articles de votre CCTP, sans ressaisie, et reste synchronisée avec votre affaire." } },
           { "@type": "Question", "name": "Puis-je conserver une version du CCTP à chaque phase ?", "acceptedAnswer": { "@type": "Answer", "text": "Oui. Rédibat archive le CCTP en l'état à chaque phase (APS, PRO, DCE). Les archives se consultent, se réexportent et se comparent entre elles, sans modifier le CCTP courant." } },
-          { "@type": "Question", "name": "Puis-je retrouver un article dans tous mes anciens CCTP ?", "acceptedAnswer": { "@type": "Answer", "text": "Oui. La recherche avancée parcourt l'ensemble de vos affaires et de vos CCTP enregistrés — titres d'articles, descriptifs et localisations — et ouvre directement l'affaire concernée." } }
+          { "@type": "Question", "name": "Puis-je retrouver un article dans tous mes anciens CCTP ?", "acceptedAnswer": { "@type": "Answer", "text": "Oui. La recherche avancée parcourt l'ensemble de vos affaires et de vos CCTP enregistrés, titres d'articles, descriptifs et localisations compris, et ouvre directement l'affaire concernée." } }
         ]
       }
     ]
@@ -119,6 +119,7 @@
           <div style="min-width: 210px; background: #ffffff; border: 1px solid var(--a-border); border-radius: 14px; box-shadow: 0 18px 44px -18px rgba(31,58,92,0.28), 0 2px 8px rgba(31,58,92,0.06); padding: 8px;">
             <a href="/cctp" style="display: block; text-decoration: none; padding: 10px 14px; border-radius: 9px; font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 15px; font-weight: 500; color: #1f3a5c; transition: background .15s ease;" style-hover="background: var(--a-sel);">CCTP &amp; DPGF</a>
             <a href="/quantitatif" style="display: block; text-decoration: none; padding: 10px 14px; border-radius: 9px; font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 15px; font-weight: 500; color: #1f3a5c; transition: background .15s ease;" style-hover="background: var(--a-sel);">Quantitatif</a>
+            <a href="/estimation" style="display: block; text-decoration: none; padding: 10px 14px; border-radius: 9px; font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 15px; font-weight: 500; color: #1f3a5c; transition: background .15s ease;" style-hover="background: var(--a-sel);">Estimation</a>
             <a href="/ouverture-des-plis" style="display: block; text-decoration: none; padding: 10px 14px; border-radius: 9px; font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 15px; font-weight: 500; color: #1f3a5c; transition: background .15s ease;" style-hover="background: var(--a-sel);">Ouverture des plis</a>
             <a href="/tco" style="display: block; text-decoration: none; padding: 10px 14px; border-radius: 9px; font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 15px; font-weight: 500; color: #1f3a5c; transition: background .15s ease;" style-hover="background: var(--a-sel);">TCO</a>
             <a href="/rao" style="display: block; text-decoration: none; padding: 10px 14px; border-radius: 9px; font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 15px; font-weight: 500; color: #1f3a5c; transition: background .15s ease;" style-hover="background: var(--a-sel);">RAO</a>
@@ -140,6 +141,7 @@
         <div class="rdb-mobile-label">Produits</div>
         <a href="/cctp" class="rdb-mobile-link">CCTP &amp; DPGF</a>
         <a href="/quantitatif" class="rdb-mobile-link">Quantitatif</a>
+        <a href="/estimation" class="rdb-mobile-link">Estimation</a>
         <a href="/ouverture-des-plis" class="rdb-mobile-link">Ouverture des plis</a>
         <a href="/tco" class="rdb-mobile-link">TCO</a>
         <a href="/rao" class="rdb-mobile-link">RAO</a>
@@ -162,7 +164,7 @@
       <div style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--a-blue); margin-bottom: 18px;">Module 01 · CCTP &amp; DPGF</div>
       <h1 style="font-family: 'Newsreader', Georgia, serif; font-weight: 500; letter-spacing: -0.028em; line-height: 1.06;
                  font-size: clamp(36px, 5.2vw, 58px); color: #16314f; margin: 0 0 24px;">Le logiciel de rédaction de <em style="font-style: italic; font-weight: 500; display: inline-block; padding-right: 0.08em; background: linear-gradient(100deg, #185fcb, #30c5ec) text; -webkit-text-fill-color: transparent; color: transparent;">CCTP &amp; DPGF</em></h1>
-      <p style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: clamp(16px, 1.5vw, 18.5px); line-height: 1.62; color: var(--a-text); max-width: 620px; margin: 0 auto 34px; text-wrap: pretty;">Structurez vos affaires par lots et articles, rédigez vos descriptifs depuis votre bibliothèque, archivez chaque phase — et générez le cahier des clauses techniques particulières comme le bordereau qui l'accompagne, prêts à rejoindre votre DCE.</p>
+      <p style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: clamp(16px, 1.5vw, 18.5px); line-height: 1.62; color: var(--a-text); max-width: 620px; margin: 0 auto 34px; text-wrap: pretty;">Structurez vos affaires par lots et articles, rédigez vos descriptifs depuis votre bibliothèque, archivez chaque phase, puis générez le cahier des clauses techniques particulières comme le bordereau qui l'accompagne, prêts à rejoindre votre DCE.</p>
       <div style="display: flex; justify-content: center; gap: 14px; flex-wrap: wrap;">
         <a href="/#contact" style="display: inline-flex; align-items: center; text-decoration: none; font-family: 'IBM Plex Mono', monospace; font-size: 12.5px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: #ffffff; background: linear-gradient(135deg, #0b317c 0%, #185fcb 55%, #30c5ec 100%); padding: 14px 28px; border-radius: 100px; box-shadow: 0 10px 26px -10px rgba(24,95,203,0.6); transition: transform .18s ease, filter .18s ease;" style-hover="transform: translateY(-1px); filter: brightness(1.06);">Prendre contact</a>
         <a href="/" style="display: inline-flex; align-items: center; text-decoration: none; font-family: 'IBM Plex Mono', monospace; font-size: 12.5px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: #1f3a5c; background: #ffffff; border: 1px solid var(--a-border); padding: 14px 28px; border-radius: 100px; transition: border-color .18s ease, background .18s ease;" style-hover="border-color: var(--a-blue); background: var(--a-sel);">Découvrir Rédibat</a>
@@ -215,7 +217,7 @@
         <figcaption style="max-width: 660px; margin: 0 auto 30px; text-align: center;">
           <div style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--a-blue); margin-bottom: 14px;">03 · Page de garde</div>
           <h3 style="font-family: 'Newsreader', Georgia, serif; font-weight: 500; letter-spacing: -0.02em; line-height: 1.14; font-size: clamp(24px, 3vw, 31px); color: #16314f; margin: 0 0 12px;">Une page de garde à votre image</h3>
-          <p style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: clamp(15px, 1.4vw, 16.5px); line-height: 1.6; color: var(--a-text); margin: 0; text-wrap: pretty;">Enregistrez vos intervenants une fois — maîtrise d'ouvrage, architectes, économistes, BET — puis importez-les d'un clic. Logos et blocs de texte se positionnent librement : la page est personnalisable de bout en bout.</p>
+          <p style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: clamp(15px, 1.4vw, 16.5px); line-height: 1.6; color: var(--a-text); margin: 0; text-wrap: pretty;">Enregistrez vos intervenants une fois (maîtrise d'ouvrage, architectes, économistes, BET), puis importez-les d'un clic. Logos et blocs de texte se positionnent librement : la page est personnalisable de bout en bout.</p>
         </figcaption>
         <div style="position: relative;">
           <img src="assets/screenshots/cctp-3-page-de-garde.png" srcset="assets/screenshots/cctp-3-page-de-garde.png 1x, assets/screenshots/cctp-3-page-de-garde@2x.png 2x" alt="Éditeur de page de garde Rédibat : liste des intervenants et réglages typographiques à gauche, aperçu de la page de garde à droite." width="1120" height="725" decoding="async" loading="lazy" style="display: block; width: 100%; height: auto; border-radius: 14px; border: 1px solid var(--a-border); box-shadow: 0 26px 54px -28px rgba(31,58,92,0.42), 0 6px 18px -10px rgba(31,58,92,0.12);">
@@ -238,7 +240,7 @@
         <figcaption style="max-width: 660px; margin: 0 auto 30px; text-align: center;">
           <div style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--a-blue); margin-bottom: 14px;">04 · Archives</div>
           <h3 style="font-family: 'Newsreader', Georgia, serif; font-weight: 500; letter-spacing: -0.02em; line-height: 1.14; font-size: clamp(24px, 3vw, 31px); color: #16314f; margin: 0 0 12px;">Une photo du CCTP à chaque phase</h3>
-          <p style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: clamp(15px, 1.4vw, 16.5px); line-height: 1.6; color: var(--a-text); margin: 0; text-wrap: pretty;">Archivez le CCTP en l'état à chaque phase — APS, PRO, DCE. Les versions passées se consultent, se réexportent et se comparent entre elles, sans jamais toucher au CCTP courant.</p>
+          <p style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: clamp(15px, 1.4vw, 16.5px); line-height: 1.6; color: var(--a-text); margin: 0; text-wrap: pretty;">Archivez le CCTP en l'état à chaque phase : APS, PRO, DCE. Les versions passées se consultent, se réexportent et se comparent entre elles, sans jamais toucher au CCTP courant.</p>
         </figcaption>
         <div style="position: relative;">
           <img src="assets/screenshots/cctp-4-archivage.png" srcset="assets/screenshots/cctp-4-archivage.png 1x, assets/screenshots/cctp-4-archivage@2x.png 2x" alt="Fenêtre « Archives du CCTP » de Rédibat listant les versions APS, PRO et DCE, avec les actions consulter, exporter et comparer." width="1120" height="725" decoding="async" loading="lazy" style="display: block; width: 100%; height: auto; border-radius: 14px; border: 1px solid var(--a-border); box-shadow: 0 26px 54px -28px rgba(31,58,92,0.42), 0 6px 18px -10px rgba(31,58,92,0.12);">
@@ -270,7 +272,7 @@
         <figcaption style="max-width: 660px; margin: 0 auto 30px; text-align: center;">
           <div style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--a-blue); margin-bottom: 14px;">06 · Recherche avancée</div>
           <h3 style="font-family: 'Newsreader', Georgia, serif; font-weight: 500; letter-spacing: -0.02em; line-height: 1.14; font-size: clamp(24px, 3vw, 31px); color: #16314f; margin: 0 0 12px;">Cherchez dans toutes vos affaires</h3>
-          <p style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: clamp(15px, 1.4vw, 16.5px); line-height: 1.6; color: var(--a-text); margin: 0; text-wrap: pretty;">Un mot, une phrase, une prescription : la recherche avancée balaie l'ensemble de vos affaires et de vos CCTP enregistrés — titres, descriptifs et localisations compris — puis ouvre l'affaire concernée.</p>
+          <p style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: clamp(15px, 1.4vw, 16.5px); line-height: 1.6; color: var(--a-text); margin: 0; text-wrap: pretty;">Un mot, une phrase, une prescription : la recherche avancée balaie l'ensemble de vos affaires et de vos CCTP enregistrés, titres, descriptifs et localisations compris, puis ouvre l'affaire concernée.</p>
         </figcaption>
         <div style="position: relative;">
           <img src="assets/screenshots/cctp-6-recherche-affaires.png" srcset="assets/screenshots/cctp-6-recherche-affaires.png 1x, assets/screenshots/cctp-6-recherche-affaires@2x.png 2x" alt="Fenêtre de recherche avancée Rédibat : résultats trouvés dans plusieurs affaires, avec filtres par dossier et par champ." width="1120" height="725" decoding="async" loading="lazy" style="display: block; width: 100%; height: auto; border-radius: 14px; border: 1px solid var(--a-border); box-shadow: 0 26px 54px -28px rgba(31,58,92,0.42), 0 6px 18px -10px rgba(31,58,92,0.12);">
@@ -332,7 +334,7 @@
         <figcaption style="max-width: 660px; margin: 0 auto 30px; text-align: center;">
           <div style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--a-blue); margin-bottom: 14px;">09 · Modèles de CCTP</div>
           <h3 style="font-family: 'Newsreader', Georgia, serif; font-weight: 500; letter-spacing: -0.02em; line-height: 1.14; font-size: clamp(24px, 3vw, 31px); color: #16314f; margin: 0 0 12px;">Votre charte, une fois pour toutes</h3>
-          <p style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: clamp(15px, 1.4vw, 16.5px); line-height: 1.6; color: var(--a-text); margin: 0; text-wrap: pretty;">Réglez sommaires, pages de titre, en-têtes, pieds de page et marges élément-type par élément-type, avec aperçu en direct du document — puis enregistrez le tout comme modèle réutilisable.</p>
+          <p style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: clamp(15px, 1.4vw, 16.5px); line-height: 1.6; color: var(--a-text); margin: 0; text-wrap: pretty;">Réglez sommaires, pages de titre, en-têtes, pieds de page et marges élément-type par élément-type, avec aperçu en direct du document, puis enregistrez le tout comme modèle réutilisable.</p>
         </figcaption>
         <div style="position: relative;">
           <img src="assets/screenshots/cctp-9-modele-cctp.png" srcset="assets/screenshots/cctp-9-modele-cctp.png 1x, assets/screenshots/cctp-9-modele-cctp@2x.png 2x" alt="Éditeur de modèle de CCTP dans Rédibat : réglages du sommaire général et des éléments-types, aperçu du document Word à droite." width="1120" height="725" decoding="async" loading="lazy" style="display: block; width: 100%; height: auto; border-radius: 14px; border: 1px solid var(--a-border); box-shadow: 0 26px 54px -28px rgba(31,58,92,0.42), 0 6px 18px -10px rgba(31,58,92,0.12);">
@@ -393,7 +395,7 @@
         </details>
         <details style="border-bottom: 1px solid var(--a-border);">
           <summary style="cursor: pointer; padding: 20px 6px; font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 16.5px; font-weight: 600; color: #16314f;">Puis-je retrouver un article dans tous mes anciens CCTP ?</summary>
-          <p style="padding: 0 6px 22px; font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 15px; line-height: 1.66; color: var(--a-text); margin: 0; text-wrap: pretty;">Oui. La recherche avancée parcourt l'ensemble de vos affaires et de vos CCTP enregistrés — titres d'articles, descriptifs et localisations — et ouvre directement l'affaire concernée.</p>
+          <p style="padding: 0 6px 22px; font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 15px; line-height: 1.66; color: var(--a-text); margin: 0; text-wrap: pretty;">Oui. La recherche avancée parcourt l'ensemble de vos affaires et de vos CCTP enregistrés, titres d'articles, descriptifs et localisations compris, et ouvre directement l'affaire concernée.</p>
         </details>
       </div>
     </section>
@@ -404,6 +406,8 @@
         <a href="/cctp" style="text-decoration: none; color: #ffffff; background: linear-gradient(135deg, #185fcb, #30c5ec); padding: 8px 14px; border-radius: 100px;">CCTP &amp; DPGF</a>
         <span style="color: var(--a-faint);">→</span>
         <a href="/quantitatif" style="text-decoration: none; color: var(--a-muted); padding: 8px 14px; border-radius: 100px; border: 1px solid var(--a-border);" style-hover="color: var(--a-blue);">Quantitatif</a>
+        <span style="color: var(--a-faint);">→</span>
+        <a href="/estimation" style="text-decoration: none; color: var(--a-muted); padding: 8px 14px; border-radius: 100px; border: 1px solid var(--a-border);" style-hover="color: var(--a-blue);">Estimation</a>
         <span style="color: var(--a-faint);">→</span>
         <a href="/ouverture-des-plis" style="text-decoration: none; color: var(--a-muted); padding: 8px 14px; border-radius: 100px; border: 1px solid var(--a-border);" style-hover="color: var(--a-blue);">Ouverture des plis</a>
         <span style="color: var(--a-faint);">→</span>
@@ -433,6 +437,7 @@
         <ul style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 11px;">
           <li><a href="/cctp" style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 14.5px; color: var(--text-soft); text-decoration: none; transition: color .18s ease;" style-hover="color: var(--cyan);">CCTP &amp; DPGF</a></li>
           <li><a href="/quantitatif" style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 14.5px; color: var(--text-soft); text-decoration: none; transition: color .18s ease;" style-hover="color: var(--cyan);">Quantitatif</a></li>
+          <li><a href="/estimation" style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 14.5px; color: var(--text-soft); text-decoration: none; transition: color .18s ease;" style-hover="color: var(--cyan);">Estimation</a></li>
           <li><a href="/ouverture-des-plis" style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 14.5px; color: var(--text-soft); text-decoration: none; transition: color .18s ease;" style-hover="color: var(--cyan);">Ouverture des plis</a></li>
           <li><a href="/tco" style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 14.5px; color: var(--text-soft); text-decoration: none; transition: color .18s ease;" style-hover="color: var(--cyan);">TCO</a></li>
           <li><a href="/rao" style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 14.5px; color: var(--text-soft); text-decoration: none; transition: color .18s ease;" style-hover="color: var(--cyan);">RAO</a></li>
