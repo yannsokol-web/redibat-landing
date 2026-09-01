@@ -2,12 +2,13 @@
 
 > Rédibat est un logiciel de bureau (Windows) de rédaction de CCTP hors ligne pour
 > les professionnels du bâtiment : maîtres d'œuvre, maîtres d'ouvrage, économistes
-> de la construction, architectes et bureaux d'études. Il couvre toute la
-> consultation d'un marché de travaux : rédaction du CCTP par lots et articles,
-> génération de la DPGF, ouverture des plis, tableau comparatif des offres (TCO)
-> et rapport d'analyse des offres (RAO). Le métré des plans se fait dans la même affaire,
-> relié aux articles du CCTP. Les données restent en local, dans un
-> format ouvert, sans connexion permanente ni bibliothèque louée.
+> de la construction, architectes et bureaux d'études. Tout part du descriptif, et
+> le reste en découle dans la même affaire, sans ressaisie : rédaction du CCTP par
+> lots et articles, métré des plans PDF relié à ces articles, estimation des travaux
+> avec ratios au mètre carré, génération de la DPGF, puis ouverture des plis, tableau
+> comparatif des offres (TCO) et rapport d'analyse des offres (RAO). Les données
+> restent en local, dans un format ouvert, sans connexion permanente ni bibliothèque
+> louée.
 
 Éditeur : YSCORP, fondé par Yann Sokol, économiste de la construction.
 Contact : formulaire sur https://redibat.fr/#contact
@@ -30,4 +31,8 @@ Contact : formulaire sur https://redibat.fr/#contact
 - Bibliothèque d'articles types personnelle, enrichie projet après projet (pas de base louée).
 - Import des CCTP existants pour ne pas repartir d'une page blanche.
 - Chaîne complète sans ressaisie : CCTP → quantitatif → estimation → DPGF → ouverture des plis → TCO → RAO.
-- Export Word et PDF avec mise en forme personnalisée (charte, page de garde).
+- Export Word et PDF avec mise en forme personnalisée (charte, page de garde), Excel pour
+  les bordereaux et l'estimation.
+- Bibliothèque de prix alimentée par vos anciennes estimations et par les offres reçues.
+- Ratios en euros HT par mètre carré (SHAB, SDP, surface de façade) et écart à l'objectif
+  de la maîtrise d'ouvrage.
