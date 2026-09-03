@@ -51,6 +51,15 @@ jobs:
       - name: Rafraîchir les lastmod du sitemap
         run: python3 scripts/sitemap-lastmod.py
 
+      # 🔒 Le paquet Pages part avec TOUT le dépôt (path: . ci-dessous) : un fichier
+      # présent ici est téléchargeable sur redibat.fr, qu'une page y renvoie ou non.
+      # Ces trois dossiers n'ont rien à faire sur le web — et .githooks/pre-commit y
+      # nommait en clair les mots de passe qu'il sert à bloquer.
+      # ⚠ APRÈS les deux étapes ci-dessus, qui exécutent scripts/. Le checkout est
+      # jetable : on supprime dans le runner, pas dans le dépôt.
+      - name: Retirer du paquet ce qui n'est pas le site
+        run: rm -rf .githooks scripts design-system
+
       - name: Upload site artifact
         uses: actions/upload-pages-artifact@v5
         with:
