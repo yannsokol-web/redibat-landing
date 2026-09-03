@@ -26,6 +26,12 @@
 <link rel="icon" type="image/png" sizes="32x32" href="/assets/logos/favicon-32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="/assets/logos/favicon-16.png">
 <link rel="apple-touch-icon" href="/assets/logos/favicon-256.png">
+<!-- Rédibat est décrit en SoftwareApplication et NON en Product. Un Product déclenche chez
+     Google les validateurs « Extraits de produits » et « Fiches de marchand » (Shopping),
+     qui réclament image, aggregateRating, review, hasMerchantReturnPolicy et shippingDetails :
+     des champs de vente au détail qui n'ont aucun sens pour un abonnement logiciel, et des avis
+     que nous ne pouvons pas écrire nous-mêmes (règles Google). SoftwareApplication accepte
+     offers (sous-classe de CreativeWork) : les prix restent lisibles, sans les avertissements. -->
 <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -48,11 +54,17 @@
         "description": "Les tarifs de Rédibat : trois offres d'abonnement par utilisateur et par mois, de la rédaction de CCTP seule à la chaîne complète jusqu'à l'analyse des offres."
       },
       {
-        "@type": "Product",
-        "@id": "https://redibat.fr/tarifs#offres",
+        "@type": "SoftwareApplication",
+        "@id": "https://redibat.fr/#software",
         "name": "Rédibat",
+        "url": "https://redibat.fr/",
         "description": "Logiciel de bureau de rédaction de CCTP, de métré, d'estimation et d'analyse des offres pour le bâtiment.",
-        "brand": { "@type": "Brand", "name": "Rédibat" },
+        "operatingSystem": "Windows",
+        "applicationCategory": "BusinessApplication",
+        "applicationSubCategory": "Logiciel de rédaction de CCTP",
+        "inLanguage": "fr-FR",
+        "image": "https://redibat.fr/assets/og-image.png",
+        "publisher": { "@id": "https://redibat.fr/#organization" },
         "offers": [
           {
             "@type": "Offer",
