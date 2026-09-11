@@ -140,16 +140,17 @@
     <div style="display: flex; flex-direction: column; gap: 24px;">
       <section class="cm-card">
         <div class="cm-card-head"><h2 class="cm-h2">Mes signalements</h2><span class="cm-mono">{{ reportCount }}</span></div>
-        <sc-if value="{{ noReports }}"><div class="cm-empty">Aucun bug signalé. Depuis l'application ou le forum, vos signalements apparaîtront ici avec leur état.</div></sc-if>
+        <sc-if value="{{ noReports }}"><div class="cm-empty">Aucun bug signalé. Depuis l'application ou le forum, vos signalements apparaîtront ici avec leur état, et l'éditeur pourra vous y répondre.</div></sc-if>
         <ul class="cm-list">
           <sc-for list="{{ reports }}" as="b">
-            <li class="cm-row">
+            <li><button type="button" class="cm-row" onClick="{{ b.onOpen }}" style="width: 100%; text-align: left; border: none; background: none; cursor: pointer; font: inherit;">
               <div class="cm-row-main">
-                <p class="cm-row-title" style="font-size: 14px;">{{ b.title }}</p>
-                <div class="cm-row-meta"><span>{{ b.date }}</span><span>{{ b.severity }}</span></div>
+                <p class="cm-row-title" style="font-size: 14px;"><sc-if value="{{ b.hasUpdate }}"><span class="cm-tag" style="margin-right: 8px;">Mis à jour</span></sc-if>{{ b.title }}</p>
+                <sc-if value="{{ b.hasExcerpt }}"><p class="cm-small cm-muted" style="margin: 0 0 6px; line-height: 1.5;">{{ b.excerpt }}</p></sc-if>
+                <div class="cm-row-meta"><span>{{ b.date }}</span><span>{{ b.severity }}</span><span>{{ b.messages }}</span></div>
               </div>
               <span class="{{ b.cls }}">{{ b.state }}</span>
-            </li>
+            </button></li>
           </sc-for>
         </ul>
       </section>
@@ -171,6 +172,39 @@
       </section>
     </div>
   </div>
+
+  <!-- Fil d'un signalement : description, état, échanges avec l'éditeur, réponse -->
+  <sc-if value="{{ reportOpen }}">
+    <div class="cm-overlay" onClick="{{ onCloseReport }}">
+      <div class="cm-modal is-wide" role="dialog" aria-modal="true" onClick="{{ stop }}">
+        <div class="cm-modal-head">
+          <div>
+            <p class="cm-eyebrow" style="margin-bottom: 6px;">Signalement</p>
+            <h2>{{ report.title }}</h2>
+            <div class="cm-row-meta" style="margin-top: 8px;"><span class="{{ report.cls }}">{{ report.state }}</span><span>{{ report.severity }}</span><span>signalé le {{ report.date }}</span></div>
+          </div>
+          <button type="button" class="cm-close" aria-label="Fermer" onClick="{{ onCloseReport }}">✕</button>
+        </div>
+        <div style="margin: 18px 0 8px;" class="cm-mono">Votre description</div>
+        <sc-if value="{{ report.hasDescription }}"><div class="cm-post-text" style="padding: 12px 14px; border: 1px solid var(--a-border); border-radius: 12px; background: var(--a-bg-3);">{{ report.description }}</div></sc-if>
+        <sc-if value="{{ report.noDescription }}"><div class="cm-small cm-faint" style="padding: 12px 14px; border: 1px dashed var(--a-border); border-radius: 12px;">Aucune description n'accompagnait ce signalement.</div></sc-if>
+        <div style="margin: 20px 0 8px;" class="cm-mono">Échanges avec l'éditeur</div>
+        <sc-if value="{{ threadLoading }}"><div class="cm-small cm-faint">Chargement…</div></sc-if>
+        <sc-if value="{{ threadEmpty }}"><div class="cm-small cm-faint" style="padding: 12px 14px; border: 1px dashed var(--a-border); border-radius: 12px;">Pas encore de réponse. Vous serez prévenu par e-mail quand l'éditeur vous répondra.</div></sc-if>
+        <sc-for list="{{ thread }}" as="m">
+          <div style="margin: 8px 0; padding: 12px 14px; border-radius: 12px; background: {{ m.bg }}; border: 1px solid {{ m.border }};">
+            <div class="cm-row-meta" style="margin-bottom: 6px;"><sc-if value="{{ m.isFounder }}"><span class="cm-founder-note">Réponse de l'éditeur</span></sc-if><span>{{ m.who }}</span><span>{{ m.when }}</span></div>
+            <div class="cm-post-text" style="font-size: 14.5px;">{{ m.body }}</div>
+          </div>
+        </sc-for>
+        <form onSubmit="{{ onReply }}" style="margin-top: 16px;">
+          <textarea class="cm-textarea" name="body" maxlength="4000" style="min-height: 90px;" placeholder="Compléter votre signalement ou répondre à l'éditeur…"></textarea>
+          <sc-if value="{{ hasReplyError }}"><div class="cm-alert" role="alert" style="margin-top: 10px;">{{ replyError }}</div></sc-if>
+          <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 10px;"><button type="submit" class="cm-btn is-sm">{{ replyLabel }}</button></div>
+        </form>
+      </div>
+    </div>
+  </sc-if>
 </main>
 
 </sc-if>
@@ -198,7 +232,8 @@
 
 class Component extends DCLogic {
   state = { ready: false, me: null, banned: false, loadError: '', nameOpen: false, nameError: '', nameBusy: false, nameForced: false,
-    form: null, saving: false, saved: '', saveError: '', reports: null, sessions: null, sessionNote: '' };
+    form: null, saving: false, saved: '', saveError: '', reports: null, sessions: null, sessionNote: '',
+    report: null, thread: [], threadLoading: false, replyBusy: false, replyError: '' };
 
   componentDidMount() {
     if (this._started) return;   // garde : un seul démarrage même si le runtime re-monte
@@ -214,7 +249,39 @@ class Component extends DCLogic {
     this.setState({ form: this.formFrom(me) });
     const [r, x] = await Promise.all([RDB.api('/v1/me/bug-reports'), RDB.api('/v1/me/sessions')]);
     this.setState({ reports: r.status === 200 ? (r.data.reports || []) : [], sessions: x.status === 200 ? (x.data.sessions || []) : [] });
+    // Lien profond (e-mail « une réponse à votre signalement ») : ouvre directement le fil.
+    const wanted = Number(RDB.params().get('signalement'));
+    if (Number.isInteger(wanted) && wanted > 0) this.openReport(wanted);
   }
+
+  // Fil d'un signalement : description, état, échanges. La consultation éteint la pastille.
+  openReport = async (id) => {
+    this.setState({ report: (this.state.reports || []).find((b) => b.id === id) || { id, title: '', state: 'new', severity: 'medium', created_at: '', description: '' }, thread: [], threadLoading: true, replyError: '' });
+    const r = await RDB.api('/v1/me/bug-reports/' + id);
+    if (r.status !== 200) { this.setState({ report: null, threadLoading: false, saveError: RDB.errorMessage(r.status, r.data, 'Signalement introuvable.') }); return; }
+    this.setState((s) => ({
+      report: r.data.report, thread: r.data.messages || [], threadLoading: false,
+      reports: (s.reports || []).map((b) => b.id === id ? r.data.report : b),
+    }));
+  };
+  onCloseReport = () => this.setState({ report: null, thread: [], replyError: '' });
+  stop = (e) => { if (e && e.stopPropagation) e.stopPropagation(); };
+  onReply = async (e) => {
+    e.preventDefault();
+    if (this.state.replyBusy || !this.state.report) return;
+    const form = e.currentTarget || e.target;
+    const body = (form.body && form.body.value || '').trim();
+    if (!body) { this.setState({ replyError: 'Écrivez un message.' }); return; }
+    this.setState({ replyBusy: true, replyError: '' });
+    const r = await RDB.api('/v1/me/bug-reports/' + this.state.report.id + '/messages', { method: 'POST', body: { body } });
+    if (r.status === 201) {
+      form.body.value = '';
+      this.setState({ replyBusy: false });
+      await this.openReport(this.state.report.id);
+      return;
+    }
+    this.setState({ replyBusy: false, replyError: RDB.errorMessage(r.status, r.data, 'Envoi impossible. Réessayez.') });
+  };
 
   // Champs contrôlés : la valeur vit dans l'état (le runtime peut re-rendre le formulaire à
   // tout moment, un champ non contrôlé perdrait sa valeur initiale).
@@ -270,10 +337,23 @@ class Component extends DCLogic {
     const f = s.form || this.formFrom(me);
     const STATES = { new: ['Reçu', 'cm-tag'], pending: ['En cours', 'cm-tag is-amber'], done: ['Traité', 'cm-tag is-teal'] };
     const SEV = { high: 'bloquant', medium: 'gênant', low: 'mineur' };
-    const reports = (s.reports || []).map((b) => {
+    const reportView = (b) => {
       const st = STATES[b.state] || STATES.new;
-      return { title: b.title, date: RDB.fmtDate(b.created_at), severity: SEV[b.severity] || 'gênant', state: st[0], cls: st[1] };
-    });
+      const n = Number(b.message_count) || 0;
+      return {
+        id: b.id, title: b.title, date: RDB.fmtDate(b.created_at), severity: SEV[b.severity] || 'gênant', state: st[0], cls: st[1],
+        description: b.description || '', hasDescription: !!b.description, noDescription: !b.description,
+        excerpt: RDB.plainText(b.description || '', 140), hasExcerpt: !!b.description,
+        messages: n ? RDB.plural(n, 'message', 'messages') : 'pas de réponse', hasUpdate: b.has_update === true,
+        onOpen: () => this.openReport(b.id),
+      };
+    };
+    const reports = (s.reports || []).map(reportView);
+    const report = s.report ? reportView(s.report) : reportView({ id: 0, title: '', state: 'new', severity: 'medium' });
+    const thread = (s.thread || []).map((m) => ({
+      isFounder: m.is_founder === true, who: m.is_founder ? 'Rédibat' : 'Vous', when: RDB.fmtDateTime(m.created_at), body: m.body,
+      bg: m.is_founder ? 'rgba(47,99,212,0.06)' : '#ffffff', border: m.is_founder ? 'rgba(47,99,212,0.22)' : 'var(--a-border)',
+    }));
     const sessions = (s.sessions || []).map((x) => ({
       agent: this.agentLabel(x.user_agent), current: x.current === true, opened: RDB.fmtRelative(x.created_at), seen: RDB.fmtRelative(x.last_seen), ip: x.ip || '',
     }));
@@ -283,6 +363,9 @@ class Component extends DCLogic {
       fName: f.display_name, fCompany: f.company, fJob: f.job_title, fRegion: f.region, fBio: f.bio, fVisible: !!f.directory_visible,
       hasSaved: !!s.saved, saved: s.saved, hasSaveError: !!s.saveError, saveError: s.saveError, saveLabel: s.saving ? 'Enregistrement…' : 'Enregistrer',
       reports, noReports: s.reports !== null && reports.length === 0, reportCount: RDB.plural(reports.length, 'signalement', 'signalements'),
+      reportOpen: !!s.report, report, thread, threadLoading: s.threadLoading, threadEmpty: !!s.report && !s.threadLoading && thread.length === 0,
+      hasReplyError: !!s.replyError, replyError: s.replyError, replyLabel: s.replyBusy ? 'Envoi…' : 'Envoyer',
+      onCloseReport: this.onCloseReport, onReply: this.onReply, stop: this.stop,
       sessions, hasSessionNote: !!s.sessionNote, sessionNote: s.sessionNote,
       onField: this.onField, onSave: this.onSave, onRevokeOthers: this.onRevokeOthers, onLogout: this.onLogout,
     });

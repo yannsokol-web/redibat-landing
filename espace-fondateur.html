@@ -184,7 +184,7 @@
                 <span style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 14px; font-weight: 600; color: #16314f;">{{ b.title }}</span>
                 <span style="flex: none; font-family: 'IBM Plex Mono', monospace; font-size: 9.5px; letter-spacing: 0.04em; text-transform: uppercase; padding: 3px 8px; border-radius: 100px; color: {{ b.sevColor }}; background: {{ b.sevBg }};">{{ b.severity }}</span>
               </div>
-              <div style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 12.5px; color: var(--a-muted);">{{ b.email }} · {{ b.date }}</div>
+              <div style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 12.5px; color: var(--a-muted);">{{ b.email }} · {{ b.date }}<sc-if value="{{ b.hasMemberReply }}"> · <span style="font-family: 'IBM Plex Mono', monospace; font-size: 9.5px; letter-spacing: 0.04em; text-transform: uppercase; padding: 2px 7px; border-radius: 100px; color: #ffffff; background: var(--a-blue);">Nouvelle réponse</span></sc-if></div>
               <sc-if value="{{ b.hasDescription }}">
                 <div style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 13px; line-height: 1.45; color: var(--a-text); margin-top: 6px; white-space: pre-wrap; text-wrap: pretty;">{{ b.description }}</div>
               </sc-if>
@@ -254,6 +254,8 @@
                     <span style="font-family: 'IBM Plex Mono', monospace; font-size: 9.5px; letter-spacing: 0.04em; text-transform: uppercase; padding: 3px 8px; border-radius: 100px; color: {{ it.sevColor }}; background: {{ it.sevBg }};">{{ it.severity }}</span>
                   </sc-if>
                   <span style="font-family: 'IBM Plex Mono', monospace; font-size: 9.5px; letter-spacing: 0.04em; text-transform: uppercase; padding: 3px 8px; border-radius: 100px; color: {{ it.stateColor }}; background: {{ it.stateBg }};">{{ it.stateLabel }}</span>
+                  <sc-if value="{{ it.hasThread }}"><span style="font-family: 'IBM Plex Mono', monospace; font-size: 9.5px; letter-spacing: 0.04em; padding: 3px 8px; border-radius: 100px; color: var(--a-muted); background: rgba(138,148,163,0.14);">{{ it.msgCount }}</span></sc-if>
+                  <sc-if value="{{ it.hasMemberReply }}"><span style="font-family: 'IBM Plex Mono', monospace; font-size: 9.5px; letter-spacing: 0.04em; text-transform: uppercase; padding: 3px 8px; border-radius: 100px; color: #ffffff; background: var(--a-blue);">Nouvelle réponse du membre</span></sc-if>
                 </div>
                 <div style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 12.5px; color: var(--a-muted);">{{ it.meta }}</div>
               </div>
@@ -267,6 +269,32 @@
                       <summary style="cursor: pointer; font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--a-muted); user-select: none;">Logs techniques</summary>
                       <pre style="margin: 6px 0 0; padding: 10px 12px; background: #f6f8fa; border: 1px solid var(--a-border-soft); border-radius: 8px; font-family: 'IBM Plex Mono', monospace; font-size: 11px; line-height: 1.5; color: #16314f; white-space: pre-wrap; word-break: break-word; max-height: 240px; overflow: auto;">{{ it.logs }}</pre>
                     </details>
+                  </sc-if>
+                  <sc-if value="{{ it.isBug }}">
+                    <div style="margin: 4px 0 14px; padding: 12px 14px; border: 1px dashed var(--a-border); border-radius: 12px; background: #fbfcfd;">
+                      <div style="font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--a-muted); margin-bottom: 8px;">Échanges avec {{ it.who }}</div>
+                      <sc-if value="{{ it.threadLoading }}"><div style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 12.5px; color: var(--a-faint);">Chargement du fil…</div></sc-if>
+                      <sc-if value="{{ it.threadEmpty }}"><div style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 12.5px; color: var(--a-faint);">Aucun échange pour l'instant. Votre réponse sera visible du membre dans son profil (il est prévenu par e-mail, sans le contenu).</div></sc-if>
+                      <sc-for list="{{ it.thread }}" as="m">
+                        <div style="margin: 8px 0; padding: 10px 12px; border-radius: 10px; background: {{ m.bg }}; border: 1px solid {{ m.border }};">
+                          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; color: var(--a-muted); margin-bottom: 4px;">{{ m.who }} · {{ m.when }}</div>
+                          <div style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 13px; line-height: 1.5; color: var(--a-text); white-space: pre-wrap; overflow-wrap: anywhere;">{{ m.body }}</div>
+                        </div>
+                      </sc-for>
+                      <form onSubmit="{{ it.onReply }}" style="margin-top: 10px;">
+                        <textarea name="body" maxlength="4000" placeholder="Votre réponse au membre…" style="width: 100%; box-sizing: border-box; min-height: 80px; resize: vertical; font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 13.5px; line-height: 1.5; color: #16314f; padding: 10px 12px; border: 1px solid var(--a-border); border-radius: 10px; background: #ffffff; outline: none;"></textarea>
+                        <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 8px;">
+                          <select name="state" style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 12.5px; color: #16314f; padding: 7px 10px; border: 1px solid var(--a-border); border-radius: 8px; background: #ffffff;">
+                            <option value="">État inchangé</option>
+                            <option value="pending">Passer en attente</option>
+                            <option value="done">Marquer traité</option>
+                            <option value="new">Rouvrir</option>
+                          </select>
+                          <button type="submit" style="cursor: pointer; border: none; background: var(--a-blue); color: #ffffff; font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 12.5px; font-weight: 600; padding: 8px 14px; border-radius: 8px;">{{ it.replyLabel }}</button>
+                          <sc-if value="{{ it.hasReplyError }}"><span style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 12.5px; color: #b3261e;">{{ it.replyError }}</span></sc-if>
+                        </div>
+                      </form>
+                    </div>
                   </sc-if>
                   <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
                     <sc-if value="{{ it.canNew }}"><button type="button" onClick="{{ it.onNew }}" style="cursor: pointer; border: 1px solid var(--a-border); background: #ffffff; color: #16314f; font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 12.5px; font-weight: 500; padding: 7px 14px; border-radius: 8px;">Rouvrir</button></sc-if>
@@ -433,7 +461,7 @@ class Component extends DCLogic {
   static API_BASE = 'https://api.redibat.fr';
 
   state = { loading: true, error: '', banner: '', users: [], bugs: [], messages: [], stats: null,
-    overlay: null, filter: 'all', expandedKey: null,
+    overlay: null, filter: 'all', expandedKey: null, threads: {}, replyBusy: null, replyError: '',
     allBugs: [], allMessages: [], inboxLoaded: false, actionError: '',
     userFilter: 'all', showAddUser: false, addError: '', addBusy: false,
     downloads: [], dlOpen: false, dlLoading: false, dlError: '',
@@ -538,7 +566,65 @@ class Component extends DCLogic {
 
   closeInbox = () => this.setState({ overlay: null, expandedKey: null, actionError: '' });
   setFilter = (f) => this.setState({ filter: f });
-  toggleExpand = (key) => this.setState({ expandedKey: this.state.expandedKey === key ? null : key });
+  toggleExpand = (key) => {
+    const open = this.state.expandedKey !== key;
+    this.setState({ expandedKey: open ? key : null, replyError: '' });
+    if (open && key.startsWith('bug-')) this.loadThread(Number(key.slice(4)));
+  };
+
+  // Fil d'un signalement (échanges avec le membre) : chargé à l'ouverture de l'élément. La
+  // consultation éteint la pastille « nouvelle réponse du membre » (founder_seen_at posé
+  // côté serveur, reflété localement).
+  loadThread(id) {
+    this.setState((s) => ({ threads: Object.assign({}, s.threads, { [id]: Object.assign({ messages: [], author: null }, s.threads[id] || {}, { loading: true }) }) }));
+    fetch(Component.API_BASE + '/v1/founder/bug/' + id, { credentials: 'include', headers: { 'Accept': 'application/json' } }).then((r) => {
+      if (r.status === 401 || r.status === 403) { this._authFailed(r.status); return null; }
+      if (!r.ok) throw new Error('http ' + r.status);
+      return r.json();
+    }).then((data) => {
+      if (!data) return;
+      const now = new Date().toISOString();
+      this.setState((s) => ({
+        threads: Object.assign({}, s.threads, { [id]: { loading: false, messages: data.messages || [], author: data.author || null } }),
+        allBugs: (s.allBugs || []).map((b) => b.id === id ? Object.assign({}, b, { founder_seen_at: now, message_count: (data.messages || []).length }) : b),
+        bugs: (s.bugs || []).map((b) => b.id === id ? Object.assign({}, b, { founder_seen_at: now }) : b),
+      }));
+    }).catch(() => this.setState((s) => ({ threads: Object.assign({}, s.threads, { [id]: { loading: false, messages: [], author: null, error: true } }) })));
+  }
+
+  // Réponse au membre, avec changement d'état optionnel dans le même envoi.
+  replyBug = async (id, e) => {
+    e.preventDefault();
+    if (this.state.replyBusy) return;
+    const form = e.currentTarget || e.target;
+    const body = (form.body && form.body.value || '').trim();
+    const state = (form.state && form.state.value) || '';
+    if (!body) { this.setState({ replyError: 'Écrivez une réponse.' }); return; }
+    this.setState({ replyBusy: id, replyError: '' });
+    try {
+      const r = await fetch(Component.API_BASE + '/v1/founder/bug/' + id + '/messages', {
+        method: 'POST', credentials: 'include',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify(state ? { body, state } : { body }),
+      });
+      if (r.status === 401 || r.status === 403) { this._authFailed(r.status); return; }
+      if (!r.ok) { this.setState({ replyBusy: null, replyError: 'Envoi impossible. Réessayez.' }); return; }
+      const data = await r.json();
+      form.body.value = ''; if (form.state) form.state.value = '';
+      this.setState((s) => {
+        const t = s.threads[id] || { messages: [], author: null };
+        const patch = { state: data.state, message_count: (t.messages || []).length + 1 };
+        return {
+          replyBusy: null, replyError: '', banner: 'Réponse envoyée au membre.',
+          threads: Object.assign({}, s.threads, { [id]: Object.assign({}, t, { messages: (t.messages || []).concat([data.message]) }) }),
+          allBugs: (s.allBugs || []).map((b) => b.id === id ? Object.assign({}, b, patch) : b),
+          bugs: (s.bugs || []).map((b) => b.id === id ? Object.assign({}, b, patch) : b),
+        };
+      });
+    } catch (_) {
+      this.setState({ replyBusy: null, replyError: 'Impossible de joindre le serveur. Réessayez.' });
+    }
+  };
   stopProp = (e) => { if (e && e.stopPropagation) e.stopPropagation(); };
 
   // POST état / DELETE, puis mise à jour LOCALE des listes (pas de refetch : le dashboard
@@ -744,6 +830,7 @@ class Component extends DCLogic {
       const description = b.description || '';
       const logs = b.logs || '';
       return {
+        hasMemberReply: !!b.last_member_message_at && (!b.founder_seen_at || b.last_member_message_at > b.founder_seen_at),
         title: b.title,
         email: b.user_email,
         date: fmtDM(b.created_at),
@@ -905,7 +992,32 @@ class Component extends DCLogic {
         it.hasBody = !!(x.description && String(x.description).trim());
         it.logs = x.logs || '';
         it.hasLogs = !!(x.logs && String(x.logs).trim());
+        // Fil de discussion (lecture défensive : un backend en retard n'a pas ces champs).
+        const msgCount = Number(x.message_count) || 0;
+        const t = (s.threads || {})[x.id] || null;
+        const authorName = (t && t.author && t.author.display_name) || x.user_email;
+        it.isBug = true;
+        it.who = authorName;
+        it.hasThread = msgCount > 0;
+        it.msgCount = msgCount + (msgCount > 1 ? ' messages' : ' message');
+        it.hasMemberReply = !!x.last_member_message_at && (!x.founder_seen_at || x.last_member_message_at > x.founder_seen_at);
+        it.threadLoading = !!(t && t.loading);
+        it.thread = (t && !t.loading ? (t.messages || []) : []).map((m) => ({
+          who: m.is_founder ? 'Vous' : authorName,
+          when: fmtDT(m.created_at),
+          body: m.body,
+          bg: m.is_founder ? 'rgba(47,99,212,0.06)' : '#ffffff',
+          border: m.is_founder ? 'rgba(47,99,212,0.22)' : 'var(--a-border-soft)',
+        }));
+        it.threadEmpty = !!(t && !t.loading && (t.messages || []).length === 0);
+        it.onReply = (e) => this.replyBug(x.id, e);
+        it.replyLabel = s.replyBusy === x.id ? 'Envoi…' : 'Envoyer la réponse';
+        it.hasReplyError = s.expandedKey === key && !!s.replyError;
+        it.replyError = s.replyError;
       } else {
+        it.isBug = false; it.who = ''; it.hasThread = false; it.msgCount = ''; it.hasMemberReply = false;
+        it.threadLoading = false; it.thread = []; it.threadEmpty = false; it.onReply = () => {};
+        it.replyLabel = ''; it.hasReplyError = false; it.replyError = '';
         const who = whoOf(x);
         it.title = who;
         it.meta = (who !== x.from_email ? x.from_email + ' · ' : '') + x.subject + ' · ' + fmtFR(x.created_at);
