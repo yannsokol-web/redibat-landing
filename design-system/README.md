@@ -136,3 +136,29 @@ Le **styleguide** (`styleguide.html`) rend ces composants en vrai - ouvrez-le po
 - **En-tête dupliqué sur toutes les pages x-dc** (y compris `404.html`) : l'en-tête/pied n'est pas partagé par include - il est **copié à l'identique** dans chaque page. Une modif d'en-tête doit être répliquée partout (ou repartir de `template.html`).
 - **`style-hover` sans runtime = pas de survol** : ne pas transposer ces pages en HTML statique sans `support.js`.
 - **Chemins & `<base href="/">`** : `support.js` charge `vendor/react*.js` en chemin **relatif au document**. Une page servie **hors racine** (ex. `/design-system/`) le chercherait donc dans `/design-system/vendor/` → 404, et **React ne démarrerait pas** (contenu affiché en brut, tokens et `style-hover` inactifs). `template.html` et `styleguide.html` incluent donc `<base href="/">` (+ chemins absolus `/support.js`, `/_ds/…`, `/uploads/…`). À la racine, `<base href="/">` est neutre : une page copiée à la racine marche avec ou sans.
+
+## Pages de l'espace communautaire (`communaute/`)
+
+Dix pages x-dc réservées aux comptes (session par cookie HttpOnly posé par l'API), générées
+sur un même squelette : en-tête communautaire dupliqué dans chaque fichier (convention du
+site), `<base href="/">`, CSP dédiée (médias et images depuis `api.redibat.fr` uniquement,
+aucun cadre), `noindex, nofollow`, socle partagé `communaute/community.js` (`window.RDB`) et
+feuille `communaute/community.css`. Règles propres à ces pages, toutes vérifiées par
+`scripts/check-dc-pages.mjs` en CI :
+
+- **Liens et sources absolus** (`/communaute/videos?v=3`, jamais `videos` ni `?v=3`) : avec
+  `<base href="/">`, un lien relatif se résout depuis la racine.
+- **Le navigateur analyse le gabarit brut avant React** (`<x-dc>` est masqué, pas inerte) :
+  toute `<img src="{{ … }}">` porte `loading="lazy"` (sinon l'URL littérale est demandée) et
+  un `<video>` ne porte ni `src`, ni `poster`, ni `on*` (le composant les pose après le rendu).
+- **Attributs booléens** : écrire `controls="{{ true }}"`, `disabled="{{ x }}"` (un attribut nu
+  donne une chaîne vide, que React retire).
+- **Formulaires pré-remplis en champs contrôlés** (`value="{{ x }}"` + `onChange`) : le
+  runtime re-rend le gabarit depuis sa source brute peu après le chargement, et
+  `defaultValue` est perdu au premier rendu (attributs en minuscules).
+- **`renderVals()` renvoie toujours l'ensemble complet des clés** (valeurs vides admises),
+  et `RDB.shellVals(this, page)` fournit celles de la coquille (en-tête, modale du pseudo).
+- **Aucun `dangerouslySetInnerHTML`** : le contenu riche (guides, nouveautés, messages) est
+  rendu en blocs et segments (`RDB.parseLite`, `RDB.inline`) via `sc-for` / `sc-if`.
+- Incrémenter `?v=` de `community.js` et `community.css` (identique sur toutes les pages) à
+  chaque modification : GitHub Pages met ces fichiers en cache dix minutes.

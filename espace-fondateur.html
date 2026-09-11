@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <!-- Content-Security-Policy (défense en profondeur) : borne les destinations réseau
-     (connect-src -> l'API uniquement) pour limiter l'exfiltration du JWT en cas de XSS.
+     (connect-src -> l'API uniquement). La session est un cookie HttpOnly : aucun jeton ici.
      'unsafe-inline'/'unsafe-eval' requis par le runtime dc. frame-ancestors ignoré en <meta>. -->
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; img-src 'self' data:; font-src 'self' data: https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://challenges.cloudflare.com; connect-src 'self' https://api.redibat.fr https://challenges.cloudflare.com; frame-src 'self' https://challenges.cloudflare.com">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -11,7 +11,10 @@
 <link rel="icon" type="image/png" sizes="32x32" href="/assets/logos/favicon-32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="/assets/logos/favicon-16.png">
 <link rel="apple-touch-icon" href="/assets/logos/favicon-256.png">
-<script>/* Garde-fou (cosmétique) : réservé à une session ayant ouvert l'accès fondateur depuis l'espace client. */try{if(sessionStorage.getItem('redibat_founder')!=='1')location.replace('/espace-client');}catch(e){}</script>
+<!-- Accès : session par cookie HttpOnly (api.redibat.fr) vérifiée au montage via /v1/me ; un
+     compte non fondateur est renvoyé vers la communauté, une session absente vers la connexion.
+     La vraie autorisation reste côté API (requireFounder sur chaque route). -->
+<script src="/communaute/community.js?v=1"></script>
 <script src="./support.js"></script>
 </head>
 <body>
@@ -33,11 +36,13 @@
   <header style="position: sticky; top: 0; z-index: 40; background: rgba(255,255,255,0.85); backdrop-filter: blur(12px); border-bottom: 1px solid var(--a-border);">
     <div style="max-width: 1180px; margin: 0 auto; padding: 13px 28px; display: flex; align-items: center; justify-content: space-between; gap: 20px;">
       <div style="display: flex; align-items: center; gap: 14px;">
-        <img src="uploads/redibat-lockup-h.png" alt="Rédibat" style="height: 30px; width: auto; display: block;">
+        <a href="/communaute/" style="display: inline-flex; align-items: center;"><img src="uploads/redibat-lockup-h.png" alt="Rédibat" style="height: 30px; width: auto; display: block;"></a>
         <span style="font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--a-blue); background: rgba(47,99,212,0.1); padding: 5px 10px; border-radius: 100px;">Espace fondateur</span>
       </div>
-      <div style="display: flex; align-items: center; gap: 18px;">
-        <a href="/espace-client" style="display: inline-flex; align-items: center; gap: 7px; text-decoration: none; font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: #1f3a5c; border: 1px solid var(--a-border); padding: 8px 14px; border-radius: 100px; transition: border-color .16s ease, background .16s ease;" style-hover="border-color: var(--a-blue); background: var(--a-sel);">Se déconnecter</a>
+      <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+        <a href="/communaute/" style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 14px; font-weight: 500; color: #1f3a5c; text-decoration: none; padding: 8px 11px; border-radius: 8px;" style-hover="background: rgba(31,58,92,0.05);">Communauté</a>
+        <a href="/communaute/publier" style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 14px; font-weight: 500; color: #b7791f; text-decoration: none; padding: 8px 11px; border-radius: 8px;" style-hover="background: rgba(31,58,92,0.05);">Publier</a>
+        <button type="button" onClick="{{ onLogout }}" style="display: inline-flex; align-items: center; gap: 7px; cursor: pointer; background: #ffffff; font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: #1f3a5c; border: 1px solid var(--a-border); padding: 8px 14px; border-radius: 100px; transition: border-color .16s ease, background .16s ease;" style-hover="border-color: var(--a-blue); background: var(--a-sel);">Se déconnecter</button>
       </div>
     </div>
   </header>
@@ -108,10 +113,11 @@
           <button type="button" onClick="{{ onUserFilterExpired }}" style="cursor: pointer; border: 1px solid var(--a-border); background: {{ uExpiredBg }}; color: {{ uExpiredColor }}; font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.04em; padding: 6px 12px; border-radius: 100px;">Expirés ({{ uCountExpired }})</button>
         </div>
         <div style="overflow-x: auto;">
-        <table style="width: 100%; border-collapse: collapse; min-width: 720px;">
+        <table style="width: 100%; border-collapse: collapse; min-width: 960px;">
           <thead>
             <tr>
               <th style="text-align: left; font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--a-faint); font-weight: 500; padding: 12px 24px;">Adresse e-mail</th>
+              <th style="text-align: left; font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--a-faint); font-weight: 500; padding: 12px 12px;">Pseudo</th>
               <th style="text-align: left; font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--a-faint); font-weight: 500; padding: 12px 12px;">Société</th>
               <th style="text-align: left; font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--a-faint); font-weight: 500; padding: 12px 12px;">Offre</th>
               <th style="text-align: left; font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--a-faint); font-weight: 500; padding: 12px 12px;">Abonnement</th>
@@ -121,11 +127,16 @@
           </thead>
           <tbody>
             <sc-if value="{{ isUsersEmpty }}">
-              <tr><td colspan="6" style="padding: 30px 24px; text-align: center; font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 14px; color: var(--a-muted);">Aucun compte dans ce filtre.</td></tr>
+              <tr><td colspan="7" style="padding: 30px 24px; text-align: center; font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 14px; color: var(--a-muted);">Aucun compte dans ce filtre.</td></tr>
             </sc-if>
             <sc-for list="{{ users }}" as="u" hint-placeholder-count="6">
               <tr style="border-top: 1px solid var(--a-border-soft);">
                 <td style="padding: 14px 24px; font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 14px; color: #16314f; font-weight: 500;">{{ u.email }}</td>
+                <td style="padding: 14px 12px; font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 13.5px; color: var(--a-text);">
+                  {{ u.pseudo }}
+                  <sc-if value="{{ u.isBanned }}"><div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--a-red); margin-top: 4px;">Banni de la communauté</div></sc-if>
+                  <sc-if value="{{ u.hasWebSessions }}"><div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--a-teal); margin-top: 4px;">● {{ u.webSessions }}</div></sc-if>
+                </td>
                 <td style="padding: 14px 12px; font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 13.5px; color: var(--a-text);">{{ u.company }}</td>
                 <td style="padding: 14px 12px;">
                   <span style="display: inline-block; font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; letter-spacing: 0.06em; padding: 4px 11px; border-radius: 100px; color: {{ u.licColor }}; background: {{ u.licBg }};">{{ u.licence }}</span>
@@ -146,6 +157,9 @@
                     <sc-if value="{{ u.isPaused }}"><button type="button" onClick="{{ u.onResume }}" style="cursor: pointer; border: 1px solid var(--a-border); background: #ffffff; color: #16314f; font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 12px; font-weight: 500; padding: 6px 11px; border-radius: 8px;">Réactiver</button></sc-if>
                     <sc-if value="{{ u.canPause }}"><button type="button" onClick="{{ u.onPause }}" style="cursor: pointer; border: 1px solid var(--a-border); background: #ffffff; color: #16314f; font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 12px; font-weight: 500; padding: 6px 11px; border-radius: 8px;">Pause</button></sc-if>
                     <sc-if value="{{ u.hasSeat }}"><button type="button" onClick="{{ u.onReleaseSeat }}" style="cursor: pointer; border: 1px solid var(--a-border); background: #ffffff; color: #16314f; font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 12px; font-weight: 500; padding: 6px 11px; border-radius: 8px;">Libérer</button></sc-if>
+                    <sc-if value="{{ u.hasWebSessions }}"><button type="button" onClick="{{ u.onRevokeSessions }}" style="cursor: pointer; border: 1px solid var(--a-border); background: #ffffff; color: #16314f; font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 12px; font-weight: 500; padding: 6px 11px; border-radius: 8px;">Déconnecter (web)</button></sc-if>
+                    <sc-if value="{{ u.canBan }}"><button type="button" onClick="{{ u.onBan }}" style="cursor: pointer; border: 1px solid var(--a-border); background: #ffffff; color: #b7791f; font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 12px; font-weight: 500; padding: 6px 11px; border-radius: 8px;">Bannir</button></sc-if>
+                    <sc-if value="{{ u.isBanned }}"><button type="button" onClick="{{ u.onUnban }}" style="cursor: pointer; border: 1px solid var(--a-border); background: #ffffff; color: var(--a-teal); font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 12px; font-weight: 500; padding: 6px 11px; border-radius: 8px;">Réintégrer</button></sc-if>
                     <button type="button" onClick="{{ u.onDelete }}" style="cursor: pointer; border: 1px solid rgba(226,59,46,0.35); background: rgba(226,59,46,0.06); color: var(--a-red); font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 12px; font-weight: 500; padding: 6px 11px; border-radius: 8px;">Suppr.</button>
                   </div>
                 </td>
@@ -414,8 +428,8 @@
 </x-dc>
 <script type="text/x-dc" data-dc-script>
 class Component extends DCLogic {
-  // Backend redibat-auth (même origine que l'espace client). Le jeton fondateur a été
-  // persisté en sessionStorage au login (espace-client.html) : on le relit ici.
+  // Backend redibat-auth. La session est un cookie HttpOnly posé au login (espace-client.html) :
+  // chaque appel part avec credentials: 'include', aucun jeton n'est manipulé ici.
   static API_BASE = 'https://api.redibat.fr';
 
   state = { loading: true, error: '', banner: '', users: [], bugs: [], messages: [], stats: null,
@@ -428,18 +442,23 @@ class Component extends DCLogic {
   componentDidMount() {
     if (this._fetchStarted) return;   // garde : un seul appel même si le runtime re-monte
     this._fetchStarted = true;
-    this.loadOverview();
+    // Session vérifiée AVANT tout chargement : absente -> connexion (avec retour ici) ;
+    // compte non fondateur -> accueil de la communauté.
+    RDB.requireSession().then((me) => {
+      if (!me) return;
+      if (me.__error !== undefined) { this.setState({ loading: false, error: 'Impossible de joindre le serveur. Rechargez la page dans un instant.' }); return; }
+      if (!me.is_founder) { location.replace('/communaute/'); return; }
+      this.loadOverview();
+    });
   }
 
   // Charge (ou recharge) l'aperçu fondateur : utilisateurs, bugs, messages, stats. Appelée
   // au montage ET après chaque action sur un compte (re-synchronise la source de vérité).
   loadOverview() {
-    const token = this._token();
-    if (!token) { this._authFailed(); return; }   // pas de session -> login
     fetch(Component.API_BASE + '/v1/founder/overview', {
-      headers: { 'Authorization': 'Bearer ' + token, 'Accept': 'application/json' },
+      credentials: 'include', headers: { 'Accept': 'application/json' },
     }).then((r) => {
-      if (r.status === 401 || r.status === 403) { this._authFailed(); return null; }
+      if (r.status === 401 || r.status === 403) { this._authFailed(r.status); return null; }
       if (!r.ok) throw new Error('http ' + r.status);
       return r.json();
     }).then((data) => {
@@ -454,22 +473,21 @@ class Component extends DCLogic {
     });
   }
 
-  // --- Boîte de réception (overlay) : jeton, chargement, mutations ---
-  _token() { try { return sessionStorage.getItem('redibat_token') || ''; } catch (_) { return ''; } }
-  _authFailed() {
-    try { sessionStorage.removeItem('redibat_token'); sessionStorage.removeItem('redibat_founder'); } catch (_) {}
-    location.replace('/espace-client');
+  // --- Boîte de réception (overlay) : chargement, mutations ---
+  // 401 = session absente ou expirée -> connexion ; 403 = compte non fondateur -> communauté.
+  _authFailed(status) {
+    if (status === 403) { location.replace('/communaute/'); return; }
+    RDB.toLogin();
   }
+  onLogout = () => RDB.logout();
 
   openInbox = (type) => {
     this.setState({ overlay: type, filter: 'all', expandedKey: null, actionError: '' });
     if (this.state.inboxLoaded) return;              // déjà chargée : pas de refetch
-    const token = this._token();
-    if (!token) { this._authFailed(); return; }
     fetch(Component.API_BASE + '/v1/founder/inbox', {
-      headers: { 'Authorization': 'Bearer ' + token, 'Accept': 'application/json' },
+      credentials: 'include', headers: { 'Accept': 'application/json' },
     }).then((r) => {
-      if (r.status === 401 || r.status === 403) { this._authFailed(); return null; }
+      if (r.status === 401 || r.status === 403) { this._authFailed(r.status); return null; }
       if (!r.ok) throw new Error('http ' + r.status);
       return r.json();
     }).then((data) => {
@@ -482,12 +500,10 @@ class Component extends DCLogic {
   // réception, mise en cache) - un journal doit montrer les derniers clics sans F5.
   openDownloads = () => {
     this.setState({ dlOpen: true, dlLoading: true, dlError: '' });
-    const token = this._token();
-    if (!token) { this._authFailed(); return; }
     fetch(Component.API_BASE + '/v1/founder/downloads', {
-      headers: { 'Authorization': 'Bearer ' + token, 'Accept': 'application/json' },
+      credentials: 'include', headers: { 'Accept': 'application/json' },
     }).then((r) => {
-      if (r.status === 401 || r.status === 403) { this._authFailed(); return null; }
+      if (r.status === 401 || r.status === 403) { this._authFailed(r.status); return null; }
       if (!r.ok) throw new Error('http ' + r.status);
       return r.json();
     }).then((data) => {
@@ -507,12 +523,10 @@ class Component extends DCLogic {
   // qui permet de lire le nombre de crashes sans cliquer.
   openTelemetry = () => {
     this.setState({ telemOpen: true, telemLoading: true, telemError: '' });
-    const token = this._token();
-    if (!token) { this._authFailed(); return; }
     fetch(Component.API_BASE + '/v1/founder/telemetry?days=30', {
-      headers: { 'Authorization': 'Bearer ' + token, 'Accept': 'application/json' },
+      credentials: 'include', headers: { 'Accept': 'application/json' },
     }).then((r) => {
-      if (r.status === 401 || r.status === 403) { this._authFailed(); return null; }
+      if (r.status === 401 || r.status === 403) { this._authFailed(r.status); return null; }
       if (!r.ok) throw new Error('http ' + r.status);
       return r.json();
     }).then((data) => {
@@ -530,12 +544,10 @@ class Component extends DCLogic {
   // POST état / DELETE, puis mise à jour LOCALE des listes (pas de refetch : le dashboard
   // et les stats se re-dérivent des listes complètes dans renderVals).
   _mutate(type, id, method, body) {
-    const token = this._token();
-    if (!token) { this._authFailed(); return Promise.resolve(false); }
-    const opts = { method, headers: { 'Authorization': 'Bearer ' + token, 'Accept': 'application/json' } };
+    const opts = { method, credentials: 'include', headers: { 'Accept': 'application/json' } };
     if (body) { opts.headers['Content-Type'] = 'application/json'; opts.body = JSON.stringify(body); }
     return fetch(Component.API_BASE + '/v1/founder/' + type + '/' + id, opts).then((r) => {
-      if (r.status === 401 || r.status === 403) { this._authFailed(); return false; }
+      if (r.status === 401 || r.status === 403) { this._authFailed(r.status); return false; }
       return r.ok;
     }).catch(() => false);
   }
@@ -576,19 +588,17 @@ class Component extends DCLogic {
     const company = (form.company && form.company.value || '').trim();
     const months = (form.months && form.months.value || '').trim();
     if (!email) { this.setState({ addError: 'Renseignez une adresse e-mail.' }); return; }
-    const token = this._token();
-    if (!token) { this._authFailed(); return; }
     this.setState({ addBusy: true, addError: '' });
     const payload = { email, role };
     if (company) payload.company = company;
     if (months) payload.plan_months = Number(months);
     try {
       const r = await fetch(Component.API_BASE + '/v1/founder/user', {
-        method: 'POST',
-        headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        method: 'POST', credentials: 'include',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
         body: JSON.stringify(payload),
       });
-      if (r.status === 401 || r.status === 403) { this._authFailed(); return; }
+      if (r.status === 401 || r.status === 403) { this._authFailed(r.status); return; }
       if (r.status === 409) { this.setState({ addBusy: false, addError: 'Un compte existe déjà pour cette adresse.' }); return; }
       if (!r.ok) { this.setState({ addBusy: false, addError: 'Création impossible. Vérifiez les informations saisies.' }); return; }
       const data = await r.json().catch(() => ({}));
@@ -605,12 +615,10 @@ class Component extends DCLogic {
   // Action sur un compte (pause/reprise/renvoi/offre/suppression), puis rechargement de
   // l'aperçu. `body` optionnel -> envoyé en JSON (ex. changement d'offre).
   _userMutate(id, method, sub, okMsg, errMsg, body) {
-    const token = this._token();
-    if (!token) { this._authFailed(); return; }
-    const opts = { method, headers: { 'Authorization': 'Bearer ' + token, 'Accept': 'application/json' } };
+    const opts = { method, credentials: 'include', headers: { 'Accept': 'application/json' } };
     if (body) { opts.headers['Content-Type'] = 'application/json'; opts.body = JSON.stringify(body); }
     fetch(Component.API_BASE + '/v1/founder/user/' + id + sub, opts).then((r) => {
-      if (r.status === 401 || r.status === 403) { this._authFailed(); return null; }
+      if (r.status === 401 || r.status === 403) { this._authFailed(r.status); return null; }
       return r;
     }).then((r) => {
       if (!r) return;
@@ -632,6 +640,14 @@ class Component extends DCLogic {
     if (!window.confirm('Supprimer définitivement le compte ' + email + ' ? Cette action est irréversible.')) return;
     this._userMutate(id, 'DELETE', '', 'Compte supprimé.', 'Suppression impossible. Réessayez.');
   };
+  // Espace communautaire : bannissement (réversible, révoque aussi ses sessions web) et
+  // déconnexion forcée de ses sessions web.
+  banUser = (id, email) => {
+    if (!window.confirm('Exclure ' + email + ' de la communauté ? Ses sessions web seront fermées. Réversible.')) return;
+    this._userMutate(id, 'POST', '/community-ban', 'Compte exclu de la communauté.', 'Exclusion impossible. Réessayez.');
+  };
+  unbanUser = (id) => this._userMutate(id, 'POST', '/community-unban', 'Compte réintégré dans la communauté.', 'Réintégration impossible. Réessayez.');
+  revokeSessions = (id) => this._userMutate(id, 'POST', '/revoke-sessions', 'Sessions web fermées.', 'Fermeture impossible. Réessayez.');
 
   renderVals() {
     const teal = 'var(--a-teal)', tealBg = 'rgba(47,138,114,0.12)';
@@ -683,8 +699,19 @@ class Component extends DCLogic {
         else if (u.mail_status === 'sent') { pwNote = 'Invitation envoyée'; pwColor = blue; }
         else if (u.mail_status === 'failed') { pwNote = 'Échec e-mail - renvoyer'; pwColor = red; }
         else { pwNote = 'E-mail à envoyer'; pwColor = amber; }
+        const webSessions = Number(u.web_sessions_active) || 0;
+        // Le compte fondateur (le mien) ne se bannit pas et ne se déconnecte pas d'ici.
+        const isSelf = !!(RDB._me && RDB._me.email && u.email === RDB._me.email);
         return {
           email: u.email,
+          pseudo: u.display_name || '-',
+          isBanned: !!u.community_banned_at,
+          canBan: !u.community_banned_at && !isSelf,
+          hasWebSessions: webSessions > 0 && !isSelf,
+          webSessions: webSessions + (webSessions > 1 ? ' sessions web' : ' session web'),
+          onBan: () => this.banUser(u.id, u.email),
+          onUnban: () => this.unbanUser(u.id),
+          onRevokeSessions: () => this.revokeSessions(u.id),
           company: u.company || '-',
           licence,
           duration: u.plan_months ? (u.plan_months + ' mois') : '-',
@@ -901,6 +928,7 @@ class Component extends DCLogic {
       hasBanner: !!s.banner,
       banner: s.banner,
       onClearBanner: this.clearBanner,
+      onLogout: this.onLogout,
       // --- Gestion des licences : filtres, actions, modale d'ajout ---
       uCountAll: counts.all, uCountActive: counts.active, uCountPaused: counts.paused,
       uCountInvited: counts.invited, uCountExpired: counts.expired,

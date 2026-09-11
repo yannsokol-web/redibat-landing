@@ -3,7 +3,8 @@
 <head>
 <meta charset="utf-8">
 <!-- Content-Security-Policy (défense en profondeur) : borne les destinations réseau
-     (connect-src -> l'API uniquement) pour limiter l'exfiltration du JWT en cas de XSS.
+     (connect-src -> l'API uniquement). La session est un cookie HttpOnly posé par l'API :
+     aucun jeton n'est jamais manipulé par cette page.
      'unsafe-inline'/'unsafe-eval' requis par le runtime dc. frame-ancestors ignoré en <meta>. -->
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; img-src 'self' data:; font-src 'self' data: https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://challenges.cloudflare.com; connect-src 'self' https://api.redibat.fr https://challenges.cloudflare.com; frame-src 'self' https://challenges.cloudflare.com">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -37,13 +38,15 @@
       .rdb-header{padding-left:20px !important;padding-right:20px !important;gap:16px !important;}
     }
   </style>
+<!-- Socle de l'espace communautaire : appels API avec cookie de session, adresse de retour sûre. -->
+<script src="/communaute/community.js?v=1"></script>
 <script src="./support.js"></script>
 </head>
 <body>
 <x-dc>
 <helmet>
   <title>Espace client - Connexion | Rédibat</title>
-  <meta name="description" content="Connectez-vous à votre espace client Rédibat pour télécharger l'application. Réservé aux clients disposant d'un compte.">
+  <meta name="description" content="Connectez-vous à votre espace Rédibat : communauté, vidéos, forum, guides et téléchargement de l'application. Réservé aux comptes.">
   <meta name="robots" content="noindex, follow">
   <link rel="stylesheet" href="_ds/r-dibat-design-system-740ba38c-581d-4335-88dd-fcf28913eed8/tokens/fonts.css">
   <link rel="stylesheet" href="_ds/r-dibat-design-system-740ba38c-581d-4335-88dd-fcf28913eed8/tokens/colors.css">
@@ -117,12 +120,15 @@
   <main style="position: relative; z-index: 2; flex: 1; display: flex; align-items: center; justify-content: center; padding: 64px 32px 80px;">
     <div style="width: 100%; max-width: 440px;">
 
-      <sc-if value="{{ loggedOut }}" hint-placeholder-val="{{ true }}">
+      <sc-if value="{{ checking }}">
+        <div style="text-align: center; font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--a-faint); padding: 40px 0;">Chargement…</div>
+      </sc-if>
+      <sc-if value="{{ checked }}">
         <div>
           <div style="text-align: center; margin-bottom: 30px;">
             <div style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--a-blue); margin-bottom: 14px;">Espace client</div>
             <h1 style="font-family: 'Newsreader', Georgia, serif; font-weight: 500; letter-spacing: -0.024em; line-height: 1.08; font-size: clamp(30px, 4vw, 40px); color: #16314f; margin: 0 0 10px;">Connexion</h1>
-            <p style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 14.5px; line-height: 1.55; color: var(--a-muted); margin: 0;">Connectez-vous pour télécharger et installer Rédibat.</p>
+            <p style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 14.5px; line-height: 1.55; color: var(--a-muted); margin: 0;">Connectez-vous pour rejoindre la communauté, voir les vidéos et télécharger Rédibat.</p>
           </div>
 
           <form onSubmit="{{ onSubmit }}" style="background: #ffffff; border: 1px solid var(--a-border); border-radius: 18px; padding: 32px 30px 34px; box-shadow: 0 24px 56px -32px rgba(31,58,92,0.35);">
@@ -180,38 +186,6 @@
               Pas de compte, contactez-nous
             </a>
           </div>
-        </div>
-      </sc-if>
-
-      <sc-if value="{{ loggedIn }}" hint-placeholder-val="{{ false }}">
-        <div style="background: #ffffff; border: 1px solid var(--a-border); border-radius: 18px; padding: 40px 34px; box-shadow: 0 24px 56px -32px rgba(31,58,92,0.35); text-align: center;">
-          <span style="display: inline-flex; align-items: center; justify-content: center; width: 60px; height: 60px; border-radius: 50%; background: rgba(47,138,114,0.12); color: var(--a-teal); margin-bottom: 20px;">
-            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-          </span>
-          <h1 style="font-family: 'Newsreader', Georgia, serif; font-weight: 500; letter-spacing: -0.02em; font-size: 30px; color: #16314f; margin: 0 0 8px;">Connexion réussie</h1>
-          <p style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: 0.04em; color: var(--a-muted); margin: 0 0 6px;">{{ email }} · offre {{ roleLabel }}</p>
-          <p style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 15px; line-height: 1.6; color: var(--a-text); margin: 0 0 28px;">Votre licence est active. Téléchargez le programme d'installation et lancez Rédibat sur votre poste Windows.</p>
-
-          <button type="button" onClick="{{ onDownload }}" style="width: 100%; box-sizing: border-box; display: inline-flex; align-items: center; justify-content: center; gap: 11px; text-decoration: none; border: none; cursor: pointer;
-                 font-family: 'IBM Plex Mono', monospace; font-size: 13px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: #ffffff;
-                 background: linear-gradient(135deg, #0b317c 0%, #185fcb 55%, #30c5ec 100%); padding: 16px 24px; border-radius: 100px;
-                 box-shadow: 0 10px 26px -10px rgba(24,95,203,0.6); transition: transform .18s ease, filter .18s ease;" style-hover="transform: translateY(-1px); filter: brightness(1.06);">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-            {{ downloadLabel }}
-          </button>
-
-          <sc-if value="{{ hasDownloadError }}" hint-placeholder-val="{{ false }}">
-            <div role="alert" style="margin: 16px 0 0; padding: 11px 14px; border-radius: 10px; background: rgba(226,59,46,0.08); border: 1px solid rgba(226,59,46,0.28);
-                        font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 13px; line-height: 1.4; color: #b3261e; text-align: left;">{{ downloadError }}</div>
-          </sc-if>
-
-          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.05em; color: var(--a-faint); margin-top: 16px;">Rédibat Setup · Windows 10/11 · 64 bits</div>
-        </div>
-      </sc-if>
-
-      <sc-if value="{{ isFounder }}" hint-placeholder-val="{{ false }}">
-        <div style="text-align: center; margin-top: 34px;">
-          <a href="/espace-fondateur" style="font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--a-faint); text-decoration: none; transition: color .16s ease;" style-hover="color: var(--a-blue);">Accès fondateur</a>
         </div>
       </sc-if>
 
@@ -285,35 +259,29 @@
 </x-dc>
 <script type="text/x-dc" data-dc-script>
 class Component extends DCLogic {
-  // ─── Configuration ───────────────────────────────────────────────
-  // Le backend redibat-auth (comptes + licences + téléchargement) vit
-  // sur une autre origine : appels cross-origin (le backend autorise
-  // https://redibat.fr via CORS). Le jeton reste EN MÉMOIRE (jamais localStorage).
-  static API_BASE = 'https://api.redibat.fr';
-
-  // Valide une URL de téléchargement renvoyée par l'API avant toute navigation : https
-  // obligatoire ET hôte attendu (l'API elle-même, ou le stockage objet Cloudflare R2).
-  static isTrustedDownloadUrl(u) {
-    try {
-      const url = new URL(u, Component.API_BASE);
-      if (url.protocol !== 'https:') return false;
-      const h = url.hostname.toLowerCase();
-      return h === 'api.redibat.fr' || h.endsWith('.r2.cloudflarestorage.com');
-    } catch (_) { return false; }
-  }
-
+  // ─── Page de connexion du site ─────────────────────────────────────
+  // Le login en mode « web » (client: 'web') pose un cookie de session HttpOnly sur
+  // api.redibat.fr : cette page ne voit JAMAIS de jeton et n'en stocke aucun. Après
+  // connexion, retour vers la page demandée (?next=, bornée à l'espace communautaire) ou
+  // vers l'accueil de la communauté. Une session déjà ouverte redirige sans afficher le
+  // formulaire.
   state = {
     showPwd: false,
-    loggedIn: false,
+    checked: false,
     loading: false,
     error: '',
-    email: '',
-    role: '',
-    isFounder: false,
-    downloading: false,
-    downloadError: '',
   };
-  token = null;
+
+  componentDidMount() {
+    if (this._started) return;   // garde : un seul démarrage même si le runtime re-monte
+    this._started = true;
+    // Reliquats de l'ancien mécanisme (jeton fondateur en sessionStorage) : purgés.
+    try { sessionStorage.removeItem('redibat_token'); sessionStorage.removeItem('redibat_founder'); } catch (_) {}
+    RDB.api('/v1/me', { noRedirect: true }).then((r) => {
+      if (r.status === 200) { location.replace(RDB.safeNext(RDB.params().get('next'))); return; }
+      this.setState({ checked: true });
+    });
+  }
 
   togglePwd = () => this.setState(s => ({ showPwd: !s.showPwd }));
 
@@ -329,127 +297,43 @@ class Component extends DCLogic {
       return;
     }
     this.setState({ loading: true, error: '' });
-    try {
-      const resp = await fetch(Component.API_BASE + '/v1/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
-      if (resp.status === 200) {
-        const data = await resp.json();
-        this.token = data.token;
-        // Statut fondateur décidé PAR LE SERVEUR (réponse /v1/login) : plus d'e-mail
-        // fondateur en dur dans ce JS public. La vraie autorisation reste côté API (requireFounder).
-        const isFounder = data.is_founder === true;
-        try {
-          // Fondateur : on persiste le jeton (onglet uniquement) pour que
-          // /espace-fondateur puisse interroger l'API après la navigation (le jeton en
-          // mémoire est perdu au changement de page). Jamais pour un compte non-fondateur.
-          if (isFounder) {
-            sessionStorage.setItem('redibat_founder', '1');
-            sessionStorage.setItem('redibat_token', data.token);
-          } else {
-            sessionStorage.removeItem('redibat_founder');
-            sessionStorage.removeItem('redibat_token');
-          }
-        } catch (_) {}
-        this.setState({ loggedIn: true, loading: false, error: '', email: data.email || email, role: data.role || '', isFounder });
-        return;
-      }
-      if (resp.status === 401) {
-        this.setState({ loading: false, error: 'E-mail ou mot de passe incorrect.' });
-        return;
-      }
-      if (resp.status === 429) {
-        let retry = 0;
-        try { retry = (await resp.json()).retry_after || 0; } catch (_) {}
-        const mins = retry ? Math.ceil(retry / 60) : 0;
-        this.setState({ loading: false, error: mins
-          ? ('Trop de tentatives. Réessayez dans ' + mins + ' min.')
-          : 'Trop de tentatives. Réessayez dans quelques minutes.' });
-        return;
-      }
-      this.setState({ loading: false, error: 'Connexion impossible pour le moment. Réessayez.' });
-    } catch (_) {
+    const r = await RDB.api('/v1/login', { method: 'POST', body: { email, password, client: 'web' }, noRedirect: true });
+    if (r.status === 200) {
+      location.replace(RDB.safeNext(RDB.params().get('next')));
+      return;
+    }
+    if (r.status === 401) {
+      this.setState({ loading: false, error: 'E-mail ou mot de passe incorrect.' });
+      return;
+    }
+    if (r.status === 429) {
+      const retry = (r.data && r.data.retry_after) || 0;
+      const mins = retry ? Math.ceil(retry / 60) : 0;
+      this.setState({ loading: false, error: mins
+        ? ('Trop de tentatives. Réessayez dans ' + mins + ' min.')
+        : 'Trop de tentatives. Réessayez dans quelques minutes.' });
+      return;
+    }
+    if (r.status === 0) {
       this.setState({ loading: false, error: 'Impossible de joindre le serveur. Vérifiez votre connexion.' });
+      return;
     }
-  };
-
-  onDownload = async (e) => {
-    if (e && e.preventDefault) e.preventDefault();
-    if (this.state.downloading || !this.token) return;
-    this.setState({ downloading: true, downloadError: '' });
-    try {
-      const resp = await fetch(Component.API_BASE + '/v1/download', {
-        headers: { 'Authorization': 'Bearer ' + this.token, 'Accept': 'application/json' },
-      });
-      if (resp.status === 200) {
-        const ctype = resp.headers.get('content-type') || '';
-        if (ctype.indexOf('application/json') !== -1) {
-          // Mode R2 : URL pré-signée → navigation directe (déclenche le téléchargement).
-          const data = await resp.json();
-          this.setState({ downloading: false });
-          // SÉCURITÉ : ne suivre l'URL renvoyée par l'API que si elle est en https ET pointe
-          // vers un hôte attendu (l'API ou le stockage R2). Évite qu'une réponse inattendue
-          // (backend compromis / mal configuré) redirige vers une URL arbitraire (open-redirect).
-          if (data && data.url && Component.isTrustedDownloadUrl(data.url)) { window.location.href = data.url; return; }
-          this.setState({ downloadError: 'Lien de téléchargement indisponible. Réessayez.' });
-          return;
-        }
-        // Mode local : le serveur renvoie directement le binaire.
-        const blob = await resp.blob();
-        let filename = 'Redibat-Setup.exe';
-        const cd = resp.headers.get('content-disposition') || '';
-        const m = cd.match(/filename\*?=(?:UTF-8''|")?([^";]+)/i);
-        if (m) filename = decodeURIComponent(m[1].replace(/"/g, ''));
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url; a.download = filename;
-        document.body.appendChild(a); a.click(); a.remove();
-        setTimeout(() => URL.revokeObjectURL(url), 4000);
-        this.setState({ downloading: false });
-        return;
-      }
-      if (resp.status === 401) {
-        try { sessionStorage.removeItem('redibat_token'); sessionStorage.removeItem('redibat_founder'); } catch (_) {}
-        this.setState({ downloading: false, downloadError: 'Session expirée. Reconnectez-vous.', loggedIn: false });
-        return;
-      }
-      if (resp.status === 403) {
-        this.setState({ downloading: false, downloadError: 'Votre licence n’est pas active. Contactez-nous depuis redibat.fr/#contact.' });
-        return;
-      }
-      if (resp.status === 503) {
-        this.setState({ downloading: false, downloadError: 'Téléchargement momentanément indisponible. Réessayez plus tard.' });
-        return;
-      }
-      this.setState({ downloading: false, downloadError: 'Téléchargement impossible pour le moment. Réessayez.' });
-    } catch (_) {
-      this.setState({ downloading: false, downloadError: 'Impossible de joindre le serveur. Vérifiez votre connexion.' });
-    }
+    this.setState({ loading: false, error: 'Connexion impossible pour le moment. Réessayez.' });
   };
 
   renderVals() {
     const s = this.state;
-    const isFounder = s.loggedIn && s.isFounder === true;
     return {
       showPwd: s.showPwd,
       hidePwd: !s.showPwd,
       pwdType: s.showPwd ? 'text' : 'password',
-      loggedIn: s.loggedIn,
-      loggedOut: !s.loggedIn,
-      email: s.email,
-      roleLabel: (s.role || '').toUpperCase(),
+      checked: s.checked,
+      checking: !s.checked,
       hasError: !!s.error,
       error: s.error,
       submitLabel: s.loading ? 'Connexion…' : 'Se connecter',
-      downloadLabel: s.downloading ? 'Téléchargement…' : 'Télécharger Rédibat (.exe)',
-      hasDownloadError: !!s.downloadError,
-      downloadError: s.downloadError,
-      isFounder,
       togglePwd: this.togglePwd,
       onSubmit: this.onSubmit,
-      onDownload: this.onDownload,
     };
   }
 }

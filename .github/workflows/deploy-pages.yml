@@ -39,14 +39,16 @@ jobs:
       - name: Configure Pages
         uses: actions/configure-pages@v6
 
-      # 🔴 BARRIÈRE AVANT PUBLICATION. L'espace fondateur est un composant à gabarit
-      # maison : une clé `{{ … }}` absente de `renderVals()` ne lève AUCUNE erreur, la
-      # zone reste simplement VIDE. Une coquille se déploierait donc sans un signe, sur la
-      # page qui sert précisément à surveiller le produit. Le vérificateur exécute le
-      # composant et confronte gabarit et valeurs rendues, dans les deux sens.
-      # ⚠ Placé AVANT l'upload : un tableau de bord amputé ne doit pas atteindre Pages.
-      - name: Vérifier l'espace fondateur
-        run: node scripts/check-espace-fondateur.mjs
+      # 🔴 BARRIÈRE AVANT PUBLICATION. Les pages applicatives (espace communautaire,
+      # espace fondateur, connexion) sont des composants à gabarit maison : une clé
+      # `{{ … }}` absente de `renderVals()` ne lève AUCUNE erreur, la zone reste simplement
+      # VIDE. Une coquille se déploierait donc sans un signe. Le vérificateur exécute chaque
+      # composant et confronte gabarit et valeurs rendues, dans les deux sens ; il interdit
+      # aussi les liens relatifs et les médias préchargés dans communaute/ (base href="/",
+      # gabarit analysé par le navigateur avant React) et éprouve le socle community.js.
+      # ⚠ Placé AVANT l'upload : une page amputée ne doit pas atteindre Pages.
+      - name: Vérifier les pages x-dc
+        run: node scripts/check-dc-pages.mjs
 
       - name: Rafraîchir les lastmod du sitemap
         run: python3 scripts/sitemap-lastmod.py
