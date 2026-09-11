@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<!-- Espace communautaire : page réservée aux comptes. Cette coquille ne contient AUCUN contenu ;
+     tout vient de l'API (api.redibat.fr) après vérification de la session (cookie HttpOnly).
+     CSP : médias et images depuis l'API uniquement, aucun cadre, aucune autre destination.
+     'unsafe-inline'/'unsafe-eval' requis par le runtime dc. -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; frame-src 'none'; img-src 'self' data: https://api.redibat.fr; media-src https://api.redibat.fr; font-src 'self' data: https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; script-src 'self' 'unsafe-inline' 'unsafe-eval'; connect-src 'self' https://api.redibat.fr">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- <base href="/"> : le runtime charge vendor/react*.js en relatif ; tous les liens de cette
+     page sont donc ABSOLUS (/communaute/…). -->
+<base href="/">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/logos/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/assets/logos/favicon-16.png">
+<link rel="apple-touch-icon" href="/assets/logos/favicon-256.png">
+<script src="/communaute/community.js?v=1"></script>
+<script src="/support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <title>Membres | Communauté Rédibat</title>
+  <meta name="description" content="Annuaire des membres de la communauté Rédibat (inscription volontaire).">
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="stylesheet" href="/_ds/r-dibat-design-system-740ba38c-581d-4335-88dd-fcf28913eed8/tokens/fonts.css">
+  <link rel="stylesheet" href="/_ds/r-dibat-design-system-740ba38c-581d-4335-88dd-fcf28913eed8/tokens/colors.css">
+  <link rel="stylesheet" href="/_ds/r-dibat-design-system-740ba38c-581d-4335-88dd-fcf28913eed8/tokens/typography.css">
+  <link rel="stylesheet" href="/_ds/r-dibat-design-system-740ba38c-581d-4335-88dd-fcf28913eed8/tokens/spacing.css">
+  <link rel="stylesheet" href="/communaute/community.css?v=1">
+</helmet>
+
+<div class="cm-page">
+<sc-if value="{{ notReady }}"><div class="cm-loading">Chargement…</div></sc-if>
+<sc-if value="{{ ready }}">
+<header class="cm-header">
+  <div class="cm-header-in">
+    <a href="/communaute/" class="cm-brand" aria-label="Accueil de la communauté">
+      <img src="/uploads/redibat-lockup-h.png" alt="Rédibat">
+      <span class="cm-pill">Communauté</span>
+    </a>
+    <nav class="cm-nav" aria-label="Espace communautaire">
+      <a href="/communaute/" class="{{ hdrHome }}">Accueil</a>
+      <a href="/communaute/videos" class="{{ hdrVideos }}">Vidéos</a>
+      <a href="/communaute/forum" class="{{ hdrForum }}">Forum</a>
+      <a href="/communaute/guides" class="{{ hdrGuides }}">Guides</a>
+      <a href="/communaute/nouveautes" class="{{ hdrNews }}">Nouveautés</a>
+      <a href="/communaute/telechargements" class="{{ hdrDownloads }}">Téléchargements</a>
+      <a href="/communaute/membres" class="{{ hdrMembers }}">Membres</a>
+      <sc-if value="{{ hdrIsFounder }}">
+        <a href="/communaute/publier" class="{{ hdrPublish }} is-founder">Publier</a>
+        <a href="/espace-fondateur" class="{{ hdrDash }} is-founder">Tableau de bord</a>
+      </sc-if>
+    </nav>
+    <div class="cm-spacer"></div>
+    <form class="cm-search is-desktop" role="search" onSubmit="{{ onHdrSearch }}">
+      <input type="search" name="q" placeholder="Rechercher" aria-label="Rechercher dans la communauté" maxlength="80">
+    </form>
+    <details class="cm-account">
+      <summary aria-label="Mon compte"><span class="cm-avatar">{{ hdrInitial }}</span><span class="cm-account-name">{{ hdrName }}</span></summary>
+      <div class="cm-account-menu">
+        <a href="/communaute/profil" class="cm-menu-link">Mon profil</a>
+        <button type="button" class="cm-menu-link is-danger" onClick="{{ onHdrLogout }}">Se déconnecter</button>
+      </div>
+    </details>
+    <!-- Navigation mobile : menu déroulant natif (<details>), affiché sous 768px. Pur CSS. -->
+    <details class="rdb-mobile">
+      <summary class="rdb-burger" aria-label="Ouvrir le menu">
+        <svg class="rdb-icon-open" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><line x1="3" y1="7" x2="21" y2="7"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="17" x2="21" y2="17"></line></svg>
+        <svg class="rdb-icon-close" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><line x1="5" y1="5" x2="19" y2="19"></line><line x1="19" y1="5" x2="5" y2="19"></line></svg>
+      </summary>
+      <div class="rdb-mobile-panel">
+        <form class="cm-search is-mobile" role="search" onSubmit="{{ onHdrSearch }}">
+          <input type="search" name="q" placeholder="Rechercher" aria-label="Rechercher" maxlength="80">
+        </form>
+        <div class="rdb-mobile-label">Communauté</div>
+        <a href="/communaute/" class="rdb-mobile-link">Accueil</a>
+        <a href="/communaute/videos" class="rdb-mobile-link">Vidéos</a>
+        <a href="/communaute/forum" class="rdb-mobile-link">Forum</a>
+        <a href="/communaute/guides" class="rdb-mobile-link">Guides</a>
+        <a href="/communaute/nouveautes" class="rdb-mobile-link">Nouveautés</a>
+        <a href="/communaute/telechargements" class="rdb-mobile-link">Téléchargements</a>
+        <a href="/communaute/membres" class="rdb-mobile-link">Membres</a>
+        <sc-if value="{{ hdrIsFounder }}">
+          <div class="rdb-mobile-sep"></div>
+          <div class="rdb-mobile-label">Fondateur</div>
+          <a href="/communaute/publier" class="rdb-mobile-link">Publier</a>
+          <a href="/espace-fondateur" class="rdb-mobile-link">Tableau de bord</a>
+        </sc-if>
+        <div class="rdb-mobile-sep"></div>
+        <a href="/communaute/profil" class="rdb-mobile-link">Mon profil ({{ hdrName }})</a>
+        <button type="button" class="rdb-mobile-link" onClick="{{ onHdrLogout }}" style="width: 100%; text-align: left; border: none; background: none; cursor: pointer; color: var(--a-red);">Se déconnecter</button>
+      </div>
+    </details>
+  </div>
+</header>
+<sc-if value="{{ banned }}">
+  <main class="cm-main is-narrow">
+    <div class="cm-alert" role="alert">Votre accès à la communauté a été suspendu. Si vous pensez qu'il s'agit d'une erreur, écrivez-nous depuis <a href="/#contact" style="color: inherit;">redibat.fr/#contact</a>.</div>
+  </main>
+</sc-if>
+<sc-if value="{{ notBanned }}">
+
+<main class="cm-main">
+  <sc-if value="{{ hasLoadError }}"><div class="cm-alert" role="alert">{{ loadError }}</div></sc-if>
+
+  <div class="cm-page-head">
+    <div>
+      <p class="cm-eyebrow">Membres</p>
+      <h1 class="cm-h1">L'annuaire de la communauté</h1>
+      <p class="cm-lede">Des confrères qui utilisent Rédibat, par métier et par région. Chacun choisit d'y figurer ; les adresses e-mail n'apparaissent jamais.</p>
+    </div>
+    <span class="cm-mono">{{ total }}</span>
+  </div>
+
+  <sc-if value="{{ notListed }}"><div class="cm-alert is-info">Vous n'apparaissez pas dans l'annuaire. Pour y figurer, cochez « Apparaître dans l'annuaire » dans <a href="/communaute/profil" style="color: inherit;">votre profil</a>.</div></sc-if>
+  <sc-if value="{{ noMembers }}"><div class="cm-card cm-empty">Personne n'a encore rejoint l'annuaire. Soyez le premier depuis votre profil !</div></sc-if>
+
+  <div class="cm-grid cols-3">
+    <sc-for list="{{ members }}" as="m">
+      <div class="cm-card cm-card-body" style="display: flex; gap: 14px; align-items: flex-start;">
+        <span class="cm-avatar is-lg" aria-hidden="true">{{ m.initial }}</span>
+        <div style="min-width: 0; flex: 1;">
+          <p class="cm-row-title" style="margin-bottom: 2px;">{{ m.name }}</p>
+          <sc-if value="{{ m.hasJob }}"><p class="cm-small" style="margin: 0 0 2px; color: #16314f;">{{ m.job }}</p></sc-if>
+          <div class="cm-row-meta" style="margin-bottom: 8px;"><sc-if value="{{ m.hasCompany }}"><span>{{ m.company }}</span></sc-if><sc-if value="{{ m.hasRegion }}"><span>{{ m.region }}</span></sc-if></div>
+          <sc-if value="{{ m.hasBio }}"><p class="cm-small cm-muted" style="margin: 0 0 10px; line-height: 1.5; overflow-wrap: anywhere;">{{ m.bio }}</p></sc-if>
+          <div style="display: flex; gap: 6px; flex-wrap: wrap; align-items: center;">
+            <sc-for list="{{ m.badges }}" as="bd"><span class="cm-badge" style="color: {{ bd.color }}; background: {{ bd.bg }};">{{ bd.label }}</span></sc-for>
+            <span class="cm-mono">membre depuis {{ m.since }}</span>
+            <span class="cm-mono">{{ m.posts }}</span>
+          </div>
+        </div>
+      </div>
+    </sc-for>
+  </div>
+  <sc-if value="{{ hasPager }}">
+  <div class="cm-pager">
+    <sc-if value="{{ hasPrev }}"><a href="{{ prevHref }}" class="cm-act">← Précédent</a></sc-if>
+    <span>Page {{ page }} sur {{ pages }}</span>
+    <sc-if value="{{ hasNext }}"><a href="{{ nextHref }}" class="cm-act">Suivant →</a></sc-if>
+  </div>
+</sc-if>
+</main>
+
+</sc-if>
+</sc-if>
+<sc-if value="{{ nameOpen }}">
+  <div class="cm-overlay">
+    <div class="cm-modal" role="dialog" aria-modal="true" aria-labelledby="cm-name-title">
+      <div class="cm-modal-head"><h2 id="cm-name-title">Choisissez votre pseudo</h2></div>
+      <p class="cm-lede" style="margin-bottom: 18px;">C'est le nom que verront les autres membres dans le forum et l'annuaire. Votre adresse e-mail n'est jamais affichée. Vous pourrez le changer depuis votre profil.</p>
+      <form onSubmit="{{ onSubmitName }}">
+        <label class="cm-field"><span>Pseudo</span><input class="cm-input" name="display_name" maxlength="30" placeholder="Ex. : Alice Métreur" autocomplete="nickname" autofocus="{{ true }}"></label>
+        <p class="cm-help">3 à 30 caractères : lettres, chiffres, espaces, points, tirets ou apostrophes.</p>
+        <sc-if value="{{ hasNameError }}"><div class="cm-alert" role="alert" style="margin-top: 12px;">{{ nameError }}</div></sc-if>
+        <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 18px; flex-wrap: wrap;">
+          <sc-if value="{{ nameNotForced }}"><button type="button" class="cm-btn is-ghost" onClick="{{ onLaterName }}">Plus tard</button></sc-if>
+          <button type="submit" class="cm-btn">{{ nameLabel }}</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+
+class Component extends DCLogic {
+  state = { ready: false, me: null, banned: false, loadError: '', nameOpen: false, nameError: '', nameBusy: false, nameForced: false,
+    page: 1, pages: 1, total: 0, members: null };
+
+  componentDidMount() {
+    if (this._started) return;   // garde : un seul démarrage même si le runtime re-monte
+    this._started = true;
+    const pg = Number(RDB.params().get('page'));
+    this.state.page = Number.isInteger(pg) && pg > 0 ? pg : 1;
+    RDB.bootPage(this, {});
+  }
+
+  async load() {
+    const r = await RDB.api('/v1/community/members?page=' + this.state.page);
+    if (RDB.loadFailed(this, r)) return;
+    this.setState({ members: r.data.members || [], pages: r.data.pages || 1, page: r.data.page || 1, total: r.data.total || 0 });
+  }
+
+  pagerVals(page, pages, hrefFor) {
+    page = Number(page) || 1; pages = Number(pages) || 1;
+    return {
+      hasPager: pages > 1, page: String(page), pages: String(pages),
+      hasPrev: page > 1, hasNext: page < pages,
+      prevHref: hrefFor(Math.max(1, page - 1)), nextHref: hrefFor(Math.min(pages, page + 1)),
+    };
+  }
+
+  renderVals() {
+    const s = this.state;
+    const me = s.me || {};
+    const members = (s.members || []).map((m) => ({
+      name: m.display_name, initial: RDB.initial(m.display_name),
+      job: m.job_title || '', hasJob: !!m.job_title, company: m.company || '', hasCompany: !!m.company,
+      region: m.region || '', hasRegion: !!m.region, bio: m.bio || '', hasBio: !!m.bio,
+      badges: RDB.badges(m.badges), since: RDB.fmtMonth(m.joined), posts: RDB.plural(m.post_count || 0, 'message', 'messages'),
+    }));
+    return Object.assign(RDB.shellVals(this, 'members'), this.pagerVals(s.page, s.pages, (n) => '/communaute/membres?page=' + n), {
+      members, noMembers: s.members !== null && members.length === 0, total: RDB.plural(s.total || 0, 'membre inscrit', 'membres inscrits'),
+      notListed: !!s.me && me.directory_visible !== true,
+    });
+  }
+}
+
+</script>
+</body>
+</html>

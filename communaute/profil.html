@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<!-- Espace communautaire : page réservée aux comptes. Cette coquille ne contient AUCUN contenu ;
+     tout vient de l'API (api.redibat.fr) après vérification de la session (cookie HttpOnly).
+     CSP : médias et images depuis l'API uniquement, aucun cadre, aucune autre destination.
+     'unsafe-inline'/'unsafe-eval' requis par le runtime dc. -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; frame-src 'none'; img-src 'self' data: https://api.redibat.fr; media-src https://api.redibat.fr; font-src 'self' data: https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; script-src 'self' 'unsafe-inline' 'unsafe-eval'; connect-src 'self' https://api.redibat.fr">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- <base href="/"> : le runtime charge vendor/react*.js en relatif ; tous les liens de cette
+     page sont donc ABSOLUS (/communaute/…). -->
+<base href="/">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/logos/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/assets/logos/favicon-16.png">
+<link rel="apple-touch-icon" href="/assets/logos/favicon-256.png">
+<script src="/communaute/community.js?v=1"></script>
+<script src="/support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <title>Mon profil | Communauté Rédibat</title>
+  <meta name="description" content="Votre profil dans la communauté Rédibat : pseudo, fiche annuaire, signalements et sessions.">
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="stylesheet" href="/_ds/r-dibat-design-system-740ba38c-581d-4335-88dd-fcf28913eed8/tokens/fonts.css">
+  <link rel="stylesheet" href="/_ds/r-dibat-design-system-740ba38c-581d-4335-88dd-fcf28913eed8/tokens/colors.css">
+  <link rel="stylesheet" href="/_ds/r-dibat-design-system-740ba38c-581d-4335-88dd-fcf28913eed8/tokens/typography.css">
+  <link rel="stylesheet" href="/_ds/r-dibat-design-system-740ba38c-581d-4335-88dd-fcf28913eed8/tokens/spacing.css">
+  <link rel="stylesheet" href="/communaute/community.css?v=1">
+</helmet>
+
+<div class="cm-page">
+<sc-if value="{{ notReady }}"><div class="cm-loading">Chargement…</div></sc-if>
+<sc-if value="{{ ready }}">
+<header class="cm-header">
+  <div class="cm-header-in">
+    <a href="/communaute/" class="cm-brand" aria-label="Accueil de la communauté">
+      <img src="/uploads/redibat-lockup-h.png" alt="Rédibat">
+      <span class="cm-pill">Communauté</span>
+    </a>
+    <nav class="cm-nav" aria-label="Espace communautaire">
+      <a href="/communaute/" class="{{ hdrHome }}">Accueil</a>
+      <a href="/communaute/videos" class="{{ hdrVideos }}">Vidéos</a>
+      <a href="/communaute/forum" class="{{ hdrForum }}">Forum</a>
+      <a href="/communaute/guides" class="{{ hdrGuides }}">Guides</a>
+      <a href="/communaute/nouveautes" class="{{ hdrNews }}">Nouveautés</a>
+      <a href="/communaute/telechargements" class="{{ hdrDownloads }}">Téléchargements</a>
+      <a href="/communaute/membres" class="{{ hdrMembers }}">Membres</a>
+      <sc-if value="{{ hdrIsFounder }}">
+        <a href="/communaute/publier" class="{{ hdrPublish }} is-founder">Publier</a>
+        <a href="/espace-fondateur" class="{{ hdrDash }} is-founder">Tableau de bord</a>
+      </sc-if>
+    </nav>
+    <div class="cm-spacer"></div>
+    <form class="cm-search is-desktop" role="search" onSubmit="{{ onHdrSearch }}">
+      <input type="search" name="q" placeholder="Rechercher" aria-label="Rechercher dans la communauté" maxlength="80">
+    </form>
+    <details class="cm-account">
+      <summary aria-label="Mon compte"><span class="cm-avatar">{{ hdrInitial }}</span><span class="cm-account-name">{{ hdrName }}</span></summary>
+      <div class="cm-account-menu">
+        <a href="/communaute/profil" class="cm-menu-link">Mon profil</a>
+        <button type="button" class="cm-menu-link is-danger" onClick="{{ onHdrLogout }}">Se déconnecter</button>
+      </div>
+    </details>
+    <!-- Navigation mobile : menu déroulant natif (<details>), affiché sous 768px. Pur CSS. -->
+    <details class="rdb-mobile">
+      <summary class="rdb-burger" aria-label="Ouvrir le menu">
+        <svg class="rdb-icon-open" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><line x1="3" y1="7" x2="21" y2="7"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="17" x2="21" y2="17"></line></svg>
+        <svg class="rdb-icon-close" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><line x1="5" y1="5" x2="19" y2="19"></line><line x1="19" y1="5" x2="5" y2="19"></line></svg>
+      </summary>
+      <div class="rdb-mobile-panel">
+        <form class="cm-search is-mobile" role="search" onSubmit="{{ onHdrSearch }}">
+          <input type="search" name="q" placeholder="Rechercher" aria-label="Rechercher" maxlength="80">
+        </form>
+        <div class="rdb-mobile-label">Communauté</div>
+        <a href="/communaute/" class="rdb-mobile-link">Accueil</a>
+        <a href="/communaute/videos" class="rdb-mobile-link">Vidéos</a>
+        <a href="/communaute/forum" class="rdb-mobile-link">Forum</a>
+        <a href="/communaute/guides" class="rdb-mobile-link">Guides</a>
+        <a href="/communaute/nouveautes" class="rdb-mobile-link">Nouveautés</a>
+        <a href="/communaute/telechargements" class="rdb-mobile-link">Téléchargements</a>
+        <a href="/communaute/membres" class="rdb-mobile-link">Membres</a>
+        <sc-if value="{{ hdrIsFounder }}">
+          <div class="rdb-mobile-sep"></div>
+          <div class="rdb-mobile-label">Fondateur</div>
+          <a href="/communaute/publier" class="rdb-mobile-link">Publier</a>
+          <a href="/espace-fondateur" class="rdb-mobile-link">Tableau de bord</a>
+        </sc-if>
+        <div class="rdb-mobile-sep"></div>
+        <a href="/communaute/profil" class="rdb-mobile-link">Mon profil ({{ hdrName }})</a>
+        <button type="button" class="rdb-mobile-link" onClick="{{ onHdrLogout }}" style="width: 100%; text-align: left; border: none; background: none; cursor: pointer; color: var(--a-red);">Se déconnecter</button>
+      </div>
+    </details>
+  </div>
+</header>
+<sc-if value="{{ banned }}">
+  <main class="cm-main is-narrow">
+    <div class="cm-alert" role="alert">Votre accès à la communauté a été suspendu. Si vous pensez qu'il s'agit d'une erreur, écrivez-nous depuis <a href="/#contact" style="color: inherit;">redibat.fr/#contact</a>.</div>
+  </main>
+</sc-if>
+<sc-if value="{{ notBanned }}">
+
+<main class="cm-main">
+  <sc-if value="{{ hasLoadError }}"><div class="cm-alert" role="alert">{{ loadError }}</div></sc-if>
+
+  <div class="cm-page-head">
+    <div style="display: flex; gap: 16px; align-items: center;">
+      <span class="cm-avatar is-lg" aria-hidden="true">{{ initial }}</span>
+      <div>
+        <p class="cm-eyebrow" style="margin-bottom: 4px;">Mon profil</p>
+        <h1 class="cm-h1" style="margin-bottom: 4px;">{{ name }}</h1>
+        <div class="cm-row-meta"><span>{{ email }}</span><span>offre {{ role }}</span><span>{{ license }}</span><sc-for list="{{ badges }}" as="bd"><span class="cm-badge" style="color: {{ bd.color }}; background: {{ bd.bg }};">{{ bd.label }}</span></sc-for></div>
+      </div>
+    </div>
+    <button type="button" class="cm-btn is-ghost is-sm" onClick="{{ onLogout }}">Se déconnecter</button>
+  </div>
+
+  <div class="cm-split">
+    <section class="cm-card">
+      <div class="cm-card-head"><h2 class="cm-h2">Ma fiche</h2><span class="cm-mono">visible des membres si vous le souhaitez</span></div>
+      <form class="cm-card-body" onSubmit="{{ onSave }}">
+        <sc-if value="{{ hasSaved }}"><div class="cm-alert is-ok" role="status">{{ saved }}</div></sc-if>
+        <sc-if value="{{ hasSaveError }}"><div class="cm-alert" role="alert">{{ saveError }}</div></sc-if>
+        <label class="cm-field"><span>Pseudo (obligatoire pour publier)</span><input class="cm-input" name="display_name" maxlength="30" value="{{ fName }}" onChange="{{ onField }}" placeholder="Ex. : Alice Métreur"></label>
+        <p class="cm-help" style="margin: -8px 0 16px;">3 à 30 caractères : lettres, chiffres, espaces, points, tirets ou apostrophes. C'est le nom affiché sur vos messages.</p>
+        <div class="cm-grid cols-2" style="gap: 0 16px;">
+          <label class="cm-field"><span>Société</span><input class="cm-input" name="company" maxlength="150" value="{{ fCompany }}" onChange="{{ onField }}"></label>
+          <label class="cm-field"><span>Métier</span><input class="cm-input" name="job_title" maxlength="80" value="{{ fJob }}" onChange="{{ onField }}" placeholder="Économiste, métreur, architecte…"></label>
+        </div>
+        <label class="cm-field"><span>Région</span><input class="cm-input" name="region" maxlength="80" value="{{ fRegion }}" onChange="{{ onField }}" placeholder="Ex. : Bretagne"></label>
+        <label class="cm-field"><span>Quelques mots</span><textarea class="cm-textarea" name="bio" maxlength="500" style="min-height: 100px;" value="{{ fBio }}" onChange="{{ onField }}" placeholder="Votre activité, vos spécialités…"></textarea></label>
+        <label class="cm-check" style="margin-bottom: 18px;"><input type="checkbox" name="directory_visible" checked="{{ fVisible }}" onChange="{{ onField }}"> Apparaître dans l'annuaire des membres</label>
+        <div style="display: flex; justify-content: flex-end;"><button type="submit" class="cm-btn">{{ saveLabel }}</button></div>
+      </form>
+    </section>
+
+    <div style="display: flex; flex-direction: column; gap: 24px;">
+      <section class="cm-card">
+        <div class="cm-card-head"><h2 class="cm-h2">Mes signalements</h2><span class="cm-mono">{{ reportCount }}</span></div>
+        <sc-if value="{{ noReports }}"><div class="cm-empty">Aucun bug signalé. Depuis l'application ou le forum, vos signalements apparaîtront ici avec leur état.</div></sc-if>
+        <ul class="cm-list">
+          <sc-for list="{{ reports }}" as="b">
+            <li class="cm-row">
+              <div class="cm-row-main">
+                <p class="cm-row-title" style="font-size: 14px;">{{ b.title }}</p>
+                <div class="cm-row-meta"><span>{{ b.date }}</span><span>{{ b.severity }}</span></div>
+              </div>
+              <span class="{{ b.cls }}">{{ b.state }}</span>
+            </li>
+          </sc-for>
+        </ul>
+      </section>
+
+      <section class="cm-card">
+        <div class="cm-card-head"><h2 class="cm-h2">Mes sessions</h2><button type="button" class="cm-act" onClick="{{ onRevokeOthers }}">Déconnecter les autres appareils</button></div>
+        <sc-if value="{{ hasSessionNote }}"><div class="cm-alert is-ok" style="margin: 14px 22px 0;">{{ sessionNote }}</div></sc-if>
+        <ul class="cm-list">
+          <sc-for list="{{ sessions }}" as="x">
+            <li class="cm-row">
+              <div class="cm-row-main">
+                <p class="cm-row-title" style="font-size: 14px;">{{ x.agent }}<sc-if value="{{ x.current }}"> <span class="cm-tag is-teal">cet appareil</span></sc-if></p>
+                <div class="cm-row-meta"><span>ouverte {{ x.opened }}</span><span>active {{ x.seen }}</span><span>{{ x.ip }}</span></div>
+              </div>
+            </li>
+          </sc-for>
+        </ul>
+        <p class="cm-help" style="padding: 12px 22px 18px; margin: 0;">Une session expire après 30 jours sans activité. La déconnexion est immédiate sur tous les appareils concernés.</p>
+      </section>
+    </div>
+  </div>
+</main>
+
+</sc-if>
+</sc-if>
+<sc-if value="{{ nameOpen }}">
+  <div class="cm-overlay">
+    <div class="cm-modal" role="dialog" aria-modal="true" aria-labelledby="cm-name-title">
+      <div class="cm-modal-head"><h2 id="cm-name-title">Choisissez votre pseudo</h2></div>
+      <p class="cm-lede" style="margin-bottom: 18px;">C'est le nom que verront les autres membres dans le forum et l'annuaire. Votre adresse e-mail n'est jamais affichée. Vous pourrez le changer depuis votre profil.</p>
+      <form onSubmit="{{ onSubmitName }}">
+        <label class="cm-field"><span>Pseudo</span><input class="cm-input" name="display_name" maxlength="30" placeholder="Ex. : Alice Métreur" autocomplete="nickname" autofocus="{{ true }}"></label>
+        <p class="cm-help">3 à 30 caractères : lettres, chiffres, espaces, points, tirets ou apostrophes.</p>
+        <sc-if value="{{ hasNameError }}"><div class="cm-alert" role="alert" style="margin-top: 12px;">{{ nameError }}</div></sc-if>
+        <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 18px; flex-wrap: wrap;">
+          <sc-if value="{{ nameNotForced }}"><button type="button" class="cm-btn is-ghost" onClick="{{ onLaterName }}">Plus tard</button></sc-if>
+          <button type="submit" class="cm-btn">{{ nameLabel }}</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+
+class Component extends DCLogic {
+  state = { ready: false, me: null, banned: false, loadError: '', nameOpen: false, nameError: '', nameBusy: false, nameForced: false,
+    form: null, saving: false, saved: '', saveError: '', reports: null, sessions: null, sessionNote: '' };
+
+  componentDidMount() {
+    if (this._started) return;   // garde : un seul démarrage même si le runtime re-monte
+    this._started = true;
+    RDB.bootPage(this, { noNamePrompt: true });
+  }
+
+  formFrom(me) {
+    return { display_name: me.display_name || '', company: me.company || '', job_title: me.job_title || '', region: me.region || '', bio: me.bio || '', directory_visible: me.directory_visible === true };
+  }
+
+  async load(me) {
+    this.setState({ form: this.formFrom(me) });
+    const [r, x] = await Promise.all([RDB.api('/v1/me/bug-reports'), RDB.api('/v1/me/sessions')]);
+    this.setState({ reports: r.status === 200 ? (r.data.reports || []) : [], sessions: x.status === 200 ? (x.data.sessions || []) : [] });
+  }
+
+  // Champs contrôlés : la valeur vit dans l'état (le runtime peut re-rendre le formulaire à
+  // tout moment, un champ non contrôlé perdrait sa valeur initiale).
+  onField = (e) => {
+    const t = e.target;
+    const value = t.type === 'checkbox' ? t.checked : t.value;
+    this.setState((s) => ({ form: Object.assign({}, s.form, { [t.name]: value }) }));
+  };
+
+  onSave = async (e) => {
+    e.preventDefault();
+    if (this.state.saving || !this.state.form) return;
+    const f = this.state.form;
+    const body = { company: f.company, job_title: f.job_title, region: f.region, bio: f.bio, directory_visible: !!f.directory_visible };
+    if ((f.display_name || '').trim()) body.display_name = f.display_name.trim();
+    this.setState({ saving: true, saved: '', saveError: '' });
+    const r = await RDB.api('/v1/me/profile', { method: 'POST', body });
+    if (r.status === 200 && r.data && r.data.me) {
+      RDB._me = r.data.me;
+      this.setState({ saving: false, saved: 'Profil enregistré.', me: r.data.me, form: this.formFrom(r.data.me) });
+      return;
+    }
+    const msg = r.status === 400 && r.data && r.data.field === 'display_name'
+      ? 'Pseudo invalide : 3 à 30 caractères, lettres, chiffres, espaces, points, tirets ou apostrophes, hors noms réservés.'
+      : RDB.errorMessage(r.status, r.data, 'Enregistrement impossible. Réessayez.');
+    this.setState({ saving: false, saveError: msg });
+  };
+
+  onRevokeOthers = async () => {
+    const r = await RDB.api('/v1/me/sessions/revoke-others', { method: 'POST', body: {} });
+    if (r.status === 200) {
+      const n = r.data && r.data.revoked || 0;
+      this.setState({ sessionNote: n ? RDB.plural(n, 'autre session déconnectée.', 'autres sessions déconnectées.') : 'Aucune autre session ouverte.' });
+      const x = await RDB.api('/v1/me/sessions');
+      if (x.status === 200) this.setState({ sessions: x.data.sessions || [] });
+      return;
+    }
+    this.setState({ sessionNote: RDB.errorMessage(r.status, r.data, 'Action impossible.') });
+  };
+
+  onLogout = () => RDB.logout();
+
+  agentLabel(ua) {
+    const s = String(ua || '');
+    const os = /Windows/.test(s) ? 'Windows' : /Macintosh|Mac OS/.test(s) ? 'Mac' : /iPhone|iPad/.test(s) ? 'iOS' : /Android/.test(s) ? 'Android' : /Linux/.test(s) ? 'Linux' : 'Appareil';
+    const nav = /Edg\//.test(s) ? 'Edge' : /OPR\//.test(s) ? 'Opera' : /Firefox\//.test(s) ? 'Firefox' : /Chrome\//.test(s) ? 'Chrome' : /Safari\//.test(s) ? 'Safari' : 'navigateur';
+    return nav + ' sur ' + os;
+  }
+
+  renderVals() {
+    const s = this.state;
+    const me = s.me || {};
+    const f = s.form || this.formFrom(me);
+    const STATES = { new: ['Reçu', 'cm-tag'], pending: ['En cours', 'cm-tag is-amber'], done: ['Traité', 'cm-tag is-teal'] };
+    const SEV = { high: 'bloquant', medium: 'gênant', low: 'mineur' };
+    const reports = (s.reports || []).map((b) => {
+      const st = STATES[b.state] || STATES.new;
+      return { title: b.title, date: RDB.fmtDate(b.created_at), severity: SEV[b.severity] || 'gênant', state: st[0], cls: st[1] };
+    });
+    const sessions = (s.sessions || []).map((x) => ({
+      agent: this.agentLabel(x.user_agent), current: x.current === true, opened: RDB.fmtRelative(x.created_at), seen: RDB.fmtRelative(x.last_seen), ip: x.ip || '',
+    }));
+    return Object.assign(RDB.shellVals(this, 'profile'), {
+      initial: RDB.initial(me.display_name || me.email), name: me.display_name || 'Sans pseudo', email: me.email || '',
+      role: String(me.role || '').toUpperCase(), license: me.license_active === true ? 'licence active' : 'licence inactive', badges: RDB.badges(me.badges),
+      fName: f.display_name, fCompany: f.company, fJob: f.job_title, fRegion: f.region, fBio: f.bio, fVisible: !!f.directory_visible,
+      hasSaved: !!s.saved, saved: s.saved, hasSaveError: !!s.saveError, saveError: s.saveError, saveLabel: s.saving ? 'Enregistrement…' : 'Enregistrer',
+      reports, noReports: s.reports !== null && reports.length === 0, reportCount: RDB.plural(reports.length, 'signalement', 'signalements'),
+      sessions, hasSessionNote: !!s.sessionNote, sessionNote: s.sessionNote,
+      onField: this.onField, onSave: this.onSave, onRevokeOthers: this.onRevokeOthers, onLogout: this.onLogout,
+    });
+  }
+}
+
+</script>
+</body>
+</html>

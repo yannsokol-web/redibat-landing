@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<!-- Espace communautaire : page réservée aux comptes. Cette coquille ne contient AUCUN contenu ;
+     tout vient de l'API (api.redibat.fr) après vérification de la session (cookie HttpOnly).
+     CSP : médias et images depuis l'API uniquement, aucun cadre, aucune autre destination.
+     'unsafe-inline'/'unsafe-eval' requis par le runtime dc. -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; frame-src 'none'; img-src 'self' data: https://api.redibat.fr; media-src https://api.redibat.fr; font-src 'self' data: https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; script-src 'self' 'unsafe-inline' 'unsafe-eval'; connect-src 'self' https://api.redibat.fr">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- <base href="/"> : le runtime charge vendor/react*.js en relatif ; tous les liens de cette
+     page sont donc ABSOLUS (/communaute/…). -->
+<base href="/">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/logos/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/assets/logos/favicon-16.png">
+<link rel="apple-touch-icon" href="/assets/logos/favicon-256.png">
+<script src="/communaute/community.js?v=1"></script>
+<script src="/support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <title>Nouveautés | Communauté Rédibat</title>
+  <meta name="description" content="Nouveautés et notes de version de Rédibat, réservées aux membres.">
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="stylesheet" href="/_ds/r-dibat-design-system-740ba38c-581d-4335-88dd-fcf28913eed8/tokens/fonts.css">
+  <link rel="stylesheet" href="/_ds/r-dibat-design-system-740ba38c-581d-4335-88dd-fcf28913eed8/tokens/colors.css">
+  <link rel="stylesheet" href="/_ds/r-dibat-design-system-740ba38c-581d-4335-88dd-fcf28913eed8/tokens/typography.css">
+  <link rel="stylesheet" href="/_ds/r-dibat-design-system-740ba38c-581d-4335-88dd-fcf28913eed8/tokens/spacing.css">
+  <link rel="stylesheet" href="/communaute/community.css?v=1">
+</helmet>
+
+<div class="cm-page">
+<sc-if value="{{ notReady }}"><div class="cm-loading">Chargement…</div></sc-if>
+<sc-if value="{{ ready }}">
+<header class="cm-header">
+  <div class="cm-header-in">
+    <a href="/communaute/" class="cm-brand" aria-label="Accueil de la communauté">
+      <img src="/uploads/redibat-lockup-h.png" alt="Rédibat">
+      <span class="cm-pill">Communauté</span>
+    </a>
+    <nav class="cm-nav" aria-label="Espace communautaire">
+      <a href="/communaute/" class="{{ hdrHome }}">Accueil</a>
+      <a href="/communaute/videos" class="{{ hdrVideos }}">Vidéos</a>
+      <a href="/communaute/forum" class="{{ hdrForum }}">Forum</a>
+      <a href="/communaute/guides" class="{{ hdrGuides }}">Guides</a>
+      <a href="/communaute/nouveautes" class="{{ hdrNews }}">Nouveautés</a>
+      <a href="/communaute/telechargements" class="{{ hdrDownloads }}">Téléchargements</a>
+      <a href="/communaute/membres" class="{{ hdrMembers }}">Membres</a>
+      <sc-if value="{{ hdrIsFounder }}">
+        <a href="/communaute/publier" class="{{ hdrPublish }} is-founder">Publier</a>
+        <a href="/espace-fondateur" class="{{ hdrDash }} is-founder">Tableau de bord</a>
+      </sc-if>
+    </nav>
+    <div class="cm-spacer"></div>
+    <form class="cm-search is-desktop" role="search" onSubmit="{{ onHdrSearch }}">
+      <input type="search" name="q" placeholder="Rechercher" aria-label="Rechercher dans la communauté" maxlength="80">
+    </form>
+    <details class="cm-account">
+      <summary aria-label="Mon compte"><span class="cm-avatar">{{ hdrInitial }}</span><span class="cm-account-name">{{ hdrName }}</span></summary>
+      <div class="cm-account-menu">
+        <a href="/communaute/profil" class="cm-menu-link">Mon profil</a>
+        <button type="button" class="cm-menu-link is-danger" onClick="{{ onHdrLogout }}">Se déconnecter</button>
+      </div>
+    </details>
+    <!-- Navigation mobile : menu déroulant natif (<details>), affiché sous 768px. Pur CSS. -->
+    <details class="rdb-mobile">
+      <summary class="rdb-burger" aria-label="Ouvrir le menu">
+        <svg class="rdb-icon-open" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><line x1="3" y1="7" x2="21" y2="7"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="17" x2="21" y2="17"></line></svg>
+        <svg class="rdb-icon-close" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><line x1="5" y1="5" x2="19" y2="19"></line><line x1="19" y1="5" x2="5" y2="19"></line></svg>
+      </summary>
+      <div class="rdb-mobile-panel">
+        <form class="cm-search is-mobile" role="search" onSubmit="{{ onHdrSearch }}">
+          <input type="search" name="q" placeholder="Rechercher" aria-label="Rechercher" maxlength="80">
+        </form>
+        <div class="rdb-mobile-label">Communauté</div>
+        <a href="/communaute/" class="rdb-mobile-link">Accueil</a>
+        <a href="/communaute/videos" class="rdb-mobile-link">Vidéos</a>
+        <a href="/communaute/forum" class="rdb-mobile-link">Forum</a>
+        <a href="/communaute/guides" class="rdb-mobile-link">Guides</a>
+        <a href="/communaute/nouveautes" class="rdb-mobile-link">Nouveautés</a>
+        <a href="/communaute/telechargements" class="rdb-mobile-link">Téléchargements</a>
+        <a href="/communaute/membres" class="rdb-mobile-link">Membres</a>
+        <sc-if value="{{ hdrIsFounder }}">
+          <div class="rdb-mobile-sep"></div>
+          <div class="rdb-mobile-label">Fondateur</div>
+          <a href="/communaute/publier" class="rdb-mobile-link">Publier</a>
+          <a href="/espace-fondateur" class="rdb-mobile-link">Tableau de bord</a>
+        </sc-if>
+        <div class="rdb-mobile-sep"></div>
+        <a href="/communaute/profil" class="rdb-mobile-link">Mon profil ({{ hdrName }})</a>
+        <button type="button" class="rdb-mobile-link" onClick="{{ onHdrLogout }}" style="width: 100%; text-align: left; border: none; background: none; cursor: pointer; color: var(--a-red);">Se déconnecter</button>
+      </div>
+    </details>
+  </div>
+</header>
+<sc-if value="{{ banned }}">
+  <main class="cm-main is-narrow">
+    <div class="cm-alert" role="alert">Votre accès à la communauté a été suspendu. Si vous pensez qu'il s'agit d'une erreur, écrivez-nous depuis <a href="/#contact" style="color: inherit;">redibat.fr/#contact</a>.</div>
+  </main>
+</sc-if>
+<sc-if value="{{ notBanned }}">
+
+<main class="cm-main is-narrow">
+  <sc-if value="{{ hasLoadError }}"><div class="cm-alert" role="alert">{{ loadError }}</div></sc-if>
+
+  <sc-if value="{{ viewList }}">
+    <div class="cm-page-head">
+      <div>
+        <p class="cm-eyebrow">Nouveautés</p>
+        <h1 class="cm-h1">Ce qui change dans Rédibat</h1>
+        <p class="cm-lede">Versions publiées, corrections, annonces de l'éditeur.</p>
+      </div>
+    </div>
+    <div class="cm-card">
+      <sc-if value="{{ noItems }}"><div class="cm-empty">Aucune annonce pour l'instant.</div></sc-if>
+      <ul class="cm-list">
+        <sc-for list="{{ items }}" as="n">
+          <li><a href="{{ n.href }}" class="cm-row">
+            <div class="cm-row-main">
+              <p class="cm-row-title"><sc-if value="{{ n.isPinned }}"><span class="cm-tag" style="margin-right: 8px;">Épinglée</span></sc-if>{{ n.title }}</p>
+              <p class="cm-small cm-muted" style="margin: 0 0 6px; line-height: 1.5;">{{ n.excerpt }}</p>
+              <div class="cm-row-meta"><span>{{ n.date }}</span></div>
+            </div>
+            <sc-if value="{{ n.hasVersion }}"><span class="cm-tag">v{{ n.version }}</span></sc-if>
+          </a></li>
+        </sc-for>
+      </ul>
+      <sc-if value="{{ hasPager }}">
+  <div class="cm-pager">
+    <sc-if value="{{ hasPrev }}"><a href="{{ prevHref }}" class="cm-act">← Précédent</a></sc-if>
+    <span>Page {{ page }} sur {{ pages }}</span>
+    <sc-if value="{{ hasNext }}"><a href="{{ nextHref }}" class="cm-act">Suivant →</a></sc-if>
+  </div>
+</sc-if>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ viewItem }}">
+    <p class="cm-mono" style="margin: 0 0 16px;"><a href="/communaute/nouveautes" style="color: var(--a-blue); text-decoration: none;">← Toutes les nouveautés</a></p>
+    <article class="cm-card" style="padding: 34px 38px 40px;">
+      <div class="cm-row-meta" style="margin-bottom: 10px;"><sc-if value="{{ item.hasVersion }}"><span class="cm-tag">v{{ item.version }}</span></sc-if><span>{{ item.date }}</span><sc-if value="{{ item.isDraft }}"><span class="cm-tag is-amber">Brouillon (visible du fondateur seulement)</span></sc-if></div>
+      <h1 class="cm-h1">{{ item.title }}</h1>
+      <div class="cm-prose">
+<sc-for list="{{ blocks }}" as="b">
+  <sc-if value="{{ b.isH2 }}"><h2><sc-for list="{{ b.runs }}" as="r"><sc-if value="{{ r.isText }}"><span>{{ r.s }}</span></sc-if><sc-if value="{{ r.isBold }}"><strong>{{ r.s }}</strong></sc-if><sc-if value="{{ r.isCode }}"><code>{{ r.s }}</code></sc-if><sc-if value="{{ r.isLink }}"><a href="{{ r.h }}" target="_blank" rel="nofollow noopener noreferrer">{{ r.s }}</a></sc-if></sc-for></h2></sc-if>
+  <sc-if value="{{ b.isH3 }}"><h3><sc-for list="{{ b.runs }}" as="r"><sc-if value="{{ r.isText }}"><span>{{ r.s }}</span></sc-if><sc-if value="{{ r.isBold }}"><strong>{{ r.s }}</strong></sc-if><sc-if value="{{ r.isCode }}"><code>{{ r.s }}</code></sc-if><sc-if value="{{ r.isLink }}"><a href="{{ r.h }}" target="_blank" rel="nofollow noopener noreferrer">{{ r.s }}</a></sc-if></sc-for></h3></sc-if>
+  <sc-if value="{{ b.isP }}"><p><sc-for list="{{ b.runs }}" as="r"><sc-if value="{{ r.isText }}"><span>{{ r.s }}</span></sc-if><sc-if value="{{ r.isBold }}"><strong>{{ r.s }}</strong></sc-if><sc-if value="{{ r.isCode }}"><code>{{ r.s }}</code></sc-if><sc-if value="{{ r.isLink }}"><a href="{{ r.h }}" target="_blank" rel="nofollow noopener noreferrer">{{ r.s }}</a></sc-if></sc-for></p></sc-if>
+  <sc-if value="{{ b.isUl }}"><ul><sc-for list="{{ b.items }}" as="it"><li><sc-for list="{{ it.runs }}" as="q"><sc-if value="{{ q.isText }}"><span>{{ q.s }}</span></sc-if><sc-if value="{{ q.isBold }}"><strong>{{ q.s }}</strong></sc-if><sc-if value="{{ q.isCode }}"><code>{{ q.s }}</code></sc-if><sc-if value="{{ q.isLink }}"><a href="{{ q.h }}" target="_blank" rel="nofollow noopener noreferrer">{{ q.s }}</a></sc-if></sc-for></li></sc-for></ul></sc-if>
+  <sc-if value="{{ b.isOl }}"><ol><sc-for list="{{ b.items }}" as="it"><li><sc-for list="{{ it.runs }}" as="q"><sc-if value="{{ q.isText }}"><span>{{ q.s }}</span></sc-if><sc-if value="{{ q.isBold }}"><strong>{{ q.s }}</strong></sc-if><sc-if value="{{ q.isCode }}"><code>{{ q.s }}</code></sc-if><sc-if value="{{ q.isLink }}"><a href="{{ q.h }}" target="_blank" rel="nofollow noopener noreferrer">{{ q.s }}</a></sc-if></sc-for></li></sc-for></ol></sc-if>
+  <sc-if value="{{ b.isCode }}"><pre>{{ b.text }}</pre></sc-if>
+  <sc-if value="{{ b.isImg }}"><img src="{{ b.src }}" alt="{{ b.alt }}" loading="lazy"></sc-if>
+  <sc-if value="{{ b.isVideo }}"><a class="cm-video-link" href="{{ b.href }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"></path></svg>{{ b.label }}</a></sc-if>
+</sc-for>
+</div>
+    </article>
+  </sc-if>
+</main>
+
+</sc-if>
+</sc-if>
+<sc-if value="{{ nameOpen }}">
+  <div class="cm-overlay">
+    <div class="cm-modal" role="dialog" aria-modal="true" aria-labelledby="cm-name-title">
+      <div class="cm-modal-head"><h2 id="cm-name-title">Choisissez votre pseudo</h2></div>
+      <p class="cm-lede" style="margin-bottom: 18px;">C'est le nom que verront les autres membres dans le forum et l'annuaire. Votre adresse e-mail n'est jamais affichée. Vous pourrez le changer depuis votre profil.</p>
+      <form onSubmit="{{ onSubmitName }}">
+        <label class="cm-field"><span>Pseudo</span><input class="cm-input" name="display_name" maxlength="30" placeholder="Ex. : Alice Métreur" autocomplete="nickname" autofocus="{{ true }}"></label>
+        <p class="cm-help">3 à 30 caractères : lettres, chiffres, espaces, points, tirets ou apostrophes.</p>
+        <sc-if value="{{ hasNameError }}"><div class="cm-alert" role="alert" style="margin-top: 12px;">{{ nameError }}</div></sc-if>
+        <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 18px; flex-wrap: wrap;">
+          <sc-if value="{{ nameNotForced }}"><button type="button" class="cm-btn is-ghost" onClick="{{ onLaterName }}">Plus tard</button></sc-if>
+          <button type="submit" class="cm-btn">{{ nameLabel }}</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+
+class Component extends DCLogic {
+  state = { ready: false, me: null, banned: false, loadError: '', nameOpen: false, nameError: '', nameBusy: false, nameForced: false,
+    itemId: null, page: 1, pages: 1, items: null, item: null };
+
+  componentDidMount() {
+    if (this._started) return;   // garde : un seul démarrage même si le runtime re-monte
+    this._started = true;
+    const p = RDB.params();
+    const n = Number(p.get('n'));
+    this.state.itemId = Number.isInteger(n) && n > 0 ? n : null;
+    const pg = Number(p.get('page'));
+    this.state.page = Number.isInteger(pg) && pg > 0 ? pg : 1;
+    RDB.bootPage(this, {});
+  }
+
+  async load() {
+    if (this.state.itemId) {
+      const r = await RDB.api('/v1/community/announcements/' + this.state.itemId);
+      if (r.status === 404) { this.setState({ loadError: 'Cette annonce n\'existe pas ou n\'est pas publiée.' }); return; }
+      if (RDB.loadFailed(this, r)) return;
+      this.setState({ item: r.data });
+      return;
+    }
+    const r = await RDB.api('/v1/community/announcements?page=' + this.state.page);
+    if (RDB.loadFailed(this, r)) return;
+    this.setState({ items: r.data.items || [], pages: r.data.pages || 1, page: r.data.page || 1 });
+  }
+
+  pagerVals(page, pages, hrefFor) {
+    page = Number(page) || 1; pages = Number(pages) || 1;
+    return {
+      hasPager: pages > 1, page: String(page), pages: String(pages),
+      hasPrev: page > 1, hasNext: page < pages,
+      prevHref: hrefFor(Math.max(1, page - 1)), nextHref: hrefFor(Math.min(pages, page + 1)),
+    };
+  }
+
+  renderVals() {
+    const s = this.state;
+    const items = (s.items || []).map((n) => ({
+      title: n.title, excerpt: RDB.plainText(n.excerpt, 220), date: RDB.fmtDate(n.published_at), version: n.version || '', hasVersion: !!n.version,
+      isPinned: n.is_pinned === true, href: '/communaute/nouveautes?n=' + n.id,
+    }));
+    const it = s.item;
+    const item = it ? { title: it.title, version: it.version || '', hasVersion: !!it.version, date: RDB.fmtDate(it.published_at), isDraft: !it.published_at }
+      : { title: '', version: '', hasVersion: false, date: '', isDraft: false };
+    return Object.assign(RDB.shellVals(this, 'news'), this.pagerVals(s.page, s.pages, (n) => '/communaute/nouveautes?page=' + n), {
+      viewList: !s.itemId, viewItem: !!s.itemId && !!it,
+      items, noItems: s.items !== null && items.length === 0,
+      item, blocks: it ? RDB.parseLite(it.body) : [],
+    });
+  }
+}
+
+</script>
+</body>
+</html>
