@@ -1,0 +1,3 @@
+# Caches Python du générateur des pages communautaires
+__pycache__/
+*.pyc
