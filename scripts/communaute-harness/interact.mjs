@@ -43,7 +43,7 @@ const HELPERS = `window.__type = (sel, value) => { const el = document.querySele
 window.__submit = (sel) => { const f = document.querySelector(sel); if (!f) return 'absent: ' + sel; f.requestSubmit(); return 'soumis'; };
 window.__click = (sel) => { const el = [...document.querySelectorAll(sel)].find((x) => x.offsetParent !== null) || document.querySelector(sel); if (!el) return 'absent: ' + sel; el.click(); return 'cliqué'; };
 window.__clickText = (text) => { const el = [...document.querySelectorAll('button, a')].find((x) => x.textContent.trim() === text); if (!el) return 'absent: ' + text; el.click(); return 'cliqué'; };
-window.__text = () => (document.querySelector('main') || document.body).innerText.replace(/\\s+/g, ' ');`;
+window.__text = () => document.body.innerText.replace(/\\s+/g, ' ');`;
 
 await send('Page.enable'); await send('Runtime.enable'); await send('Log.enable');
 await send('Page.addScriptToEvaluateOnNewDocument', { source: HELPERS });

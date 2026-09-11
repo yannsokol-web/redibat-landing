@@ -1,0 +1,28 @@
+[
+  {
+    "goto": "/espace-fondateur",
+    "wait": 1500,
+    "expect": "Nouvelle réponse",
+    "shot": "founder-nouvelle-reponse"
+  },
+  {
+    "eval": "(() => { const h = [...document.querySelectorAll('h2')].find((x) => x.textContent.trim() === 'Rapports de bugs'); h.closest('div').click(); return 'ouvert'; })()",
+    "label": "ouvrir la boîte",
+    "wait": 1200
+  },
+  {
+    "expect": "Nouvelle réponse du membre"
+  },
+  {
+    "expect": "2 messages"
+  },
+  {
+    "eval": "(() => { const all = [...document.querySelectorAll('span')].filter((x) => x.textContent.trim() === 'Depuis le site : zoom qui saute'); const t = all[all.length - 1]; if (!t) return 'absent'; const c = t.closest('div[style*=cursor]'); if (!c) return 'pas de conteneur'; c.click(); return 'déplié'; })()",
+    "label": "déplier",
+    "wait": 1200
+  },
+  {
+    "expect": "Windows 11 23H2",
+    "shot": "founder-fil-complet"
+  }
+]

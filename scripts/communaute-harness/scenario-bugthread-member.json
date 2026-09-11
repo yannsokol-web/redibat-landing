@@ -1,0 +1,59 @@
+[
+  {
+    "goto": "/communaute/profil",
+    "wait": 1800,
+    "expect": "Mes signalements"
+  },
+  {
+    "expect": "Mis à jour"
+  },
+  {
+    "expect": "1 message",
+    "shot": "membre-liste-maj"
+  },
+  {
+    "eval": "(() => { const b = [...document.querySelectorAll('button.cm-row')].find((x) => x.textContent.includes('zoom qui saute')); if (!b) return 'absent'; b.click(); return 'ouvert'; })()",
+    "label": "ouvrir le fil",
+    "wait": 1500
+  },
+  {
+    "expect": "Votre description"
+  },
+  {
+    "expect": "Après un export."
+  },
+  {
+    "expect": "Réponse de l'éditeur"
+  },
+  {
+    "expect": "préciser la version de Windows",
+    "shot": "membre-fil"
+  },
+  {
+    "eval": "window.__type('.cm-modal textarea[name=body]', 'Windows 11 23H2, version 1.2 de Rédibat.')",
+    "label": "réponse membre"
+  },
+  {
+    "eval": "window.__submit('.cm-modal form')",
+    "label": "envoyer",
+    "wait": 1800
+  },
+  {
+    "expect": "Windows 11 23H2",
+    "shot": "membre-fil-repondu"
+  },
+  {
+    "eval": "window.__click('.cm-close')",
+    "label": "fermer",
+    "wait": 500
+  },
+  {
+    "expect": "2 messages"
+  },
+  {
+    "goto": "/communaute/profil?signalement=2",
+    "wait": 2200,
+    "expect": "Échanges avec l'éditeur",
+    "shot": "membre-lien-profond"
+  }
+]

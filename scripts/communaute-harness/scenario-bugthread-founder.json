@@ -1,0 +1,50 @@
+[
+  {
+    "goto": "/espace-fondateur",
+    "wait": 1500,
+    "expect": "Rapports de bugs"
+  },
+  {
+    "eval": "(() => { const h = [...document.querySelectorAll('h2')].find((x) => x.textContent.trim() === 'Rapports de bugs'); h.closest('div').click(); return 'ouvert'; })()",
+    "label": "ouvrir la boîte",
+    "wait": 1200
+  },
+  {
+    "expect": "Depuis le site : zoom qui saute"
+  },
+  {
+    "eval": "(() => { const all = [...document.querySelectorAll('span')].filter((x) => x.textContent.trim() === 'Depuis le site : zoom qui saute'); const t = all[all.length - 1]; if (!t) return 'absent'; const c = t.closest('div[style*=cursor]'); if (!c) return 'pas de conteneur'; c.click(); return 'déplié'; })()",
+    "label": "déplier",
+    "wait": 1200
+  },
+  {
+    "expect": "Échanges avec"
+  },
+  {
+    "expect": "Aucun échange pour l'instant",
+    "shot": "founder-fil-vide"
+  },
+  {
+    "eval": "window.__type('textarea[name=body]', 'Merci pour le signalement. Pouvez-vous préciser la version de Windows ?')",
+    "label": "réponse"
+  },
+  {
+    "eval": "window.__type('select[name=state]', 'pending')",
+    "label": "état"
+  },
+  {
+    "eval": "(() => { const f = document.querySelector('textarea[name=body]').closest('form'); f.requestSubmit(); return 'soumis'; })()",
+    "label": "envoyer",
+    "wait": 1800
+  },
+  {
+    "expect": "Réponse envoyée au membre."
+  },
+  {
+    "expect": "Vous ·"
+  },
+  {
+    "expect": "EN ATTENTE",
+    "shot": "founder-fil-repondu"
+  }
+]
