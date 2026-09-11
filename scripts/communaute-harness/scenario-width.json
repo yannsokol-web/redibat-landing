@@ -1,0 +1,4 @@
+[
+  { "goto": "/communaute/publier", "eval": "document.documentElement.scrollWidth + ' / ' + window.innerWidth", "label": "largeur 1280" },
+  { "goto": "/communaute/", "eval": "document.documentElement.scrollWidth + ' / ' + window.innerWidth", "label": "largeur accueil", "shot": "founder-accueil" }
+]

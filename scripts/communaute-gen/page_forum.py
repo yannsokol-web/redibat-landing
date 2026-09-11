@@ -1,0 +1,361 @@
+from snippets import RUNS, AUTHOR_BADGES, PAGER, PAGER_JS
+
+TITLE = 'Forum'
+DESCRIPTION = 'Forum des utilisateurs Rédibat : bugs, méthodes de travail, entraide et suggestions.'
+
+MAIN = r'''
+<main class="cm-main">
+  <sc-if value="{{ hasLoadError }}"><div class="cm-alert" role="alert">{{ loadError }}</div></sc-if>
+  <sc-if value="{{ hasBanner }}"><div class="cm-alert is-ok" role="status">{{ banner }}</div></sc-if>
+
+  <!-- Vue 1 : les catégories -->
+  <sc-if value="{{ viewCategories }}">
+    <div class="cm-page-head">
+      <div>
+        <p class="cm-eyebrow">Forum</p>
+        <h1 class="cm-h1">Entre utilisateurs de Rédibat</h1>
+        <p class="cm-lede">Un bug, une méthode, une question : le forum est réservé aux membres et l'éditeur y répond.</p>
+      </div>
+      <div class="cm-tabs"><button type="button" class="cm-tab" onClick="{{ onOpenBug }}">Signaler un bug à l'éditeur</button></div>
+    </div>
+    <div class="cm-card">
+      <ul class="cm-list">
+        <sc-for list="{{ categories }}" as="c">
+          <li><a href="{{ c.href }}" class="cm-row">
+            <div class="cm-row-main">
+              <p class="cm-row-title">{{ c.name }}</p>
+              <p class="cm-small cm-muted" style="margin: 0 0 6px;">{{ c.description }}</p>
+              <div class="cm-row-meta"><span>{{ c.count }}</span><sc-if value="{{ c.hasLast }}"><span>dernier message {{ c.last }}</span></sc-if></div>
+            </div>
+          </a></li>
+        </sc-for>
+      </ul>
+    </div>
+  </sc-if>
+
+  <!-- Vue 2 : les sujets d'une catégorie -->
+  <sc-if value="{{ viewThreads }}">
+    <p class="cm-mono" style="margin: 0 0 16px;"><a href="/communaute/forum" style="color: var(--a-blue); text-decoration: none;">← Toutes les catégories</a></p>
+    <div class="cm-page-head">
+      <div>
+        <p class="cm-eyebrow">Forum</p>
+        <h1 class="cm-h1">{{ category.name }}</h1>
+        <p class="cm-lede">{{ category.description }}</p>
+      </div>
+      <div class="cm-tabs">
+        <sc-if value="{{ isBugsCategory }}"><button type="button" class="cm-tab" onClick="{{ onOpenBug }}">Signaler un bug à l'éditeur</button></sc-if>
+        <button type="button" class="cm-btn is-sm" onClick="{{ onToggleNew }}">{{ newLabel }}</button>
+      </div>
+    </div>
+
+    <sc-if value="{{ newOpen }}">
+      <form class="cm-card cm-card-body" style="margin-bottom: 22px;" onSubmit="{{ onNewThread }}">
+        <h2 class="cm-h2" style="margin-bottom: 14px;">Nouveau sujet</h2>
+        <label class="cm-field"><span>Titre</span><input class="cm-input" name="title" maxlength="200" placeholder="Résumez votre question ou votre constat"></label>
+        <label class="cm-field"><span>Message</span><textarea class="cm-textarea" name="body" maxlength="8000" placeholder="Décrivez le contexte, la version du logiciel, les étapes…"></textarea></label>
+        <p class="cm-help">Mise en forme : **gras**, `code`, adresses web cliquables. Ne collez pas de données de vos clients.</p>
+        <sc-if value="{{ hasFormError }}"><div class="cm-alert" role="alert" style="margin-top: 12px;">{{ formError }}</div></sc-if>
+        <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 14px;"><button type="button" class="cm-btn is-ghost" onClick="{{ onToggleNew }}">Annuler</button><button type="submit" class="cm-btn">{{ submitLabel }}</button></div>
+      </form>
+    </sc-if>
+
+    <div class="cm-card">
+      <sc-if value="{{ noThreads }}"><div class="cm-empty">Aucun sujet dans cette catégorie. Ouvrez le premier !</div></sc-if>
+      <ul class="cm-list">
+        <sc-for list="{{ threads }}" as="t">
+          <li><a href="{{ t.href }}" class="cm-row">
+            <span class="cm-avatar" aria-hidden="true">{{ t.author.initial }}</span>
+            <div class="cm-row-main">
+              <p class="cm-row-title"><sc-if value="{{ t.isPinned }}"><span class="cm-tag" style="margin-right: 8px;">Épinglé</span></sc-if><sc-if value="{{ t.isLocked }}"><span class="cm-tag is-muted" style="margin-right: 8px;">Verrouillé</span></sc-if>{{ t.title }}</p>
+              <div class="cm-row-meta"><span>{{ t.author.name }}</span><sc-if value="{{ t.author.isFounder }}"><span class="cm-founder-note">Éditeur</span></sc-if><span>{{ t.replies }}</span><span>{{ t.when }}</span></div>
+            </div>
+          </a></li>
+        </sc-for>
+      </ul>
+      ''' + PAGER + r'''
+    </div>
+  </sc-if>
+
+  <!-- Vue 3 : un sujet -->
+  <sc-if value="{{ viewThread }}">
+    <p class="cm-mono" style="margin: 0 0 16px;"><a href="/communaute/forum" style="color: var(--a-blue); text-decoration: none;">Forum</a> › <a href="{{ category.href }}" style="color: var(--a-blue); text-decoration: none;">{{ category.name }}</a></p>
+    <div class="cm-page-head" style="margin-bottom: 18px;">
+      <div>
+        <h1 class="cm-h1" style="font-size: clamp(24px, 3vw, 30px);">{{ thread.title }}</h1>
+        <div class="cm-row-meta"><span>ouvert par {{ thread.author.name }}</span><span>{{ thread.opened }}</span><span>{{ thread.replies }}</span><sc-if value="{{ thread.isPinned }}"><span class="cm-tag">Épinglé</span></sc-if><sc-if value="{{ thread.isLocked }}"><span class="cm-tag is-muted">Verrouillé</span></sc-if></div>
+      </div>
+      <sc-if value="{{ canModerate }}">
+        <div class="cm-tabs">
+          <button type="button" class="cm-act" onClick="{{ onTogglePin }}">{{ pinLabel }}</button>
+          <button type="button" class="cm-act" onClick="{{ onToggleLock }}">{{ lockLabel }}</button>
+          <select class="cm-act" onChange="{{ onMove }}" value="{{ category.slug }}" aria-label="Déplacer le sujet">
+            <sc-for list="{{ catOptions }}" as="o"><option value="{{ o.slug }}">{{ o.name }}</option></sc-for>
+          </select>
+          <button type="button" class="cm-act is-danger" onClick="{{ onDeleteThread }}">Supprimer le sujet</button>
+        </div>
+      </sc-if>
+      <sc-if value="{{ canDeleteOwn }}"><div class="cm-tabs"><button type="button" class="cm-act is-danger" onClick="{{ onDeleteThread }}">Supprimer mon sujet</button></div></sc-if>
+    </div>
+
+    <div class="cm-card">
+      <sc-for list="{{ posts }}" as="p">
+        <article class="{{ p.cls }}">
+          <span class="cm-avatar is-lg" aria-hidden="true">{{ p.author.initial }}</span>
+          <div class="cm-post-body">
+            <div class="cm-post-head">
+              <span class="cm-post-author">{{ p.author.name }}</span>
+              <sc-if value="{{ p.author.hasCompany }}"><span class="cm-mono">{{ p.author.company }}</span></sc-if>
+              <sc-if value="{{ p.author.isFounder }}"><span class="cm-founder-note">Réponse de l'éditeur</span></sc-if>
+              ''' + AUTHOR_BADGES('p.author.badges') + r'''
+              <span class="cm-mono" style="margin-left: auto;">{{ p.when }}<sc-if value="{{ p.isEdited }}"> · modifié</sc-if></span>
+            </div>
+            <sc-if value="{{ p.isDeleted }}"><p class="cm-deleted">Message supprimé.</p></sc-if>
+            <sc-if value="{{ p.isEditing }}">
+              <textarea class="cm-textarea" value="{{ editText }}" onChange="{{ onEditChange }}" maxlength="8000"></textarea>
+              <sc-if value="{{ hasFormError }}"><div class="cm-alert" role="alert" style="margin-top: 10px;">{{ formError }}</div></sc-if>
+              <div class="cm-post-actions"><button type="button" class="cm-act is-primary" onClick="{{ onSaveEdit }}">Enregistrer</button><button type="button" class="cm-act" onClick="{{ onCancelEdit }}">Annuler</button></div>
+            </sc-if>
+            <sc-if value="{{ p.isShown }}">
+              <div class="cm-post-text">''' + RUNS('p.runs') + r'''</div>
+              <sc-if value="{{ p.hasActions }}">
+                <div class="cm-post-actions">
+                  <sc-if value="{{ p.canEdit }}"><button type="button" class="cm-act" onClick="{{ p.onEdit }}">Modifier</button></sc-if>
+                  <sc-if value="{{ p.canDelete }}"><button type="button" class="cm-act is-danger" onClick="{{ p.onDelete }}">Supprimer</button></sc-if>
+                </div>
+              </sc-if>
+            </sc-if>
+          </div>
+        </article>
+      </sc-for>
+      ''' + PAGER + r'''
+    </div>
+
+    <sc-if value="{{ canReply }}">
+      <form class="cm-card cm-card-body" style="margin-top: 22px;" onSubmit="{{ onReply }}">
+        <h2 class="cm-h2" style="margin-bottom: 14px;">Répondre</h2>
+        <textarea class="cm-textarea" name="body" maxlength="8000" placeholder="Votre réponse…"></textarea>
+        <sc-if value="{{ hasReplyError }}"><div class="cm-alert" role="alert" style="margin-top: 12px;">{{ replyError }}</div></sc-if>
+        <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 14px;"><button type="submit" class="cm-btn">{{ replyLabel }}</button></div>
+      </form>
+    </sc-if>
+    <sc-if value="{{ isLockedNotice }}"><div class="cm-alert is-info" style="margin-top: 22px;">Ce sujet est verrouillé : il n'accepte plus de réponse.</div></sc-if>
+  </sc-if>
+
+  <!-- Signaler un bug à l'éditeur -->
+  <sc-if value="{{ bugOpen }}">
+    <div class="cm-overlay" onClick="{{ onCloseBug }}">
+      <div class="cm-modal" role="dialog" aria-modal="true" onClick="{{ stop }}">
+        <div class="cm-modal-head"><h2>Signaler un bug à l'éditeur</h2><button type="button" class="cm-close" aria-label="Fermer" onClick="{{ onCloseBug }}">✕</button></div>
+        <sc-if value="{{ bugDone }}">
+          <div class="cm-alert is-ok">Merci, votre signalement est enregistré. Vous suivrez son traitement depuis votre profil.</div>
+          <div style="text-align: right;"><button type="button" class="cm-btn is-ghost" onClick="{{ onCloseBug }}">Fermer</button></div>
+        </sc-if>
+        <sc-if value="{{ bugForm }}">
+          <p class="cm-lede" style="margin-bottom: 16px;">Ce signalement part directement au fondateur, en privé. Pour en discuter avec les autres membres, ouvrez plutôt un sujet dans « Bugs et problèmes ».</p>
+          <form onSubmit="{{ onSubmitBug }}">
+            <label class="cm-field"><span>Titre</span><input class="cm-input" name="title" maxlength="200" placeholder="Ex. : l'export DPGF s'arrête sur le lot 3"></label>
+            <label class="cm-field"><span>Gravité</span><select class="cm-select" name="severity"><option value="medium">Gênant</option><option value="high">Bloquant</option><option value="low">Mineur</option></select></label>
+            <label class="cm-field"><span>Description</span><textarea class="cm-textarea" name="description" maxlength="4000" placeholder="Version, étapes pour reproduire, message affiché…"></textarea></label>
+            <sc-if value="{{ hasBugError }}"><div class="cm-alert" role="alert">{{ bugError }}</div></sc-if>
+            <div style="display: flex; gap: 10px; justify-content: flex-end;"><button type="button" class="cm-btn is-ghost" onClick="{{ onCloseBug }}">Annuler</button><button type="submit" class="cm-btn">{{ bugLabel }}</button></div>
+          </form>
+        </sc-if>
+      </div>
+    </div>
+  </sc-if>
+</main>
+'''
+
+SCRIPT = r'''
+class Component extends DCLogic {
+  state = { ready: false, me: null, banned: false, loadError: '', nameOpen: false, nameError: '', nameBusy: false, nameForced: false,
+    slug: '', threadId: null, page: 1, banner: '',
+    categories: null, category: null, threads: null, pages: 1,
+    thread: null, posts: [], canReply: false, canDeleteThread: false, canModerate: false, catOptions: [],
+    newOpen: false, busy: false, formError: '', replyError: '',
+    editId: null, editText: '',
+    bugOpen: false, bugBusy: false, bugError: '', bugDone: false };
+
+  componentDidMount() {
+    if (this._started) return;   // garde : un seul démarrage même si le runtime re-monte
+    this._started = true;
+    const p = RDB.params();
+    const t = Number(p.get('t'));
+    this.state.threadId = Number.isInteger(t) && t > 0 ? t : null;
+    this.state.slug = /^[a-z0-9-]{1,40}$/.test(p.get('c') || '') ? p.get('c') : '';
+    const pg = Number(p.get('page'));
+    this.state.page = Number.isInteger(pg) && pg > 0 ? pg : 1;
+    RDB.bootPage(this, {});
+  }
+
+  async load() {
+    if (this.state.threadId) return this.loadThread();
+    if (this.state.slug) return this.loadThreads();
+    const r = await RDB.api('/v1/community/forum/categories');
+    if (RDB.loadFailed(this, r)) return;
+    this.setState({ categories: r.data.categories || [] });
+  }
+  async loadThreads() {
+    const r = await RDB.api('/v1/community/forum/threads?c=' + encodeURIComponent(this.state.slug) + '&page=' + this.state.page);
+    if (r.status === 404) { this.setState({ loadError: 'Cette catégorie n\'existe pas.' }); return; }
+    if (RDB.loadFailed(this, r)) return;
+    this.setState({ category: r.data.category, threads: r.data.threads || [], pages: r.data.pages || 1, page: r.data.page || 1 });
+  }
+  async loadThread() {
+    const r = await RDB.api('/v1/community/forum/threads/' + this.state.threadId + '?page=' + this.state.page);
+    if (r.status === 404) { this.setState({ loadError: 'Ce sujet n\'existe pas ou a été supprimé.' }); return; }
+    if (RDB.loadFailed(this, r)) return;
+    const d = r.data;
+    this.setState({ thread: d.thread, category: d.category, posts: d.posts || [], pages: d.pages || 1, page: d.page || 1,
+      canReply: !!d.can_reply, canDeleteThread: !!d.can_delete_thread, canModerate: !!d.can_moderate, catOptions: d.categories || [],
+      editId: null, editText: '' });
+  }
+
+  // Si le serveur réclame un pseudo, la modale s'ouvre (obligatoire pour publier).
+  needsName(r) {
+    if (r.status === 409 && r.data && r.data.error === 'display_name_required') { this.openName(true); return true; }
+    return false;
+  }
+
+  onToggleNew = () => this.setState((s) => ({ newOpen: !s.newOpen, formError: '' }));
+
+  onNewThread = async (e) => {
+    e.preventDefault();
+    if (this.state.busy) return;
+    const form = e.currentTarget || e.target;
+    const title = (form.title && form.title.value || '').trim();
+    const body = (form.body && form.body.value || '').trim();
+    if (title.length < 3) { this.setState({ formError: 'Le titre doit faire au moins 3 caractères.' }); return; }
+    if (!body) { this.setState({ formError: 'Écrivez un message.' }); return; }
+    this.setState({ busy: true, formError: '' });
+    const r = await RDB.api('/v1/community/forum/threads', { method: 'POST', body: { category: this.state.slug, title, body } });
+    if (r.status === 201 && r.data && r.data.id) { location.assign('/communaute/forum?t=' + r.data.id); return; }
+    this.setState({ busy: false, formError: this.needsName(r) ? 'Choisissez votre pseudo pour publier.' : RDB.errorMessage(r.status, r.data, 'Publication impossible. Réessayez.') });
+  };
+
+  onReply = async (e) => {
+    e.preventDefault();
+    if (this.state.busy) return;
+    const form = e.currentTarget || e.target;
+    const body = (form.body && form.body.value || '').trim();
+    if (!body) { this.setState({ replyError: 'Écrivez une réponse.' }); return; }
+    this.setState({ busy: true, replyError: '' });
+    const r = await RDB.api('/v1/community/forum/threads/' + this.state.threadId + '/posts', { method: 'POST', body: { body } });
+    if (r.status === 201) {
+      const page = (r.data && r.data.page) || this.state.page;
+      if (page !== this.state.page) { location.assign('/communaute/forum?t=' + this.state.threadId + '&page=' + page); return; }
+      form.body.value = '';
+      this.setState({ busy: false, banner: 'Réponse publiée.' });
+      await this.loadThread();
+      return;
+    }
+    this.setState({ busy: false, replyError: this.needsName(r) ? 'Choisissez votre pseudo pour publier.' : RDB.errorMessage(r.status, r.data, 'Réponse impossible. Réessayez.') });
+  };
+
+  startEdit = (post) => this.setState({ editId: post.id, editText: post.body, formError: '' });
+  onEditChange = (e) => this.setState({ editText: e.target.value });
+  onCancelEdit = () => this.setState({ editId: null, editText: '', formError: '' });
+  onSaveEdit = async () => {
+    const body = (this.state.editText || '').trim();
+    if (!body) { this.setState({ formError: 'Le message ne peut pas être vide.' }); return; }
+    const r = await RDB.api('/v1/community/forum/posts/' + this.state.editId, { method: 'POST', body: { body } });
+    if (r.status === 200) { this.setState({ banner: 'Message modifié.' }); await this.loadThread(); return; }
+    this.setState({ formError: RDB.errorMessage(r.status, r.data, 'Modification impossible.') });
+  };
+  deletePost = async (post) => {
+    if (!window.confirm('Supprimer ce message ?')) return;
+    const path = this.state.canModerate && !post.is_own ? '/v1/founder/community/forum/posts/' + post.id : '/v1/community/forum/posts/' + post.id;
+    const r = await RDB.api(path, { method: 'DELETE' });
+    if (r.status === 200) { this.setState({ banner: 'Message supprimé.' }); await this.loadThread(); return; }
+    this.setState({ banner: '', loadError: RDB.errorMessage(r.status, r.data, 'Suppression impossible.') });
+  };
+  onDeleteThread = async () => {
+    if (!window.confirm('Supprimer ce sujet et toutes ses réponses ?')) return;
+    const path = this.state.canModerate ? '/v1/founder/community/forum/threads/' + this.state.threadId : '/v1/community/forum/threads/' + this.state.threadId;
+    const r = await RDB.api(path, { method: 'DELETE' });
+    if (r.status === 200) { location.assign('/communaute/forum?c=' + (this.state.category ? this.state.category.slug : '')); return; }
+    this.setState({ loadError: RDB.errorMessage(r.status, r.data, 'Suppression impossible.') });
+  };
+
+  // Modération (fondateur) : épingler, verrouiller, déplacer.
+  moderate = async (patch, okMsg) => {
+    const r = await RDB.api('/v1/founder/community/forum/threads/' + this.state.threadId, { method: 'POST', body: patch });
+    if (r.status === 200) { this.setState({ banner: okMsg }); await this.loadThread(); return; }
+    this.setState({ loadError: RDB.errorMessage(r.status, r.data, 'Action impossible.') });
+  };
+  onTogglePin = () => this.moderate({ is_pinned: !(this.state.thread && this.state.thread.is_pinned) }, 'Sujet mis à jour.');
+  onToggleLock = () => this.moderate({ is_locked: !(this.state.thread && this.state.thread.is_locked) }, 'Sujet mis à jour.');
+  onMove = (e) => { const slug = e.target.value; if (slug && (!this.state.category || slug !== this.state.category.slug)) this.moderate({ category: slug }, 'Sujet déplacé.'); };
+
+  // Signalement privé à l'éditeur (POST /v1/bug-report, même canal que l'application).
+  onOpenBug = () => this.setState({ bugOpen: true, bugError: '', bugDone: false });
+  onCloseBug = () => this.setState({ bugOpen: false });
+  stop = (e) => { if (e && e.stopPropagation) e.stopPropagation(); };
+  onSubmitBug = async (e) => {
+    e.preventDefault();
+    if (this.state.bugBusy) return;
+    const form = e.currentTarget || e.target;
+    const title = (form.title && form.title.value || '').trim();
+    const severity = (form.severity && form.severity.value) || 'medium';
+    const description = (form.description && form.description.value || '').trim();
+    if (!title) { this.setState({ bugError: 'Donnez un titre à votre signalement.' }); return; }
+    this.setState({ bugBusy: true, bugError: '' });
+    const r = await RDB.api('/v1/bug-report', { method: 'POST', body: { title, severity, description } });
+    if (r.status === 201) { this.setState({ bugBusy: false, bugDone: true }); return; }
+    this.setState({ bugBusy: false, bugError: RDB.errorMessage(r.status, r.data, 'Envoi impossible. Réessayez.') });
+  };
+''' + PAGER_JS + r'''
+  renderVals() {
+    const s = this.state;
+    const me = s.me || {};
+    const viewThread = !!s.threadId;
+    const viewThreads = !viewThread && !!s.slug;
+    const viewCategories = !viewThread && !viewThreads;
+    const category = s.category || { slug: '', name: '', description: '' };
+    const catView = { slug: category.slug || '', name: category.name || '', description: category.description || '', href: '/communaute/forum?c=' + (category.slug || '') };
+    const categories = (s.categories || []).map((c) => ({
+      name: c.name, description: c.description || '', href: '/communaute/forum?c=' + c.slug,
+      count: RDB.plural(c.thread_count || 0, 'sujet', 'sujets'), hasLast: !!c.last_post_at, last: RDB.fmtRelative(c.last_post_at),
+    }));
+    const threads = (s.threads || []).map((t) => ({
+      title: t.title, href: '/communaute/forum?t=' + t.id, isPinned: t.is_pinned === true, isLocked: t.is_locked === true,
+      replies: RDB.plural(t.reply_count || 0, 'réponse', 'réponses'), when: RDB.fmtRelative(t.last_post_at), author: RDB.author(t.author),
+    }));
+    const thread = s.thread ? {
+      title: s.thread.title, author: RDB.author(s.thread.author), opened: RDB.fmtRelative(s.thread.created_at),
+      replies: RDB.plural(s.thread.reply_count || 0, 'réponse', 'réponses'), isPinned: s.thread.is_pinned === true, isLocked: s.thread.is_locked === true,
+    } : { title: '', author: RDB.author(null), opened: '', replies: '', isPinned: false, isLocked: false };
+    const posts = (s.posts || []).map((p) => {
+      const editing = s.editId === p.id;
+      return {
+        id: p.id, cls: p.is_first ? 'cm-post is-first' : 'cm-post', author: RDB.author(p.author), when: RDB.fmtRelative(p.created_at),
+        isEdited: !!p.edited_at, isDeleted: p.is_deleted === true, isEditing: editing, isShown: !p.is_deleted && !editing,
+        runs: RDB.inline(p.body || ''),
+        canEdit: p.is_own === true, canDelete: !p.is_first && (p.is_own === true || s.canModerate),
+        hasActions: p.is_own === true || (s.canModerate && !p.is_first),
+        onEdit: () => this.startEdit(p), onDelete: () => this.deletePost(p),
+      };
+    });
+    const hrefFor = viewThread ? ((n) => '/communaute/forum?t=' + s.threadId + '&page=' + n) : ((n) => '/communaute/forum?c=' + s.slug + '&page=' + n);
+    return Object.assign(RDB.shellVals(this, 'forum'), this.pagerVals(s.page, s.pages, hrefFor), {
+      viewCategories, viewThreads, viewThread,
+      hasBanner: !!s.banner, banner: s.banner,
+      categories, category: catView, isBugsCategory: catView.slug === 'bugs',
+      threads, noThreads: s.threads !== null && threads.length === 0,
+      newOpen: s.newOpen, newLabel: s.newOpen ? 'Fermer' : 'Nouveau sujet', submitLabel: s.busy ? 'Publication…' : 'Publier le sujet',
+      hasFormError: !!s.formError, formError: s.formError,
+      thread, posts, editText: s.editText,
+      canReply: s.canReply && !!s.thread, isLockedNotice: !!s.thread && !s.canReply,
+      canDeleteOwn: s.canDeleteThread && !s.canModerate, canModerate: s.canModerate,
+      catOptions: (s.catOptions || []).map((c) => ({ slug: c.slug, name: c.name })),
+      pinLabel: thread.isPinned ? 'Désépingler' : 'Épingler', lockLabel: thread.isLocked ? 'Déverrouiller' : 'Verrouiller',
+      hasReplyError: !!s.replyError, replyError: s.replyError, replyLabel: s.busy ? 'Envoi…' : 'Répondre',
+      bugOpen: s.bugOpen, bugDone: s.bugDone, bugForm: !s.bugDone, hasBugError: !!s.bugError, bugError: s.bugError, bugLabel: s.bugBusy ? 'Envoi…' : 'Envoyer le signalement',
+      onToggleNew: this.onToggleNew, onNewThread: this.onNewThread, onReply: this.onReply,
+      onEditChange: this.onEditChange, onSaveEdit: this.onSaveEdit, onCancelEdit: this.onCancelEdit, onDeleteThread: this.onDeleteThread,
+      onTogglePin: this.onTogglePin, onToggleLock: this.onToggleLock, onMove: this.onMove,
+      onOpenBug: this.onOpenBug, onCloseBug: this.onCloseBug, onSubmitBug: this.onSubmitBug, stop: this.stop,
+    });
+  }
+}
+'''

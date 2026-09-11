@@ -1,0 +1,181 @@
+[
+  {
+    "goto": "/communaute/publier",
+    "expect": "Publier dans la communauté",
+    "shot": "publier-videos"
+  },
+  {
+    "eval": "window.__type('input[name=title]', 'Ouverture des plis en 5 minutes')",
+    "label": "titre vidéo"
+  },
+  {
+    "eval": "window.__type('select[name=module]', 'plis')",
+    "label": "module"
+  },
+  {
+    "setFile": {
+      "selector": "input[type=file][name=file]",
+      "path": "/tmp/rdb-local/demo-quantitatif.mp4"
+    }
+  },
+  {
+    "eval": "window.__submit('aside form')",
+    "label": "téléverser",
+    "wait": 6000
+  },
+  {
+    "expect": "Fichier reçu et prêt"
+  },
+  {
+    "expect": "Ouverture des plis en 5 minutes",
+    "shot": "publier-video-recue"
+  },
+  {
+    "eval": "window.__click('.cm-act.is-ok')",
+    "label": "publier",
+    "wait": 1500
+  },
+  {
+    "expect": "Publié."
+  },
+  {
+    "eval": "window.__clickText('Documents (1)')",
+    "label": "onglet documents",
+    "wait": 500
+  },
+  {
+    "eval": "window.__type('input[name=title]', 'Modèle de CCTP (PDF)')",
+    "label": "titre doc"
+  },
+  {
+    "setFile": {
+      "selector": "input[type=file][name=file]",
+      "path": "/tmp/rdb-local/modele-cctp.pdf"
+    }
+  },
+  {
+    "eval": "window.__submit('aside form')",
+    "label": "téléverser doc",
+    "wait": 4000
+  },
+  {
+    "expect": "Modèle de CCTP (PDF)"
+  },
+  {
+    "eval": "window.__click('.cm-act.is-ok')",
+    "label": "publier doc",
+    "wait": 1500
+  },
+  {
+    "expect": "Publié.",
+    "shot": "publier-documents"
+  },
+  {
+    "eval": "window.__clickText('Guides (3)')",
+    "label": "onglet guides",
+    "wait": 500
+  },
+  {
+    "eval": "window.__clickText('Nouveau guide')",
+    "label": "nouveau guide",
+    "wait": 400
+  },
+  {
+    "eval": "window.__type('input[name=title]', 'Importer une bibliothèque de prix')",
+    "label": "titre guide"
+  },
+  {
+    "eval": "window.__type('select[name=module]', 'estimation')",
+    "label": "module guide"
+  },
+  {
+    "eval": "window.__type('textarea[name=body]', '## Format attendu\\n\\nUn fichier CSV avec **trois colonnes** : code, libellé, prix.\\n\\n- Encodage UTF-8\\n- Séparateur point-virgule')",
+    "label": "corps guide"
+  },
+  {
+    "eval": "window.__clickText('Aperçu')",
+    "label": "aperçu",
+    "wait": 400
+  },
+  {
+    "expect": "trois colonnes",
+    "shot": "publier-guide-apercu"
+  },
+  {
+    "eval": "window.__type('input[name=published]', true)",
+    "label": "publié"
+  },
+  {
+    "eval": "window.__submit('aside form')",
+    "label": "enregistrer guide",
+    "wait": 2000
+  },
+  {
+    "expect": "Guide créé."
+  },
+  {
+    "expect": "Importer une bibliothèque de prix"
+  },
+  {
+    "eval": "window.__clickText('Nouveautés (2)')",
+    "label": "onglet nouveautés",
+    "wait": 500
+  },
+  {
+    "eval": "window.__clickText('Nouvelle annonce')",
+    "label": "nouvelle annonce",
+    "wait": 400
+  },
+  {
+    "eval": "window.__type('input[name=title]', 'Version 1.4 en préparation')",
+    "label": "titre annonce"
+  },
+  {
+    "eval": "window.__type('input[name=version]', '1.4.0')",
+    "label": "version"
+  },
+  {
+    "eval": "window.__type('textarea[name=body]', 'Au programme : import CSV et export PDF.')",
+    "label": "corps annonce"
+  },
+  {
+    "eval": "window.__submit('aside form')",
+    "label": "enregistrer annonce",
+    "wait": 2000
+  },
+  {
+    "expect": "Annonce créée."
+  },
+  {
+    "expect": "Non publié"
+  },
+  {
+    "goto": "/communaute/guides?g=importer-une-bibliotheque-de-prix",
+    "expect": "trois colonnes"
+  },
+  {
+    "goto": "/communaute/videos",
+    "expect": "Ouverture des plis en 5 minutes"
+  },
+  {
+    "goto": "/communaute/telechargements",
+    "expect": "Modèle de CCTP (PDF)"
+  },
+  {
+    "goto": "/communaute/forum?t=1",
+    "expect": "Supprimer le sujet"
+  },
+  {
+    "eval": "window.__clickText('Épingler')",
+    "label": "épingler",
+    "wait": 1500
+  },
+  {
+    "expect": "Désépingler",
+    "shot": "forum-moderation"
+  },
+  {
+    "goto": "/communaute/nouveautes?n=3",
+    "expect": "Brouillon (visible du fondateur seulement)"
+  }
+]

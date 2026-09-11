@@ -1,0 +1,12 @@
+[
+  { "goto": "/communaute/", "wait": 1500, "expectUrl": "/espace-client?next=%2Fcommunaute%2F" },
+  { "goto": "/communaute/forum?t=1", "wait": 1500, "expectUrl": "/espace-client?next=%2Fcommunaute%2Fforum%3Ft%3D1" },
+  { "goto": "/espace-fondateur", "wait": 1500, "expectUrl": "/espace-client?next=%2Fespace-fondateur" },
+  { "goto": "/espace-client?next=//evil.example", "wait": 1200, "expect": "Connexion", "shot": "connexion" },
+  { "eval": "(() => { const f = document.querySelector('form'); f.email.value = 'alice@example.test'; f.password.value = 'un-mot-de-passe-de-test-solide'; f.requestSubmit(); return 'soumis'; })()", "wait": 2500 },
+  { "expectUrl": "/communaute/" },
+  { "goto": "/espace-client", "wait": 2000, "expectUrl": "/communaute/" },
+  { "goto": "/communaute/forum?t=1", "expect": "Le métré plante", "shot": "mobile-forum", "width": 400 },
+  { "goto": "/communaute/videos?v=1", "expect": "Découvrir le module Quantitatif", "shot": "mobile-video", "width": 400 },
+  { "goto": "/communaute/publier", "wait": 1500, "expectUrl": "/communaute/" }
+]

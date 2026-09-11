@@ -1,0 +1,15 @@
+[
+  { "goto": "/espace-fondateur", "wait": 1500, "expect": "Tableau de bord", "shot": "dashboard" },
+  { "expect": "Bob le Métreur" },
+  { "expect": "session web" },
+  { "eval": "(() => { const b = [...document.querySelectorAll('button')].find((x) => x.textContent.trim() === 'Bannir' && x.closest('tr') && x.closest('tr').innerText.includes('bob@')); if (!b) return 'absent'; window.confirm = () => true; b.click(); return 'cliqué'; })()", "label": "bannir bob", "wait": 1800 },
+  { "expect": "Compte exclu de la communauté." },
+  { "expect": "Banni de la communauté" },
+  { "eval": "(() => { const b = [...document.querySelectorAll('button')].find((x) => x.textContent.trim() === 'Réintégrer'); if (!b) return 'absent'; b.click(); return 'cliqué'; })()", "label": "réintégrer", "wait": 1800 },
+  { "expect": "Compte réintégré dans la communauté." },
+  { "eval": "(() => { const b = [...document.querySelectorAll('button')].find((x) => x.textContent.trim() === 'Déconnecter (web)'); if (!b) return 'absent'; b.click(); return 'cliqué'; })()", "label": "déconnecter web", "wait": 1800 },
+  { "expect": "Sessions web fermées." },
+  { "eval": "window.__clickText('Se déconnecter')", "label": "logout", "wait": 2000 },
+  { "expectUrl": "/espace-client" },
+  { "goto": "/espace-fondateur", "wait": 2000, "expectUrl": "/espace-client?next=%2Fespace-fondateur" }
+]

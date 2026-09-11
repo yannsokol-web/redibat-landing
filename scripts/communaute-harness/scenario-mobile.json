@@ -1,0 +1,8 @@
+[
+  { "goto": "/communaute/videos?v=1", "expect": "Découvrir le module Quantitatif", "shot": "mobile-video", "width": 400 },
+  { "goto": "/communaute/guides?g=creer-sa-premiere-affaire", "expect": "Créer le dossier", "shot": "mobile-guide", "width": 400 },
+  { "goto": "/communaute/publier", "expect": "Publier dans la communauté", "shot": "mobile-publier", "width": 400 },
+  { "eval": "document.documentElement.scrollWidth + ' / ' + window.innerWidth", "label": "largeur publier mobile" },
+  { "goto": "/communaute/forum?t=1", "eval": "document.documentElement.scrollWidth + ' / ' + window.innerWidth", "label": "largeur forum mobile" },
+  { "goto": "/communaute/", "eval": "document.documentElement.scrollWidth + ' / ' + window.innerWidth", "label": "largeur accueil mobile", "shot": "mobile-accueil-menu", "width": 400 }
+]
