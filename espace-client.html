@@ -39,7 +39,7 @@
     }
   </style>
 <!-- Socle de l'espace communautaire : appels API avec cookie de session, adresse de retour sûre. -->
-<script src="/communaute/community.js?v=1"></script>
+<script src="/communaute/community.js?v=2"></script>
 <script src="./support.js"></script>
 </head>
 <body>
@@ -128,12 +128,12 @@
           <div style="text-align: center; margin-bottom: 30px;">
             <div style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--a-blue); margin-bottom: 14px;">Double authentification</div>
             <h1 style="font-family: 'Newsreader', Georgia, serif; font-weight: 500; letter-spacing: -0.024em; line-height: 1.08; font-size: clamp(30px, 4vw, 40px); color: #16314f; margin: 0 0 10px;">Code de vérification</h1>
-            <p style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 14.5px; line-height: 1.55; color: var(--a-muted); margin: 0;">Saisissez le code à 6 chiffres de votre application d'authentification, ou l'un de vos codes de secours.</p>
+            <p style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 14.5px; line-height: 1.55; color: var(--a-muted); margin: 0;">{{ codeIntro }}</p>
           </div>
           <form onSubmit="{{ onSubmitCode }}" style="background: #ffffff; border: 1px solid var(--a-border); border-radius: 18px; padding: 32px 30px 34px; box-shadow: 0 24px 56px -32px rgba(31,58,92,0.35);">
             <label style="display: block; margin-bottom: 22px;">
-              <span style="display: block; font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--a-muted); margin-bottom: 8px;">Code</span>
-              <input type="text" name="code" inputmode="numeric" autocomplete="one-time-code" placeholder="123456 ou ABCDE-FGHJK" maxlength="16" autofocus="{{ true }}"
+              <span style="display: block; font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--a-muted); margin-bottom: 8px;">{{ codeFieldLabel }}</span>
+              <input type="text" id="code" name="code" inputmode="{{ codeInputMode }}" autocomplete="one-time-code" autocapitalize="characters" spellcheck="false" placeholder="{{ codePlaceholder }}" maxlength="16" autofocus="{{ true }}"
                      style="width: 100%; box-sizing: border-box; font-family: 'IBM Plex Mono', monospace; font-size: 20px; letter-spacing: 0.18em; text-align: center; color: #16314f;
                             padding: 13px 15px; border: 1px solid var(--a-border); border-radius: 10px; background: var(--a-bg-3); outline: none; transition: border-color .18s ease, box-shadow .18s ease;"
                      style-focus="border-color: var(--a-blue); box-shadow: 0 0 0 3px rgba(47,99,212,0.14); background: #ffffff;">
@@ -146,7 +146,8 @@
                    font-family: 'IBM Plex Mono', monospace; font-size: 13px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: #ffffff;
                    background: linear-gradient(135deg, #0b317c 0%, #185fcb 55%, #30c5ec 100%); padding: 15px 24px; border-radius: 100px;
                    box-shadow: 0 10px 26px -10px rgba(24,95,203,0.6); transition: transform .18s ease, filter .18s ease;" style-hover="transform: translateY(-1px); filter: brightness(1.06);">{{ codeLabel }}</button>
-            <div style="text-align: center; margin-top: 18px;">
+            <div style="display: flex; justify-content: center; gap: 18px; flex-wrap: wrap; margin-top: 18px;">
+              <button type="button" onClick="{{ onToggleRecovery }}" style="border: none; background: none; cursor: pointer; font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; letter-spacing: 0.04em; color: var(--a-blue); text-decoration: underline;">{{ recoveryToggleLabel }}</button>
               <button type="button" onClick="{{ onRestart }}" style="border: none; background: none; cursor: pointer; font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; letter-spacing: 0.04em; color: var(--a-muted); text-decoration: underline;">Revenir à la connexion</button>
             </div>
           </form>
@@ -165,7 +166,7 @@
           <form onSubmit="{{ onSubmit }}" style="background: #ffffff; border: 1px solid var(--a-border); border-radius: 18px; padding: 32px 30px 34px; box-shadow: 0 24px 56px -32px rgba(31,58,92,0.35);">
             <label style="display: block; margin-bottom: 20px;">
               <span style="display: block; font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--a-muted); margin-bottom: 8px;">Adresse e-mail</span>
-              <input type="email" name="email" autocomplete="email" placeholder="vous@entreprise.fr" required
+              <input type="email" id="email" name="email" autocomplete="username" inputmode="email" autocapitalize="none" spellcheck="false" placeholder="vous@entreprise.fr" required
                      style="width: 100%; box-sizing: border-box; font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 15px; color: #16314f;
                             padding: 13px 15px; border: 1px solid var(--a-border); border-radius: 10px; background: var(--a-bg-3); outline: none; transition: border-color .18s ease, box-shadow .18s ease;"
                      style-focus="border-color: var(--a-blue); box-shadow: 0 0 0 3px rgba(47,99,212,0.14); background: #ffffff;">
@@ -174,7 +175,7 @@
             <label style="display: block; margin-bottom: 22px;">
               <span style="display: block; font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--a-muted); margin-bottom: 8px;">Mot de passe</span>
               <span style="position: relative; display: block;">
-                <input type="{{ pwdType }}" name="password" autocomplete="current-password" placeholder="Votre mot de passe" required
+                <input type="{{ pwdType }}" id="password" name="password" autocomplete="current-password" placeholder="Votre mot de passe" required
                        style="width: 100%; box-sizing: border-box; font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 15px; color: #16314f;
                               padding: 13px 46px 13px 15px; border: 1px solid var(--a-border); border-radius: 10px; background: var(--a-bg-3); outline: none; transition: border-color .18s ease, box-shadow .18s ease;"
                        style-focus="border-color: var(--a-blue); box-shadow: 0 0 0 3px rgba(47,99,212,0.14); background: #ffffff;">
@@ -192,9 +193,14 @@
               </span>
             </label>
 
-            <div style="text-align: right; margin: -8px 0 20px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin: -6px 0 8px;">
+              <label style="display: inline-flex; align-items: center; gap: 9px; cursor: pointer; font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 13.5px; color: var(--a-text);">
+                <input type="checkbox" id="remember" name="remember" checked="{{ remember }}" onChange="{{ onToggleRemember }}" style="width: 16px; height: 16px; margin: 0; accent-color: var(--a-blue); cursor: pointer;">
+                Se souvenir de moi
+              </label>
               <a href="/mot-de-passe-oublie" style="font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; letter-spacing: 0.04em; color: var(--a-blue); text-decoration: none;" style-hover="color: var(--a-blue-deep);">Mot de passe oublié ?</a>
             </div>
+            <p style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 12.5px; line-height: 1.5; color: var(--a-faint); margin: 0 0 20px;">{{ rememberHelp }}</p>
 
             <sc-if value="{{ hasError }}" hint-placeholder-val="{{ false }}">
               <div role="alert" style="margin: 0 0 20px; padding: 11px 14px; border-radius: 10px; background: rgba(226,59,46,0.08); border: 1px solid rgba(226,59,46,0.28);
@@ -296,16 +302,26 @@ class Component extends DCLogic {
   // connexion, retour vers la page demandée (?next=, bornée à l'espace communautaire) ou
   // vers l'accueil de la communauté. Une session déjà ouverte redirige sans afficher le
   // formulaire.
+  //
+  // « Se souvenir de moi » (cochée par défaut, comme dans l'application de bureau) : l'adresse
+  // e-mail est mémorisée sur l'appareil (localStorage) et pré-remplie à la visite suivante, et
+  // la session est gardée d'une fois sur l'autre (cookie persistant). Décochée : rien n'est
+  // mémorisé et la session se ferme avec le navigateur (`remember: false` au login). Le MOT DE
+  // PASSE n'est JAMAIS écrit par cette page : sur le web, c'est le gestionnaire de mots de
+  // passe du navigateur qui joue ce rôle (chiffré, synchronisé), d'où les attributs
+  // autocomplete="username" / "current-password" / "one-time-code" qu'il reconnaît.
   state = {
     showPwd: false,
     checked: false,
     loading: false,
     error: '',
+    remember: true,
     // Double authentification : après un mot de passe juste, l'API rend un défi à échanger
     // contre un code (application d'authentification ou code de secours).
     challenge: '',
     codeBusy: false,
     codeError: '',
+    useRecovery: false,
   };
 
   componentDidMount() {
@@ -313,13 +329,39 @@ class Component extends DCLogic {
     this._started = true;
     // Reliquats de l'ancien mécanisme (jeton fondateur en sessionStorage) : purgés.
     try { sessionStorage.removeItem('redibat_token'); sessionStorage.removeItem('redibat_founder'); } catch (_) {}
+    this.setState({ remember: RDB.rememberOn() });
     RDB.api('/v1/me', { noRedirect: true }).then((r) => {
       if (r.status === 200) { location.replace(RDB.safeNext(RDB.params().get('next'))); return; }
       this.setState({ checked: true });
     });
   }
 
+  // À l'apparition du formulaire : e-mail mémorisé pré-rempli (sauf si le navigateur l'a déjà
+  // rempli), et le curseur va au premier champ à saisir. Une seule fois.
+  componentDidUpdate() {
+    if (this._prefilled || !this.state.checked || this.state.challenge) return;
+    const email = document.getElementById('email');
+    const pwd = document.getElementById('password');
+    if (!email || !pwd) return;
+    this._prefilled = true;
+    const saved = this.state.remember ? RDB.rememberedEmail() : '';
+    if (saved && !email.value) email.value = saved;
+    try { (email.value ? pwd : email).focus(); } catch (_) {}
+  }
+
   togglePwd = () => this.setState(s => ({ showPwd: !s.showPwd }));
+
+  onToggleRemember = (e) => {
+    const on = !!(e && e.target && e.target.checked);
+    RDB.setRemember(on);
+    this.setState({ remember: on });
+  };
+
+  onToggleRecovery = () => {
+    this.setState((s) => ({ useRecovery: !s.useRecovery, codeError: '' }));
+    const el = document.getElementById('code');
+    if (el) { el.value = ''; try { el.focus(); } catch (_) {} }
+  };
 
   onSubmit = async (e) => {
     e.preventDefault();
@@ -333,9 +375,12 @@ class Component extends DCLogic {
       return;
     }
     this.setState({ loading: true, error: '' });
-    const r = await RDB.api('/v1/login', { method: 'POST', body: { email, password: pwd, client: 'web' }, noRedirect: true });
+    const remember = this.state.remember;
+    const r = await RDB.api('/v1/login', { method: 'POST', body: { email, password: pwd, client: 'web', remember }, noRedirect: true });
+    // Mot de passe accepté (session ouverte ou défi 2FA) : l'adresse est bonne, on la mémorise.
+    if (r.status === 200) RDB.setRemember(remember, email);
     if (r.status === 200 && r.data && r.data.totp_required && r.data.challenge) {
-      this.setState({ loading: false, error: '', challenge: r.data.challenge, codeError: '' });
+      this.setState({ loading: false, error: '', challenge: r.data.challenge, codeError: '', useRecovery: false });
       return;
     }
     if (r.status === 200) {
@@ -394,7 +439,7 @@ class Component extends DCLogic {
     this.setState({ codeBusy: false, codeError: r.status === 0 ? 'Impossible de joindre le serveur. Vérifiez votre connexion.' : 'Vérification impossible pour le moment. Réessayez.' });
   };
 
-  onRestart = () => this.setState({ challenge: '', codeError: '', error: '' });
+  onRestart = () => { this._prefilled = false; this.setState({ challenge: '', codeError: '', error: '', useRecovery: false }); };
 
   renderVals() {
     const s = this.state;
@@ -408,9 +453,22 @@ class Component extends DCLogic {
       hasError: !!s.error,
       error: s.error,
       submitLabel: s.loading ? 'Connexion…' : 'Se connecter',
+      remember: s.remember,
+      rememberHelp: s.remember
+        ? 'Votre adresse e-mail sera pré-remplie et vous resterez connecté sur cet appareil. Décochez sur un poste partagé.'
+        : 'Rien n\'est mémorisé sur cet appareil : la session se ferme avec le navigateur.',
+      onToggleRemember: this.onToggleRemember,
       hasCodeError: !!s.codeError,
       codeError: s.codeError,
       codeLabel: s.codeBusy ? 'Vérification…' : 'Valider',
+      codeIntro: s.useRecovery
+        ? 'Saisissez l\'un des codes de secours reçus à l\'activation. Chaque code ne sert qu\'une fois.'
+        : 'Saisissez le code à 6 chiffres affiché par votre application d\'authentification.',
+      codeFieldLabel: s.useRecovery ? 'Code de secours' : 'Code de l\'application',
+      codeInputMode: s.useRecovery ? 'text' : 'numeric',
+      codePlaceholder: s.useRecovery ? 'ABCDE-FGHJK' : '123456',
+      recoveryToggleLabel: s.useRecovery ? 'Utiliser l\'application d\'authentification' : 'Utiliser un code de secours',
+      onToggleRecovery: this.onToggleRecovery,
       togglePwd: this.togglePwd,
       onSubmit: this.onSubmit,
       onSubmitCode: this.onSubmitCode,

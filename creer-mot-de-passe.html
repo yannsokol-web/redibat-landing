@@ -75,10 +75,14 @@
           </div>
 
           <form onSubmit="{{ onSubmit }}" style="background: #ffffff; border: 1px solid var(--a-border); border-radius: 18px; padding: 32px 30px 34px; box-shadow: 0 24px 56px -32px rgba(31,58,92,0.35);">
+            <!-- Identifiant du compte, masqué : le gestionnaire de mots de passe du navigateur enregistre
+                 ainsi le couple e-mail + nouveau mot de passe (autocomplete username / new-password). -->
+            <input type="email" id="email" name="email" autocomplete="username" value="{{ email }}" readOnly="{{ true }}" tabIndex="-1" aria-hidden="true"
+                   style="position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; border: 0; opacity: 0; overflow: hidden; pointer-events: none;">
             <label style="display: block; margin-bottom: 20px;">
               <span style="display: block; font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--a-muted); margin-bottom: 8px;">Nouveau mot de passe</span>
               <span style="position: relative; display: block;">
-                <input type="{{ pwdType }}" name="password" autocomplete="new-password" placeholder="Au moins 12 caractères" required
+                <input type="{{ pwdType }}" id="password" name="password" autocomplete="new-password" placeholder="Au moins 12 caractères" required
                        style="width: 100%; box-sizing: border-box; font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 15px; color: #16314f; padding: 13px 46px 13px 15px; border: 1px solid var(--a-border); border-radius: 10px; background: var(--a-bg-3); outline: none; transition: border-color .18s ease, box-shadow .18s ease;"
                        style-focus="border-color: var(--a-blue); box-shadow: 0 0 0 3px rgba(47,99,212,0.14); background: #ffffff;">
                 <button type="button" onClick="{{ togglePwd }}" aria-label="Afficher ou masquer le mot de passe"
@@ -96,7 +100,7 @@
 
             <label style="display: block; margin-bottom: 22px;">
               <span style="display: block; font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--a-muted); margin-bottom: 8px;">Confirmer le mot de passe</span>
-              <input type="{{ pwdType }}" name="confirm" autocomplete="new-password" placeholder="Retapez votre mot de passe" required
+              <input type="{{ pwdType }}" id="confirm" name="confirm" autocomplete="new-password" placeholder="Retapez votre mot de passe" required
                      style="width: 100%; box-sizing: border-box; font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 15px; color: #16314f; padding: 13px 15px; border: 1px solid var(--a-border); border-radius: 10px; background: var(--a-bg-3); outline: none; transition: border-color .18s ease, box-shadow .18s ease;"
                      style-focus="border-color: var(--a-blue); box-shadow: 0 0 0 3px rgba(47,99,212,0.14); background: #ffffff;">
             </label>

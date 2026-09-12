@@ -26,7 +26,13 @@ DB_PATH=/tmp/rdb-local/test.db node scripts/communaute-harness/seed.mjs
 node scripts/communaute-harness/shoot.mjs alice /tmp/rdb-shots "/communaute/" "/communaute/forum?t=1"
 node scripts/communaute-harness/interact.mjs bob /tmp/rdb-shots scripts/communaute-harness/scenario-bob.json
 node scripts/communaute-harness/interact.mjs founder /tmp/rdb-shots scripts/communaute-harness/scenario-founder.json
+TOTP_ENC_KEY=<clé de l'API> node scripts/communaute-harness/interact.mjs alice /tmp/rdb-shots scripts/communaute-harness/scenario-2fa.json
+node scripts/communaute-harness/interact.mjs anon /tmp/rdb-shots scripts/communaute-harness/scenario-souvenir.json
 ```
+
+`scenario-2fa.json` calcule les codes TOTP comme le ferait l'application (même `TOTP_ENC_KEY`
+que l'API locale) et laisse Alice avec la 2FA désactivée ; `scenario-souvenir.json` éprouve la
+case « Se souvenir de moi » (e-mail pré-rempli, cookie persistant ou de navigation).
 
 Les scénarios `scenario-founder.json` attendent deux fichiers factices :
 `/tmp/rdb-local/demo-quantitatif.mp4` (signature `ftyp`, 5 Mo) et `/tmp/rdb-local/modele-cctp.pdf`.

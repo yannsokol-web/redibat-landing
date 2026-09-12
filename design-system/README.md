@@ -162,3 +162,11 @@ feuille `communaute/community.css`. Règles propres à ces pages, toutes vérifi
   rendu en blocs et segments (`RDB.parseLite`, `RDB.inline`) via `sc-for` / `sc-if`.
 - Incrémenter `?v=` de `community.js` et `community.css` (identique sur toutes les pages) à
   chaque modification : GitHub Pages met ces fichiers en cache dix minutes.
+- **Formulaires d'identification** (`espace-client`, `creer-mot-de-passe`, `mot-de-passe-oublie`,
+  modale 2FA du profil) : champs avec `id` et `name` stables et les jetons que les gestionnaires
+  de mots de passe reconnaissent, `autocomplete="username"` sur l'e-mail (même masqué, comme sur
+  la création de mot de passe), `"current-password"`, `"new-password"`, `"one-time-code"` ;
+  champs non contrôlés lus à la soumission (l'autoremplissage y écrit sans passer par React).
+  Jamais de mot de passe en `localStorage` : « Se souvenir de moi » ne garde que l'adresse
+  (`RDB.setRemember`) et demande un cookie persistant ; `/.well-known/change-password` renvoie
+  vers la réinitialisation.

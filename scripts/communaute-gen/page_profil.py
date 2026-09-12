@@ -83,13 +83,13 @@ MAIN = r'''
           <sc-for list="{{ sessions }}" as="x">
             <li class="cm-row">
               <div class="cm-row-main">
-                <p class="cm-row-title" style="font-size: 14px;">{{ x.agent }}<sc-if value="{{ x.current }}"> <span class="cm-tag is-teal">cet appareil</span></sc-if></p>
+                <p class="cm-row-title" style="font-size: 14px;">{{ x.agent }}<sc-if value="{{ x.current }}"> <span class="cm-tag is-teal">cet appareil</span></sc-if><sc-if value="{{ x.temporary }}"> <span class="cm-tag">fermée avec le navigateur</span></sc-if></p>
                 <div class="cm-row-meta"><span>ouverte {{ x.opened }}</span><span>active {{ x.seen }}</span><span>{{ x.ip }}</span></div>
               </div>
             </li>
           </sc-for>
         </ul>
-        <p class="cm-help" style="padding: 12px 22px 18px; margin: 0;">Une session expire après 30 jours sans activité. La déconnexion est immédiate sur tous les appareils concernés.</p>
+        <p class="cm-help" style="padding: 12px 22px 18px; margin: 0;">Une session expire après 30 jours sans activité, ou à la fermeture du navigateur si « Se souvenir de moi » n'était pas coché à la connexion. La déconnexion est immédiate sur tous les appareils concernés.</p>
       </section>
     </div>
   </div>
@@ -384,7 +384,7 @@ class Component extends DCLogic {
       bg: m.is_founder ? 'rgba(47,99,212,0.06)' : '#ffffff', border: m.is_founder ? 'rgba(47,99,212,0.22)' : 'var(--a-border)',
     }));
     const sessions = (s.sessions || []).map((x) => ({
-      agent: this.agentLabel(x.user_agent), current: x.current === true, opened: RDB.fmtRelative(x.created_at), seen: RDB.fmtRelative(x.last_seen), ip: x.ip || '',
+      agent: this.agentLabel(x.user_agent), current: x.current === true, temporary: x.persistent === false, opened: RDB.fmtRelative(x.created_at), seen: RDB.fmtRelative(x.last_seen), ip: x.ip || '',
     }));
     return Object.assign(RDB.shellVals(this, 'profile'), {
       initial: RDB.initial(me.display_name || me.email), name: me.display_name || 'Sans pseudo', email: me.email || '',

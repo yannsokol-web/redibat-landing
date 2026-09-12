@@ -13,6 +13,8 @@
 <link rel="icon" type="image/png" sizes="32x32" href="/assets/logos/favicon-32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="/assets/logos/favicon-16.png">
 <link rel="apple-touch-icon" href="/assets/logos/favicon-256.png">
+<!-- Socle communautaire : uniquement pour pré-remplir l'adresse mémorisée par « Se souvenir de moi ». -->
+<script src="/communaute/community.js?v=2"></script>
 <script src="./support.js"></script>
 </head>
 <body>
@@ -57,7 +59,7 @@
           <form onSubmit="{{ onSubmit }}" style="background: #ffffff; border: 1px solid var(--a-border); border-radius: 18px; padding: 32px 30px 34px; box-shadow: 0 24px 56px -32px rgba(31,58,92,0.35);">
             <label style="display: block; margin-bottom: 22px;">
               <span style="display: block; font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--a-muted); margin-bottom: 8px;">Adresse e-mail</span>
-              <input type="email" name="email" autocomplete="email" placeholder="vous@entreprise.fr" required
+              <input type="email" id="email" name="email" autocomplete="username" inputmode="email" autocapitalize="none" spellcheck="false" placeholder="vous@entreprise.fr" required
                      style="width: 100%; box-sizing: border-box; font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 15px; color: #16314f; padding: 13px 15px; border: 1px solid var(--a-border); border-radius: 10px; background: var(--a-bg-3); outline: none; transition: border-color .18s ease, box-shadow .18s ease;"
                      style-focus="border-color: var(--a-blue); box-shadow: 0 0 0 3px rgba(47,99,212,0.14); background: #ffffff;">
             </label>
@@ -104,6 +106,18 @@ class Component extends DCLogic {
   static API_BASE = 'https://api.redibat.fr';
 
   state = { phase: 'form', submitting: false, error: '' };
+
+  // Adresse mémorisée par « Se souvenir de moi » sur la page de connexion : pré-remplie ici
+  // aussi (sauf si le navigateur l'a déjà fait), le curseur va au champ à compléter.
+  componentDidMount() {
+    if (this._started) return;
+    this._started = true;
+    const el = document.getElementById('email');
+    if (!el) return;
+    const saved = (typeof RDB !== 'undefined' && RDB.rememberedEmail) ? RDB.rememberedEmail() : '';
+    if (saved && !el.value) el.value = saved;
+    try { el.focus(); } catch (_) {}
+  }
 
   onSubmit = async (e) => {
     e.preventDefault();

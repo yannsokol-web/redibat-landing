@@ -158,6 +158,24 @@
     "wait": 2000
   },
   {
+    "expect": "Code de l'application"
+  },
+  {
+    "eval": "document.getElementById('code').getAttribute('inputmode')",
+    "label": "clavier numérique pour l'application"
+  },
+  {
+    "eval": "window.__clickText('Utiliser un code de secours')",
+    "wait": 300
+  },
+  {
+    "expect": "Chaque code ne sert qu'une fois"
+  },
+  {
+    "eval": "document.getElementById('code').getAttribute('inputmode')",
+    "label": "clavier texte pour un code de secours"
+  },
+  {
     "typeRecovery": {
       "selector": "input[name=code]"
     }

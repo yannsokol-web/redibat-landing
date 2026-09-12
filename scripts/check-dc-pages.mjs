@@ -223,6 +223,22 @@ if (RDB) {
   check('chemin hors espace refusé', RDB.safeNext('/tarifs') === '/communaute/');
   check('vide → accueil', RDB.safeNext('') === '/communaute/' && RDB.safeNext(undefined) === '/communaute/');
 
+  console.log('\n■ community.js : « se souvenir de moi » (préférence et e-mail, jamais de mot de passe)');
+  const fake = new Map();
+  globalThis.localStorage = { getItem: (k) => (fake.has(k) ? fake.get(k) : null), setItem: (k, v) => fake.set(k, String(v)), removeItem: (k) => fake.delete(k) };
+  check('cochée par défaut, sans e-mail mémorisé', RDB.rememberOn() === true && RDB.rememberedEmail() === '');
+  RDB.setRemember(true, '  Alice@Example.test ');
+  check('un login réussi mémorise l\'adresse (nettoyée)', RDB.rememberedEmail() === 'Alice@Example.test' && fake.get('rdb_remember') === '1');
+  check('… et rien d\'autre', [...fake.keys()].sort().join(',') === 'rdb_login_email,rdb_remember');
+  RDB.setRemember(false);
+  check('décochée : préférence gardée, e-mail effacé', RDB.rememberOn() === false && RDB.rememberedEmail() === '' && !fake.has('rdb_login_email'));
+  RDB.setRemember(true);
+  check('recochée sans e-mail : rien à pré-remplir', RDB.rememberOn() === true && RDB.rememberedEmail() === '');
+  fake.set('rdb_login_email', 'x@y.z'); fake.set('rdb_remember', '0');
+  check('un e-mail résiduel n\'est pas pré-rempli quand la case est décochée', RDB.rememberedEmail() === '');
+  delete globalThis.localStorage;
+  check('sans stockage : cochée par défaut, aucune exception', RDB.rememberOn() === true && RDB.rememberedEmail() === '' && (RDB.setRemember(true, 'a@b.c'), true));
+
   console.log('\n■ community.js : mise en forme légère');
   const b = RDB.parseLite('## Titre\n\nUn paragraphe avec **du gras**, du `code` et un lien [Rédibat](https://redibat.fr).\nSuite de ligne.\n\n- un\n- deux\n\n1. premier\n2. second\n\n```\nconst x = 1;\n```\n\n![Schéma](file:12)\n\n[video:7]\n\nhttp://exemple.fr/page.');
   check('titre h2', b[0].type === 'h2' && b[0].text === 'Titre');

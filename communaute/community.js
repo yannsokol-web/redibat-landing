@@ -23,7 +23,7 @@
   RDB.API_BASE = hasLocation && location.hostname === 'localhost' ? 'http://localhost:3000' : 'https://api.redibat.fr';
   RDB.HOME = '/communaute/';
   RDB.LOGIN = '/espace-client';
-  RDB.VERSION = '1';
+  RDB.VERSION = '2';
 
   RDB.MODULES = {
     cctp: 'CCTP et DPGF',
@@ -104,6 +104,30 @@
     await RDB.api('/v1/logout', { method: 'POST', body: {}, noRedirect: true });
     RDB._me = null;
     if (hasLocation) location.replace(RDB.LOGIN);
+  };
+
+  // « Se souvenir de moi » (page de connexion) : deux clés locales, comme l'application de
+  // bureau sépare la PRÉFÉRENCE du SECRET. rdb_remember vaut '0' seulement quand la case a
+  // été décochée explicitement (absente = cochée par défaut) ; rdb_login_email n'existe que
+  // si la case est cochée. Jamais de mot de passe ici : c'est le rôle du gestionnaire de
+  // mots de passe du navigateur. Tout est en try/catch : le stockage peut être indisponible
+  // (navigation privée stricte), la page doit fonctionner sans.
+  const REMEMBER_KEY = 'rdb_remember';
+  const EMAIL_KEY = 'rdb_login_email';
+  function store() { try { return global.localStorage || null; } catch (_) { return null; } }
+  RDB.rememberOn = function () {
+    try { const st = store(); return !st || st.getItem(REMEMBER_KEY) !== '0'; } catch (_) { return true; }
+  };
+  RDB.rememberedEmail = function () {
+    try { const st = store(); return (st && RDB.rememberOn() && st.getItem(EMAIL_KEY)) || ''; } catch (_) { return ''; }
+  };
+  /** Enregistre la préférence ; `email` (facultatif) n'est mémorisé que si la case est cochée. */
+  RDB.setRemember = function (on, email) {
+    try {
+      const st = store(); if (!st) return;
+      if (on) { st.setItem(REMEMBER_KEY, '1'); if (typeof email === 'string' && email) st.setItem(EMAIL_KEY, email.trim().slice(0, 254)); }
+      else { st.setItem(REMEMBER_KEY, '0'); st.removeItem(EMAIL_KEY); }
+    } catch (_) { /* stockage indisponible : la page fonctionne sans */ }
   };
 
   /** Téléchargement par navigation directe : le cookie part, le serveur répond en attachment. */
