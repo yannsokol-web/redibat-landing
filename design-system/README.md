@@ -169,4 +169,4 @@ feuille `communaute/community.css`. Règles propres à ces pages, toutes vérifi
   champs non contrôlés lus à la soumission (l'autoremplissage y écrit sans passer par React).
   Jamais de mot de passe en `localStorage` : « Se souvenir de moi » ne garde que l'adresse
   (`RDB.setRemember`) et demande un cookie persistant ; `/.well-known/change-password` renvoie
-  vers la réinitialisation.
+  vers la carte « Mot de passe » du profil (`/communaute/profil`, connexion en relais).

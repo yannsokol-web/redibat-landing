@@ -126,6 +126,16 @@
     "expect": "Code incorrect. Il vous reste 4 essais."
   },
   {
+    "expect": "Ne plus demander de code sur cet appareil"
+  },
+  {
+    "eval": "document.getElementById('trust').checked",
+    "label": "case de confiance cochée par défaut"
+  },
+  {
+    "shot": "2fa-login-confiance"
+  },
+  {
     "waitNextStep": true
   },
   {
@@ -145,8 +155,47 @@
     "expect": "Activée depuis"
   },
   {
+    "expect": "Appareils de confiance"
+  },
+  {
+    "expect": "cet appareil",
+    "shot": "2fa-appareils"
+  },
+  {
+    "eval": "RDB.api('/v1/me').then(r => 'confiance=' + r.data.trusted_devices)",
+    "label": "compteur d'appareils"
+  },
+  {
     "eval": "window.__clickText('Se déconnecter')",
-    "label": "logout",
+    "wait": 2000
+  },
+  {
+    "goto": "/espace-client?next=%2Fcommunaute%2Fprofil",
+    "wait": 1500
+  },
+  {
+    "eval": "(() => { const f = document.querySelector('form'); f.email.value = 'alice@example.test'; f.password.value = 'un-mot-de-passe-de-test-solide'; f.requestSubmit(); return 'soumis'; })()",
+    "wait": 2500
+  },
+  {
+    "expectUrl": "/communaute/profil"
+  },
+  {
+    "expect": "Activée depuis"
+  },
+  {
+    "eval": "window.__clickText('Retirer')",
+    "label": "retirer cet appareil",
+    "wait": 1500
+  },
+  {
+    "expect": "Appareil retiré"
+  },
+  {
+    "expect": "Aucun appareil de confiance"
+  },
+  {
+    "eval": "window.__clickText('Se déconnecter')",
     "wait": 2000
   },
   {

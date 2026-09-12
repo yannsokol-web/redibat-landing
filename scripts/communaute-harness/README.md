@@ -28,11 +28,16 @@ node scripts/communaute-harness/interact.mjs bob /tmp/rdb-shots scripts/communau
 node scripts/communaute-harness/interact.mjs founder /tmp/rdb-shots scripts/communaute-harness/scenario-founder.json
 TOTP_ENC_KEY=<clé de l'API> node scripts/communaute-harness/interact.mjs alice /tmp/rdb-shots scripts/communaute-harness/scenario-2fa.json
 node scripts/communaute-harness/interact.mjs anon /tmp/rdb-shots scripts/communaute-harness/scenario-souvenir.json
+node scripts/communaute-harness/interact.mjs alice /tmp/rdb-shots scripts/communaute-harness/scenario-mdp.json
 ```
 
 `scenario-2fa.json` calcule les codes TOTP comme le ferait l'application (même `TOTP_ENC_KEY`
-que l'API locale) et laisse Alice avec la 2FA désactivée ; `scenario-souvenir.json` éprouve la
-case « Se souvenir de moi » (e-mail pré-rempli, cookie persistant ou de navigation).
+que l'API locale), éprouve l'appareil de confiance (reconnexion sans code, retrait depuis le
+profil) et laisse Alice avec la 2FA désactivée ; `scenario-souvenir.json` éprouve la case
+« Se souvenir de moi » (e-mail pré-rempli, cookie persistant ou de navigation) ;
+`scenario-mdp.json` change le mot de passe d'Alice depuis le profil puis le REMET à sa valeur
+d'origine (le banc se connecte avec elle). S'il casse en route, remettre le mot de passe :
+`DB_PATH=/tmp/rdb-local/test.db node ../redibat-auth/scripts/admin.js reset-password --email alice@example.test`.
 
 Les scénarios `scenario-founder.json` attendent deux fichiers factices :
 `/tmp/rdb-local/demo-quantitatif.mp4` (signature `ftyp`, 5 Mo) et `/tmp/rdb-local/modele-cctp.pdf`.

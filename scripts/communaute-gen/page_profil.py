@@ -2,7 +2,7 @@ from snippets import AUTHOR_BADGES
 
 TITLE = 'Mon profil'
 EXTRA_HEAD = '\n<!-- QR code d\'inscription 2FA (otpauth://) : qrcode-generator, MIT, servi en self. -->\n<script src="/vendor/qrcode-generator.js"></script>'
-DESCRIPTION = 'Votre profil dans la communauté Rédibat : pseudo, fiche annuaire, signalements et sessions.'
+DESCRIPTION = 'Votre profil dans la communauté Rédibat : pseudo, fiche annuaire, signalements, double authentification, mot de passe et sessions.'
 
 MAIN = r'''
 <main class="cm-main">
@@ -72,8 +72,46 @@ MAIN = r'''
               <button type="button" class="cm-act" onClick="{{ onTfRecovery }}">Nouveaux codes de secours</button>
               <button type="button" class="cm-act is-danger" onClick="{{ onTfDisable }}">Désactiver</button>
             </div>
+            <div style="margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--a-border-soft);">
+              <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 8px;">
+                <span class="cm-mono">Appareils de confiance · {{ tdCount }}</span>
+                <sc-if value="{{ hasTd }}"><button type="button" class="cm-act is-danger" onClick="{{ onTdRevokeAll }}">Tout retirer</button></sc-if>
+              </div>
+              <sc-if value="{{ hasTdNote }}"><div class="{{ tdNoteCls }}" role="status" style="margin-bottom: 10px;">{{ tdNote }}</div></sc-if>
+              <sc-if value="{{ noTd }}"><p class="cm-help" style="margin: 0 0 8px;">Aucun appareil de confiance. À la connexion, après le code, laissez cochée « Ne plus demander de code sur cet appareil pendant 30 jours » pour en ajouter un.</p></sc-if>
+              <ul class="cm-list">
+                <sc-for list="{{ td }}" as="d">
+                  <li class="cm-row" style="padding: 10px 0; display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;">
+                    <div class="cm-row-main">
+                      <p class="cm-row-title" style="font-size: 14px;">{{ d.agent }}<sc-if value="{{ d.current }}"> <span class="cm-tag is-teal">cet appareil</span></sc-if></p>
+                      <div class="cm-row-meta"><span>ajouté {{ d.added }}</span><span>expire le {{ d.expires }}</span><span>{{ d.ip }}</span></div>
+                    </div>
+                    <button type="button" class="cm-act" onClick="{{ d.onRemove }}">Retirer</button>
+                  </li>
+                </sc-for>
+              </ul>
+              <p class="cm-help" style="margin: 8px 0 0;">Un appareil de confiance se connecte avec le mot de passe seul pendant 30 jours. Retirez un appareil perdu ou partagé : le code y sera de nouveau demandé. Changer de mot de passe ou désactiver la double authentification retire tous les appareils.</p>
+            </div>
           </sc-if>
         </div>
+      </section>
+
+      <section class="cm-card" id="mot-de-passe">
+        <div class="cm-card-head"><h2 class="cm-h2">Mot de passe</h2><span class="cm-mono">au moins 12 caractères</span></div>
+        <form class="cm-card-body" onSubmit="{{ onPwdSubmit }}" style="position: relative;">
+          <sc-if value="{{ hasPwdNote }}"><div class="{{ pwdNoteCls }}" role="status" style="margin-bottom: 14px;">{{ pwdNote }}</div></sc-if>
+          <!-- Identifiant du compte, masqué : le gestionnaire de mots de passe du navigateur propose
+               ainsi de METTRE À JOUR le mot de passe enregistré (autocomplete username / new-password). -->
+          <input type="email" name="email" autocomplete="username" value="{{ email }}" readOnly="{{ true }}" tabIndex="-1" aria-hidden="true"
+                 style="position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; border: 0; opacity: 0; overflow: hidden; pointer-events: none;">
+          <label class="cm-field"><span>Mot de passe actuel</span><input class="cm-input" type="password" name="pwdCur" autocomplete="current-password" maxlength="200"></label>
+          <div class="cm-grid cols-2" style="gap: 0 16px;">
+            <label class="cm-field"><span>Nouveau mot de passe</span><input class="cm-input" type="password" name="pwdNew" autocomplete="new-password" maxlength="200"></label>
+            <label class="cm-field"><span>Confirmation</span><input class="cm-input" type="password" name="pwdNew2" autocomplete="new-password" maxlength="200"></label>
+          </div>
+          <p class="cm-help" style="margin: -6px 0 16px;">Au moins 12 caractères. Vos autres appareils seront déconnectés, vos appareils de confiance retirés, et vous recevrez un e-mail de confirmation.</p>
+          <div style="display: flex; justify-content: flex-end;"><button type="submit" class="cm-btn is-sm">{{ pwdLabel }}</button></div>
+        </form>
       </section>
 
       <section class="cm-card">
@@ -182,7 +220,9 @@ class Component extends DCLogic {
     form: null, saving: false, saved: '', saveError: '', reports: null, sessions: null, sessionNote: '',
     report: null, thread: [], threadLoading: false, replyBusy: false, replyError: '',
     // Double authentification : tf = { mode: 'setup'|'disable'|'recovery', step: 'password'|'scan'|'codes' }
-    tf: null, tfBusy: false, tfError: '', tfSecret: '', tfQr: '', tfCodes: [], tfBanner: '', tfBannerCls: 'cm-alert is-ok' };
+    tf: null, tfBusy: false, tfError: '', tfSecret: '', tfQr: '', tfCodes: [], tfBanner: '', tfBannerCls: 'cm-alert is-ok',
+    // Appareils de confiance (2FA) et changement de mot de passe.
+    devices: null, tdNote: '', tdNoteCls: 'cm-alert is-ok', pwdBusy: false, pwdNote: '', pwdNoteCls: 'cm-alert is-ok' };
 
   componentDidMount() {
     if (this._started) return;   // garde : un seul démarrage même si le runtime re-monte
@@ -196,8 +236,8 @@ class Component extends DCLogic {
 
   async load(me) {
     this.setState({ form: this.formFrom(me) });
-    const [r, x] = await Promise.all([RDB.api('/v1/me/bug-reports'), RDB.api('/v1/me/sessions')]);
-    this.setState({ reports: r.status === 200 ? (r.data.reports || []) : [], sessions: x.status === 200 ? (x.data.sessions || []) : [] });
+    const [r, x, d] = await Promise.all([RDB.api('/v1/me/bug-reports'), RDB.api('/v1/me/sessions'), RDB.api('/v1/me/trusted-devices')]);
+    this.setState({ reports: r.status === 200 ? (r.data.reports || []) : [], sessions: x.status === 200 ? (x.data.sessions || []) : [], devices: d.status === 200 ? (d.data.devices || []) : [] });
     // Lien profond (e-mail « une réponse à votre signalement ») : ouvre directement le fil.
     const wanted = Number(RDB.params().get('signalement'));
     if (Number.isInteger(wanted) && wanted > 0) this.openReport(wanted);
@@ -279,6 +319,71 @@ class Component extends DCLogic {
 
   onLogout = () => RDB.logout();
 
+  // --- Appareils de confiance (2FA) ---------------------------------------------------
+  async loadDevices() {
+    const d = await RDB.api('/v1/me/trusted-devices');
+    if (d.status === 200) this.setState({ devices: d.data.devices || [] });
+  }
+
+  async loadSessions() {
+    const x = await RDB.api('/v1/me/sessions');
+    if (x.status === 200) this.setState({ sessions: x.data.sessions || [] });
+  }
+
+  onTdRemove = async (id) => {
+    const r = await RDB.api('/v1/me/trusted-devices/' + id, { method: 'DELETE' });
+    if (r.status === 200 || r.status === 404) {
+      this.setState({ tdNote: r.data && r.data.current ? 'Appareil retiré. Un code sera demandé à votre prochaine connexion sur cet appareil.' : 'Appareil retiré.', tdNoteCls: 'cm-alert is-ok' });
+      await this.loadDevices();
+      return;
+    }
+    this.setState({ tdNote: RDB.errorMessage(r.status, r.data, 'Action impossible.'), tdNoteCls: 'cm-alert' });
+  };
+
+  onTdRevokeAll = async () => {
+    const r = await RDB.api('/v1/me/trusted-devices/revoke-all', { method: 'POST', body: {} });
+    if (r.status === 200) {
+      const n = r.data && r.data.removed || 0;
+      this.setState({ tdNote: n ? RDB.plural(n, 'appareil de confiance retiré. Le code sera de nouveau demandé partout.', 'appareils de confiance retirés. Le code sera de nouveau demandé partout.') : 'Aucun appareil de confiance à retirer.', tdNoteCls: 'cm-alert is-ok' });
+      await this.loadDevices();
+      return;
+    }
+    this.setState({ tdNote: RDB.errorMessage(r.status, r.data, 'Action impossible.'), tdNoteCls: 'cm-alert' });
+  };
+
+  // --- Changement de mot de passe -----------------------------------------------------
+  // Champs non contrôlés lus AVANT tout await ; validations locales d'abord (aucun appel
+  // pour une saisie incomplète), puis les codes du serveur.
+  onPwdSubmit = async (e) => {
+    e.preventDefault();
+    if (this.state.pwdBusy) return;
+    const form = e.currentTarget || e.target;
+    const cur = (form.pwdCur && form.pwdCur.value) || '';
+    const nw = (form.pwdNew && form.pwdNew.value) || '';
+    const nw2 = (form.pwdNew2 && form.pwdNew2.value) || '';
+    const fail = (msg) => this.setState({ pwdBusy: false, pwdNote: msg, pwdNoteCls: 'cm-alert' });
+    if (!cur || !nw || !nw2) { fail('Renseignez votre mot de passe actuel, le nouveau et sa confirmation.'); return; }
+    if (nw.length < 12) { fail('Le nouveau mot de passe doit contenir au moins 12 caractères.'); return; }
+    if (nw !== nw2) { fail('Les deux nouveaux mots de passe ne correspondent pas.'); return; }
+    if (nw === cur) { fail('Le nouveau mot de passe doit être différent de l\'actuel.'); return; }
+    this.setState({ pwdBusy: true, pwdNote: '' });
+    const r = await RDB.api('/v1/me/password', { method: 'POST', body: { current_password: cur, new_password: nw } });
+    if (r.status === 200) {
+      try { form.reset(); } catch (_) {}
+      const n = r.data && r.data.trusted_devices_removed || 0;
+      this.setState({ pwdBusy: false, pwdNote: 'Mot de passe modifié. Vos autres appareils ont été déconnectés' + (n ? ' et ' + RDB.plural(n, 'appareil de confiance retiré.', 'appareils de confiance retirés.') : '.'), pwdNoteCls: 'cm-alert is-ok' });
+      await Promise.all([this.loadSessions(), this.loadDevices()]);
+      return;
+    }
+    const code = r.data && r.data.error;
+    const retry = (r.data && r.data.retry_after) || 0;
+    fail(r.status === 403 && code === 'invalid_password' ? 'Mot de passe actuel incorrect.'
+      : code === 'weak_password' ? 'Le nouveau mot de passe doit contenir au moins ' + (r.data.min || 12) + ' caractères.'
+        : code === 'same_password' ? 'Le nouveau mot de passe doit être différent de l\'actuel.'
+          : r.status === 429 ? ('Trop de tentatives. Réessayez dans ' + Math.max(1, Math.ceil(retry / 60)) + ' min.')
+            : RDB.errorMessage(r.status, r.data, 'Modification impossible pour le moment.'));
+  };
+
   // --- Double authentification ---------------------------------------------------------
   onTfStart = () => this.setState({ tf: { mode: 'setup', step: 'password' }, tfError: '', tfSecret: '', tfQr: '', tfCodes: [] });
   onTfDisable = () => this.setState({ tf: { mode: 'disable', step: 'password' }, tfError: '' });
@@ -325,7 +430,7 @@ class Component extends DCLogic {
       const r = await RDB.api('/v1/me/totp/disable', { method: 'POST', body: { password: pwd, code } });
       if (r.status !== 200) { this.tfFail(r, 'Désactivation impossible pour le moment.'); return; }
       await this.refreshMe();
-      this.setState({ tfBusy: false, tf: null, tfBanner: 'Double authentification désactivée.', tfBannerCls: 'cm-alert is-info' });
+      this.setState({ tfBusy: false, tf: null, devices: [], tdNote: '', tfBanner: 'Double authentification désactivée.' + (r.data && r.data.trusted_devices_removed ? ' Vos appareils de confiance ont été retirés.' : ''), tfBannerCls: 'cm-alert is-info' });
       return;
     }
     const r = await RDB.api('/v1/me/totp/recovery', { method: 'POST', body: { password: pwd, code } });
@@ -345,7 +450,7 @@ class Component extends DCLogic {
     const r = await RDB.api('/v1/me/totp/enable', { method: 'POST', body: { code } });
     if (r.status !== 200) { this.tfFail(r, 'Activation impossible pour le moment.'); return; }
     await this.refreshMe();
-    this.setState({ tfBusy: false, tf: { mode: 'setup', step: 'codes' }, tfCodes: r.data.recovery_codes || [], tfSecret: '', tfQr: '', tfBanner: 'Double authentification activée.' + (r.data.revoked_sessions ? ' Vos autres sessions ont été fermées.' : ''), tfBannerCls: 'cm-alert is-ok' });
+    this.setState({ tfBusy: false, tf: { mode: 'setup', step: 'codes' }, tfCodes: r.data.recovery_codes || [], tfSecret: '', tfQr: '', devices: [], tdNote: '', tfBanner: 'Double authentification activée.' + (r.data.revoked_sessions ? ' Vos autres sessions ont été fermées.' : ''), tfBannerCls: 'cm-alert is-ok' });
   };
 
   async refreshMe() {
@@ -386,6 +491,10 @@ class Component extends DCLogic {
     const sessions = (s.sessions || []).map((x) => ({
       agent: this.agentLabel(x.user_agent), current: x.current === true, temporary: x.persistent === false, opened: RDB.fmtRelative(x.created_at), seen: RDB.fmtRelative(x.last_seen), ip: x.ip || '',
     }));
+    const td = (s.devices || []).map((d) => ({
+      id: d.id, agent: this.agentLabel(d.user_agent), current: d.current === true, added: RDB.fmtRelative(d.created_at), expires: RDB.fmtDate(d.expires_at), ip: d.ip || '',
+      onRemove: () => this.onTdRemove(d.id),
+    }));
     return Object.assign(RDB.shellVals(this, 'profile'), {
       initial: RDB.initial(me.display_name || me.email), name: me.display_name || 'Sans pseudo', email: me.email || '',
       role: String(me.role || '').toUpperCase(), license: me.license_active === true ? 'licence active' : 'licence inactive', badges: RDB.badges(me.badges),
@@ -416,6 +525,12 @@ class Component extends DCLogic {
       tfDoneMessage: s.tf && s.tf.mode === 'recovery' ? 'Voici vos nouveaux codes de secours.' : 'La double authentification est active. Voici vos codes de secours.',
       hasTfError: !!s.tfError, tfError: s.tfError,
       onTfStart: this.onTfStart, onTfDisable: this.onTfDisable, onTfRecovery: this.onTfRecovery, onTfClose: this.onTfClose, onTfPwd: this.onTfPwd, onTfEnable: this.onTfEnable,
+      // Appareils de confiance
+      td, hasTd: td.length > 0, noTd: s.devices !== null && td.length === 0, tdCount: RDB.plural(td.length, 'appareil', 'appareils'),
+      hasTdNote: !!s.tdNote, tdNote: s.tdNote, tdNoteCls: s.tdNoteCls, onTdRevokeAll: this.onTdRevokeAll,
+      // Mot de passe
+      onPwdSubmit: this.onPwdSubmit, hasPwdNote: !!s.pwdNote, pwdNote: s.pwdNote, pwdNoteCls: s.pwdNoteCls,
+      pwdLabel: s.pwdBusy ? 'Modification…' : 'Changer de mot de passe',
     });
   }
 }

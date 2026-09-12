@@ -142,6 +142,12 @@
               <div role="alert" style="margin: 0 0 20px; padding: 11px 14px; border-radius: 10px; background: rgba(226,59,46,0.08); border: 1px solid rgba(226,59,46,0.28);
                           font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 13.5px; line-height: 1.4; color: #b3261e;">{{ codeError }}</div>
             </sc-if>
+            <sc-if value="{{ trustAvailable }}">
+              <label style="display: flex; align-items: flex-start; gap: 9px; cursor: pointer; margin: -4px 0 18px; font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 13.5px; line-height: 1.45; color: var(--a-text);">
+                <input type="checkbox" id="trust" name="trust" checked="{{ trust }}" onChange="{{ onToggleTrust }}" style="width: 16px; height: 16px; margin: 2px 0 0; flex: none; accent-color: var(--a-blue); cursor: pointer;">
+                <span>Ne plus demander de code sur cet appareil pendant 30 jours<span style="display: block; font-size: 12.5px; color: var(--a-faint);">Sur un appareil personnel uniquement. Retirable à tout moment depuis Mon profil.</span></span>
+              </label>
+            </sc-if>
             <button type="submit" style="width: 100%; display: inline-flex; align-items: center; justify-content: center; text-decoration: none; border: none; cursor: pointer;
                    font-family: 'IBM Plex Mono', monospace; font-size: 13px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: #ffffff;
                    background: linear-gradient(135deg, #0b317c 0%, #185fcb 55%, #30c5ec 100%); padding: 15px 24px; border-radius: 100px;
@@ -322,6 +328,10 @@ class Component extends DCLogic {
     codeBusy: false,
     codeError: '',
     useRecovery: false,
+    // Appareil de confiance : après le code, ne plus le demander sur ce navigateur pendant
+    // 30 jours. Coché par défaut, proposé seulement avec « Se souvenir de moi » (jamais sur
+    // un poste partagé) ; le serveur n'honore la demande que pour une session persistante.
+    trust: true,
   };
 
   componentDidMount() {
@@ -356,6 +366,8 @@ class Component extends DCLogic {
     RDB.setRemember(on);
     this.setState({ remember: on });
   };
+
+  onToggleTrust = (e) => this.setState({ trust: !!(e && e.target && e.target.checked) });
 
   onToggleRecovery = () => {
     this.setState((s) => ({ useRecovery: !s.useRecovery, codeError: '' }));
@@ -413,7 +425,8 @@ class Component extends DCLogic {
     const code = (form.code && form.code.value || '').trim();
     if (!code) { this.setState({ codeError: 'Saisissez le code affiché par votre application.' }); return; }
     this.setState({ codeBusy: true, codeError: '' });
-    const r = await RDB.api('/v1/login/totp', { method: 'POST', body: { challenge: this.state.challenge, code }, noRedirect: true });
+    const trust = this.state.trust && this.state.remember;
+    const r = await RDB.api('/v1/login/totp', { method: 'POST', body: { challenge: this.state.challenge, code, trust }, noRedirect: true });
     if (r.status === 200 && r.data && r.data.ok) {
       const next = RDB.safeNext(RDB.params().get('next'));
       // Connexion par un code de secours : on le signale sur le profil (il en reste moins).
@@ -439,7 +452,7 @@ class Component extends DCLogic {
     this.setState({ codeBusy: false, codeError: r.status === 0 ? 'Impossible de joindre le serveur. Vérifiez votre connexion.' : 'Vérification impossible pour le moment. Réessayez.' });
   };
 
-  onRestart = () => { this._prefilled = false; this.setState({ challenge: '', codeError: '', error: '', useRecovery: false }); };
+  onRestart = () => { this._prefilled = false; this.setState({ challenge: '', codeError: '', error: '', useRecovery: false, trust: true }); };
 
   renderVals() {
     const s = this.state;
@@ -469,6 +482,9 @@ class Component extends DCLogic {
       codePlaceholder: s.useRecovery ? 'ABCDE-FGHJK' : '123456',
       recoveryToggleLabel: s.useRecovery ? 'Utiliser l\'application d\'authentification' : 'Utiliser un code de secours',
       onToggleRecovery: this.onToggleRecovery,
+      trustAvailable: s.remember,
+      trust: s.trust,
+      onToggleTrust: this.onToggleTrust,
       togglePwd: this.togglePwd,
       onSubmit: this.onSubmit,
       onSubmitCode: this.onSubmitCode,
