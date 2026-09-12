@@ -23,7 +23,7 @@
   RDB.API_BASE = hasLocation && location.hostname === 'localhost' ? 'http://localhost:3000' : 'https://api.redibat.fr';
   RDB.HOME = '/communaute/';
   RDB.LOGIN = '/espace-client';
-  RDB.VERSION = '2';
+  RDB.VERSION = '3';
 
   RDB.MODULES = {
     cctp: 'CCTP et DPGF',
@@ -358,8 +358,12 @@
   const BADGES = {
     founder: { label: 'Fondateur', color: '#ffffff', bg: 'linear-gradient(135deg, #185fcb, #30c5ec)' },
     early: { label: 'Membre fondateur', color: '#1f6f57', bg: 'rgba(47,138,114,0.12)' },
+    expert: { label: 'Expert', color: '#5b3fb5', bg: 'rgba(107,70,193,0.12)' },
+    ambassador: { label: 'Ambassadeur', color: '#0b6e82', bg: 'rgba(11,114,133,0.12)' },
     contributor: { label: 'Contributeur', color: '#b7791f', bg: 'rgba(183,121,31,0.12)' },
   };
+  // Badges que le fondateur délivre à la main (tableau de bord) ; les autres sont calculés.
+  RDB.GRANTABLE_BADGES = ['early', 'expert', 'ambassador'];
   RDB.badges = function (codes) {
     return (Array.isArray(codes) ? codes : []).filter(function (c) { return BADGES[c]; })
       .map(function (c) { return { code: c, label: BADGES[c].label, color: BADGES[c].color, bg: BADGES[c].bg }; });

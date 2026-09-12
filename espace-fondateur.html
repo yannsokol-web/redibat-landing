@@ -14,7 +14,7 @@
 <!-- Accès : session par cookie HttpOnly (api.redibat.fr) vérifiée au montage via /v1/me ; un
      compte non fondateur est renvoyé vers la communauté, une session absente vers la connexion.
      La vraie autorisation reste côté API (requireFounder sur chaque route). -->
-<script src="/communaute/community.js?v=2"></script>
+<script src="/communaute/community.js?v=3"></script>
 <script src="./support.js"></script>
 </head>
 <body>
@@ -137,6 +137,12 @@
                   <sc-if value="{{ u.hasTotp }}"><div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--a-teal); margin-top: 4px;">🔒 Double authentification</div></sc-if>
                   <sc-if value="{{ u.isBanned }}"><div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--a-red); margin-top: 4px;">Banni de la communauté</div></sc-if>
                   <sc-if value="{{ u.hasWebSessions }}"><div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--a-teal); margin-top: 4px;">● {{ u.webSessions }}</div></sc-if>
+                  <!-- Badges délivrés à la main : un bouton par badge, plein quand il est attribué. -->
+                  <div style="display: flex; gap: 4px; flex-wrap: wrap; margin-top: 8px;">
+                    <sc-for list="{{ u.badgeToggles }}" as="b">
+                      <button type="button" onClick="{{ b.onToggle }}" title="{{ b.title }}" style="cursor: pointer; border: 1px solid {{ b.border }}; background: {{ b.bg }}; color: {{ b.color }}; font-family: 'IBM Plex Mono', monospace; font-size: 9.5px; letter-spacing: 0.05em; padding: 3px 8px; border-radius: 100px;">{{ b.label }}</button>
+                    </sc-for>
+                  </div>
                 </td>
                 <td style="padding: 14px 12px; font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 13.5px; color: var(--a-text);">{{ u.company }}</td>
                 <td style="padding: 14px 12px;">
@@ -738,6 +744,12 @@ class Component extends DCLogic {
   revokeSessions = (id) => this._userMutate(id, 'POST', '/revoke-sessions', 'Sessions web fermées.', 'Fermeture impossible. Réessayez.');
   // Téléphone et codes de secours perdus : après vérification de l'identité du membre (par
   // téléphone, par exemple), on désactive sa 2FA ; il la réactivera depuis son profil.
+  // Badges manuels : la liste envoyée remplace celle du compte (bascule d'un seul badge).
+  toggleBadge = (id, current, code) => {
+    const next = current.includes(code) ? current.filter((c) => c !== code) : current.concat([code]);
+    this._userMutate(id, 'POST', '/badges', 'Badges mis à jour.', 'Mise à jour des badges impossible. Réessayez.', { badges: next });
+  };
+
   resetTotp = (id, email) => {
     if (!window.confirm('Désactiver la double authentification de ' + email + ' ? Faites-le seulement après avoir vérifié son identité. Ses sessions web seront fermées.')) return;
     this._userMutate(id, 'POST', '/totp-reset', 'Double authentification réinitialisée.', 'Réinitialisation impossible. Réessayez.');
@@ -796,9 +808,21 @@ class Component extends DCLogic {
         const webSessions = Number(u.web_sessions_active) || 0;
         // Le compte fondateur (le mien) ne se bannit pas et ne se déconnecte pas d'ici.
         const isSelf = !!(RDB._me && RDB._me.email && u.email === RDB._me.email);
+        // Badges manuels : chaîne JSON du backend (absente sur un backend en retard).
+        let manual = [];
+        try { const v = JSON.parse(u.badges || '[]'); manual = Array.isArray(v) ? v : []; } catch (_) { manual = []; }
+        const badgeToggles = RDB.badges(RDB.GRANTABLE_BADGES).map((b) => {
+          const on = manual.includes(b.code);
+          return {
+            label: (on ? '✓ ' : '') + b.label, title: on ? 'Retirer le badge' : 'Délivrer le badge',
+            color: on ? b.color : 'var(--a-muted)', bg: on ? b.bg : '#ffffff', border: on ? 'transparent' : 'var(--a-border)',
+            onToggle: () => this.toggleBadge(u.id, manual, b.code),
+          };
+        });
         return {
           email: u.email,
           pseudo: u.display_name || '-',
+          badgeToggles,
           hasTotp: Number(u.totp_enabled) === 1,
           canResetTotp: Number(u.totp_enabled) === 1 && !isSelf,
           onResetTotp: () => this.resetTotp(u.id, u.email),

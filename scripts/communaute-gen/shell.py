@@ -46,7 +46,7 @@ def head(title, description, extra_head=''):
 <link rel="icon" type="image/png" sizes="32x32" href="/assets/logos/favicon-32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="/assets/logos/favicon-16.png">
 <link rel="apple-touch-icon" href="/assets/logos/favicon-256.png">
-<script src="/communaute/community.js?v=2"></script>{extra_head}
+<script src="/communaute/community.js?v=3"></script>{extra_head}
 <script src="/support.js"></script>
 </head>
 <body>
@@ -59,7 +59,7 @@ def head(title, description, extra_head=''):
   <link rel="stylesheet" href="{DS}/tokens/colors.css">
   <link rel="stylesheet" href="{DS}/tokens/typography.css">
   <link rel="stylesheet" href="{DS}/tokens/spacing.css">
-  <link rel="stylesheet" href="/communaute/community.css?v=2">
+  <link rel="stylesheet" href="/communaute/community.css?v=3">
 </helmet>
 '''
 

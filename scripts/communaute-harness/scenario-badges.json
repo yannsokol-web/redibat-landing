@@ -1,0 +1,15 @@
+[
+  { "goto": "/espace-fondateur", "wait": 2500, "expect": "Tableau de bord" },
+  { "eval": "(() => { const row = [...document.querySelectorAll('tbody tr')].find((tr) => tr.textContent.includes('alice@example.test')); if (!row) return 'absent: ligne alice'; const b = [...row.querySelectorAll('button')].find((x) => x.textContent.trim() === 'Membre fondateur'); if (!b) return 'absent: bouton badge'; b.click(); return 'cliqué'; })()", "label": "délivrer Membre fondateur à Alice", "wait": 2000 },
+  { "expect": "Badges mis à jour." },
+  { "eval": "(() => { const row = [...document.querySelectorAll('tbody tr')].find((tr) => tr.textContent.includes('alice@example.test')); return [...row.querySelectorAll('button')].map((x) => x.textContent.trim()).filter((t) => t.startsWith('✓')).join(' | '); })()", "label": "badge coché sur la ligne d'Alice" },
+  { "shot": "badges-dashboard" },
+  { "eval": "RDB.api('/v1/founder/overview').then(r => 'badges=' + r.data.users.find((u) => u.email === 'alice@example.test').badges)", "label": "colonne badges côté API" },
+  { "goto": "/communaute/membres", "wait": 2500, "expect": "Alice Métreur" },
+  { "eval": "(() => { const card = [...document.querySelectorAll('main *')].find((el) => el.children.length === 0 && el.textContent.trim() === 'Alice Métreur'); let n = card; for (let i = 0; i < 6 && n; i += 1) { if (n.textContent.includes('Membre fondateur')) return 'badge visible'; n = n.parentElement; } return 'absent: badge dans la carte'; })()", "label": "annuaire : Membre fondateur sur la carte d'Alice" },
+  { "shot": "badges-annuaire" },
+  { "goto": "/espace-fondateur", "wait": 2500 },
+  { "eval": "(() => { const row = [...document.querySelectorAll('tbody tr')].find((tr) => tr.textContent.includes('alice@example.test')); const b = [...row.querySelectorAll('button')].find((x) => x.textContent.trim() === '✓ Membre fondateur'); if (!b) return 'absent: bouton coché'; b.click(); return 'cliqué'; })()", "label": "retirer le badge", "wait": 2000 },
+  { "expect": "Badges mis à jour." },
+  { "eval": "RDB.api('/v1/founder/overview').then(r => 'badges=' + r.data.users.find((u) => u.email === 'alice@example.test').badges)", "label": "colonne badges après retrait (null attendu)" }
+]

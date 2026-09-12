@@ -210,6 +210,11 @@ if (founderResults.Cls) {
   check('il annonce l\'absence de données, pas un faux chiffre', ov.telemSummary === 'aucun poste ne remonte de données', ov.telemSummary);
   check('et le reste du tableau de bord est intact', ov.stats.length === 4 && ov.stats[0].value === '4', JSON.stringify(ov.stats.map((c) => c.value)));
   check('un compte sans pseudo ni sessions (backend ancien) s\'affiche proprement', ov.users.length === 1 && ov.users[0].pseudo === '-' && ov.users[0].hasWebSessions === false, JSON.stringify(ov.users[0]));
+  check('… et sans colonne badges : trois badges à délivrer, aucun attribué', ov.users[0].badgeToggles.length === 3 && ov.users[0].badgeToggles.every((b) => !b.label.startsWith('✓')), JSON.stringify(ov.users[0].badgeToggles));
+  vieux.state.users[0].badges = '["expert"]';
+  check('un badge attribué s\'affiche coché', vieux.renderVals().users[0].badgeToggles.find((b) => b.label.includes('Expert')).label.startsWith('✓'));
+  vieux.state.users[0].badges = '{pas du json';
+  check('une colonne badges abîmée ne casse pas le tableau', vieux.renderVals().users[0].badgeToggles.length === 3);
 }
 
 // --- Socle communautaire : tests unitaires --------------------------------------------
@@ -222,6 +227,10 @@ if (RDB) {
   check('javascript: refusé', RDB.safeNext('javascript:alert(1)') === '/communaute/');
   check('chemin hors espace refusé', RDB.safeNext('/tarifs') === '/communaute/');
   check('vide → accueil', RDB.safeNext('') === '/communaute/' && RDB.safeNext(undefined) === '/communaute/');
+
+  console.log('\n■ community.js : badges');
+  check('libellés des badges connus, inconnus ignorés', RDB.badges(['early', 'expert', 'ambassador', 'x']).map((b) => b.label).join(', ') === 'Membre fondateur, Expert, Ambassadeur');
+  check('les badges délivrables ont tous un libellé', RDB.badges(RDB.GRANTABLE_BADGES).length === RDB.GRANTABLE_BADGES.length);
 
   console.log('\n■ community.js : « se souvenir de moi » (préférence et e-mail, jamais de mot de passe)');
   const fake = new Map();

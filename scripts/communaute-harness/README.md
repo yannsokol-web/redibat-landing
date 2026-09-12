@@ -29,6 +29,7 @@ node scripts/communaute-harness/interact.mjs founder /tmp/rdb-shots scripts/comm
 TOTP_ENC_KEY=<clé de l'API> node scripts/communaute-harness/interact.mjs alice /tmp/rdb-shots scripts/communaute-harness/scenario-2fa.json
 node scripts/communaute-harness/interact.mjs anon /tmp/rdb-shots scripts/communaute-harness/scenario-souvenir.json
 node scripts/communaute-harness/interact.mjs alice /tmp/rdb-shots scripts/communaute-harness/scenario-mdp.json
+node scripts/communaute-harness/interact.mjs founder /tmp/rdb-shots scripts/communaute-harness/scenario-badges.json
 ```
 
 `scenario-2fa.json` calcule les codes TOTP comme le ferait l'application (même `TOTP_ENC_KEY`
