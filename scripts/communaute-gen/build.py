@@ -24,5 +24,5 @@ for name, mod in PAGES:
     except ModuleNotFoundError:
         print(f'{name}: module {mod} absent, ignoré')
         continue
-    html = shell.build(name, m.TITLE, m.DESCRIPTION, m.MAIN, m.SCRIPT)
+    html = shell.build(name, m.TITLE, m.DESCRIPTION, m.MAIN, m.SCRIPT, getattr(m, 'EXTRA_HEAD', ''))
     print(f'{name}: {len(html.splitlines())} lignes')

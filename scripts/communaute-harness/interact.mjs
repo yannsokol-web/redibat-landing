@@ -11,6 +11,11 @@ const MDP = 'un-mot-de-passe-de-test-solide';
 const EMAIL = { founder: 'fondateur@example.test', alice: 'alice@example.test', bob: 'bob@example.test', anon: '' }[who];
 const BASE = 'http://localhost:8100';
 const steps = JSON.parse(fs.readFileSync(scenarioFile, 'utf8'));
+// Double authentification : le banc calcule les codes TOTP comme le ferait l'application.
+process.env.TOTP_ENC_KEY = process.env.TOTP_ENC_KEY || 'ab'.repeat(32);
+const AUTH = process.env.REDIBAT_AUTH || new URL('../../../redibat-auth/', import.meta.url).pathname;
+const totp = await import(AUTH + 'src/totp.js');
+const mem = {};
 const port = 9300 + Math.floor(Math.random() * 500);
 const profile = fs.mkdtempSync('/tmp/rdb-chrome-');
 fs.mkdirSync(outDir, { recursive: true });
@@ -63,6 +68,26 @@ for (const step of steps) {
     const node = await send('DOM.querySelector', { nodeId: doc.result.root.nodeId, selector: step.setFile.selector });
     if (!node.result || !node.result.nodeId) { console.log('  ✗ champ fichier absent : ' + step.setFile.selector); failures += 1; }
     else { await send('DOM.setFileInputFiles', { nodeId: node.result.nodeId, files: [step.setFile.path] }); console.log('  fichier posé : ' + step.setFile.path); }
+  }
+  if (step.capture) {
+    const v = await evaluate(`(document.querySelector(${JSON.stringify(step.capture.selector)}) || {}).innerText || ''`);
+    mem[step.capture.into] = String(v).replace(/\s+/g, '');
+    console.log(`  capture ${step.capture.into} : ${mem[step.capture.into].slice(0, 6)}… (${mem[step.capture.into].length} car.)`);
+  }
+  if (step.waitNextStep) {
+    const c0 = totp.currentCounter();
+    while (totp.currentCounter() === c0) await wait(500);
+    console.log('  (pas de 30 s suivant atteint)');
+  }
+  if (step.typeTotp) {
+    const code = totp.hotp(mem.secret, totp.currentCounter() + (step.typeTotp.delta || 0));
+    const r = await evaluate(`window.__type(${JSON.stringify(step.typeTotp.selector)}, ${JSON.stringify(code)})`);
+    console.log(`  code TOTP saisi (${r})`);
+  }
+  if (step.typeRecovery) {
+    const raw = (mem.recovery || '').replace(/[^A-Za-z0-9]/g, '').slice(0, 10);
+    const r = await evaluate(`window.__type(${JSON.stringify(step.typeRecovery.selector)}, ${JSON.stringify(raw.slice(0, 5) + '-' + raw.slice(5))})`);
+    console.log(`  code de secours saisi (${r})`);
   }
   if (step.eval) { const r = await evaluate(step.eval); console.log(`  eval ${step.label || ''}: ${JSON.stringify(r)}`); if (typeof r === 'string' && /^(EXCEPTION|absent)/.test(r)) failures += 1; }
   if (step.wait) await wait(step.wait);

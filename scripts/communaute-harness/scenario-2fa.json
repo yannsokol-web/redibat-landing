@@ -1,0 +1,211 @@
+[
+  {
+    "goto": "/communaute/profil",
+    "wait": 1800,
+    "expect": "Double authentification"
+  },
+  {
+    "expect": "Protégez votre compte"
+  },
+  {
+    "eval": "window.__clickText('Activer la double authentification')",
+    "label": "activer",
+    "wait": 500
+  },
+  {
+    "expect": "Confirmez votre mot de passe"
+  },
+  {
+    "eval": "window.__type('.cm-modal input[name=password]', 'mauvais')",
+    "label": "mdp faux"
+  },
+  {
+    "eval": "window.__submit('.cm-modal form')",
+    "label": "continuer",
+    "wait": 1500
+  },
+  {
+    "expect": "Mot de passe incorrect."
+  },
+  {
+    "eval": "window.__type('.cm-modal input[name=password]', 'un-mot-de-passe-de-test-solide')",
+    "label": "mdp"
+  },
+  {
+    "eval": "window.__submit('.cm-modal form')",
+    "label": "continuer",
+    "wait": 1800
+  },
+  {
+    "expect": "scannez ce code"
+  },
+  {
+    "eval": "(() => { const i = document.querySelector('.cm-modal img'); return i && i.src.startsWith('data:image/gif') && i.naturalWidth > 100 ? 'QR ok ' + i.naturalWidth + 'px' : 'QR absent'; })()",
+    "label": "QR",
+    "shot": "2fa-scan"
+  },
+  {
+    "capture": {
+      "selector": ".cm-modal code",
+      "into": "secret"
+    }
+  },
+  {
+    "eval": "window.__type('.cm-modal input[name=code]', '000000')",
+    "label": "code faux"
+  },
+  {
+    "eval": "window.__submit('.cm-modal form')",
+    "label": "activer",
+    "wait": 1500
+  },
+  {
+    "expect": "Code incorrect"
+  },
+  {
+    "typeTotp": {
+      "selector": ".cm-modal input[name=code]"
+    }
+  },
+  {
+    "eval": "window.__submit('.cm-modal form')",
+    "label": "activer",
+    "wait": 1800
+  },
+  {
+    "expect": "Voici vos codes de secours"
+  },
+  {
+    "capture": {
+      "selector": ".cm-modal div[style*=grid] span",
+      "into": "recovery"
+    }
+  },
+  {
+    "shot": "2fa-codes"
+  },
+  {
+    "eval": "window.__clickText('J\\'ai noté mes codes')",
+    "label": "fermer",
+    "wait": 500
+  },
+  {
+    "expect": "Activée depuis"
+  },
+  {
+    "expect": "10 codes de secours restants",
+    "shot": "2fa-active"
+  },
+  {
+    "eval": "window.__clickText('Se déconnecter')",
+    "label": "logout",
+    "wait": 2000
+  },
+  {
+    "goto": "/espace-client?next=%2Fcommunaute%2Fprofil",
+    "wait": 1500
+  },
+  {
+    "eval": "(() => { const f = document.querySelector('form'); f.email.value = 'alice@example.test'; f.password.value = 'un-mot-de-passe-de-test-solide'; f.requestSubmit(); return 'soumis'; })()",
+    "wait": 2000
+  },
+  {
+    "expect": "Code de vérification",
+    "shot": "2fa-login-code"
+  },
+  {
+    "eval": "window.__type('input[name=code]', '111111')",
+    "label": "code faux"
+  },
+  {
+    "eval": "window.__submit('form')",
+    "label": "valider",
+    "wait": 1500
+  },
+  {
+    "expect": "Code incorrect. Il vous reste 4 essais."
+  },
+  {
+    "waitNextStep": true
+  },
+  {
+    "typeTotp": {
+      "selector": "input[name=code]"
+    }
+  },
+  {
+    "eval": "window.__submit('form')",
+    "label": "valider",
+    "wait": 2500
+  },
+  {
+    "expectUrl": "/communaute/profil"
+  },
+  {
+    "expect": "Activée depuis"
+  },
+  {
+    "eval": "window.__clickText('Se déconnecter')",
+    "label": "logout",
+    "wait": 2000
+  },
+  {
+    "goto": "/espace-client",
+    "wait": 1500
+  },
+  {
+    "eval": "(() => { const f = document.querySelector('form'); f.email.value = 'alice@example.test'; f.password.value = 'un-mot-de-passe-de-test-solide'; f.requestSubmit(); return 'soumis'; })()",
+    "wait": 2000
+  },
+  {
+    "typeRecovery": {
+      "selector": "input[name=code]"
+    }
+  },
+  {
+    "eval": "window.__submit('form')",
+    "label": "valider (secours)",
+    "wait": 2500
+  },
+  {
+    "expectUrl": "/communaute/profil?secours=9"
+  },
+  {
+    "expect": "connecté avec un code de secours"
+  },
+  {
+    "expect": "9 codes de secours restants",
+    "shot": "2fa-secours"
+  },
+  {
+    "eval": "window.__clickText('Désactiver')",
+    "label": "désactiver",
+    "wait": 500
+  },
+  {
+    "expect": "Votre compte ne sera plus protégé"
+  },
+  {
+    "eval": "window.__type('.cm-modal input[name=password]', 'un-mot-de-passe-de-test-solide')",
+    "label": "mdp"
+  },
+  {
+    "waitNextStep": true
+  },
+  {
+    "typeTotp": {
+      "selector": ".cm-modal input[name=code]"
+    }
+  },
+  {
+    "eval": "window.__submit('.cm-modal form')",
+    "label": "désactiver",
+    "wait": 1800
+  },
+  {
+    "expect": "Double authentification désactivée."
+  },
+  {
+    "expect": "Protégez votre compte"
+  }
+]

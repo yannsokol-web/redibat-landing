@@ -123,7 +123,38 @@
       <sc-if value="{{ checking }}">
         <div style="text-align: center; font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--a-faint); padding: 40px 0;">Chargement…</div>
       </sc-if>
-      <sc-if value="{{ checked }}">
+      <sc-if value="{{ stepCode }}">
+        <div>
+          <div style="text-align: center; margin-bottom: 30px;">
+            <div style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--a-blue); margin-bottom: 14px;">Double authentification</div>
+            <h1 style="font-family: 'Newsreader', Georgia, serif; font-weight: 500; letter-spacing: -0.024em; line-height: 1.08; font-size: clamp(30px, 4vw, 40px); color: #16314f; margin: 0 0 10px;">Code de vérification</h1>
+            <p style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 14.5px; line-height: 1.55; color: var(--a-muted); margin: 0;">Saisissez le code à 6 chiffres de votre application d'authentification, ou l'un de vos codes de secours.</p>
+          </div>
+          <form onSubmit="{{ onSubmitCode }}" style="background: #ffffff; border: 1px solid var(--a-border); border-radius: 18px; padding: 32px 30px 34px; box-shadow: 0 24px 56px -32px rgba(31,58,92,0.35);">
+            <label style="display: block; margin-bottom: 22px;">
+              <span style="display: block; font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--a-muted); margin-bottom: 8px;">Code</span>
+              <input type="text" name="code" inputmode="numeric" autocomplete="one-time-code" placeholder="123456 ou ABCDE-FGHJK" maxlength="16" autofocus="{{ true }}"
+                     style="width: 100%; box-sizing: border-box; font-family: 'IBM Plex Mono', monospace; font-size: 20px; letter-spacing: 0.18em; text-align: center; color: #16314f;
+                            padding: 13px 15px; border: 1px solid var(--a-border); border-radius: 10px; background: var(--a-bg-3); outline: none; transition: border-color .18s ease, box-shadow .18s ease;"
+                     style-focus="border-color: var(--a-blue); box-shadow: 0 0 0 3px rgba(47,99,212,0.14); background: #ffffff;">
+            </label>
+            <sc-if value="{{ hasCodeError }}">
+              <div role="alert" style="margin: 0 0 20px; padding: 11px 14px; border-radius: 10px; background: rgba(226,59,46,0.08); border: 1px solid rgba(226,59,46,0.28);
+                          font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 13.5px; line-height: 1.4; color: #b3261e;">{{ codeError }}</div>
+            </sc-if>
+            <button type="submit" style="width: 100%; display: inline-flex; align-items: center; justify-content: center; text-decoration: none; border: none; cursor: pointer;
+                   font-family: 'IBM Plex Mono', monospace; font-size: 13px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: #ffffff;
+                   background: linear-gradient(135deg, #0b317c 0%, #185fcb 55%, #30c5ec 100%); padding: 15px 24px; border-radius: 100px;
+                   box-shadow: 0 10px 26px -10px rgba(24,95,203,0.6); transition: transform .18s ease, filter .18s ease;" style-hover="transform: translateY(-1px); filter: brightness(1.06);">{{ codeLabel }}</button>
+            <div style="text-align: center; margin-top: 18px;">
+              <button type="button" onClick="{{ onRestart }}" style="border: none; background: none; cursor: pointer; font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; letter-spacing: 0.04em; color: var(--a-muted); text-decoration: underline;">Revenir à la connexion</button>
+            </div>
+          </form>
+          <p style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 13px; line-height: 1.55; color: var(--a-muted); text-align: center; margin: 22px 0 0;">Téléphone perdu et plus aucun code de secours ? Écrivez-nous depuis <a href="/#contact" style="color: var(--a-blue);">redibat.fr/#contact</a> : nous vérifierons votre identité avant de réinitialiser la double authentification.</p>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ stepPwd }}">
         <div>
           <div style="text-align: center; margin-bottom: 30px;">
             <div style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--a-blue); margin-bottom: 14px;">Espace client</div>
@@ -270,6 +301,11 @@ class Component extends DCLogic {
     checked: false,
     loading: false,
     error: '',
+    // Double authentification : après un mot de passe juste, l'API rend un défi à échanger
+    // contre un code (application d'authentification ou code de secours).
+    challenge: '',
+    codeBusy: false,
+    codeError: '',
   };
 
   componentDidMount() {
@@ -291,13 +327,17 @@ class Component extends DCLogic {
     // Lire les valeurs AVANT tout await (React libère e.currentTarget après le handler).
     const form = e.currentTarget || e.target;
     const email = (form.email && form.email.value || '').trim();
-    const password = (form.password && form.password.value) || '';
-    if (!email || !password) {
+    const pwd = (form.password && form.password.value) || '';
+    if (!email || !pwd) {
       this.setState({ error: 'Renseignez votre e-mail et votre mot de passe.' });
       return;
     }
     this.setState({ loading: true, error: '' });
-    const r = await RDB.api('/v1/login', { method: 'POST', body: { email, password, client: 'web' }, noRedirect: true });
+    const r = await RDB.api('/v1/login', { method: 'POST', body: { email, password: pwd, client: 'web' }, noRedirect: true });
+    if (r.status === 200 && r.data && r.data.totp_required && r.data.challenge) {
+      this.setState({ loading: false, error: '', challenge: r.data.challenge, codeError: '' });
+      return;
+    }
     if (r.status === 200) {
       location.replace(RDB.safeNext(RDB.params().get('next')));
       return;
@@ -321,19 +361,60 @@ class Component extends DCLogic {
     this.setState({ loading: false, error: 'Connexion impossible pour le moment. Réessayez.' });
   };
 
+  onSubmitCode = async (e) => {
+    e.preventDefault();
+    if (this.state.codeBusy || !this.state.challenge) return;
+    const form = e.currentTarget || e.target;
+    const code = (form.code && form.code.value || '').trim();
+    if (!code) { this.setState({ codeError: 'Saisissez le code affiché par votre application.' }); return; }
+    this.setState({ codeBusy: true, codeError: '' });
+    const r = await RDB.api('/v1/login/totp', { method: 'POST', body: { challenge: this.state.challenge, code }, noRedirect: true });
+    if (r.status === 200 && r.data && r.data.ok) {
+      const next = RDB.safeNext(RDB.params().get('next'));
+      // Connexion par un code de secours : on le signale sur le profil (il en reste moins).
+      location.replace(r.data.second_factor === 'recovery' ? '/communaute/profil?secours=' + (r.data.recovery_left ?? '') : next);
+      return;
+    }
+    const code_ = r.data && r.data.error;
+    if (r.status === 401 && code_ === 'invalid_code') {
+      const left = r.data.attempts_left;
+      this.setState({ codeBusy: false, codeError: 'Code incorrect.' + (left ? ' Il vous reste ' + left + ' essai' + (left > 1 ? 's' : '') + '.' : '') });
+      return;
+    }
+    if (r.status === 401) {
+      this.setState({ codeBusy: false, challenge: '', codeError: '', error: 'Délai dépassé ou trop d\'essais : reconnectez-vous.' });
+      return;
+    }
+    if (r.status === 429) {
+      const retry = (r.data && r.data.retry_after) || 0;
+      const mins = retry ? Math.ceil(retry / 60) : 0;
+      this.setState({ codeBusy: false, codeError: mins ? ('Trop de tentatives. Réessayez dans ' + mins + ' min.') : 'Trop de tentatives. Réessayez dans quelques minutes.' });
+      return;
+    }
+    this.setState({ codeBusy: false, codeError: r.status === 0 ? 'Impossible de joindre le serveur. Vérifiez votre connexion.' : 'Vérification impossible pour le moment. Réessayez.' });
+  };
+
+  onRestart = () => this.setState({ challenge: '', codeError: '', error: '' });
+
   renderVals() {
     const s = this.state;
     return {
       showPwd: s.showPwd,
       hidePwd: !s.showPwd,
       pwdType: s.showPwd ? 'text' : 'password',
-      checked: s.checked,
       checking: !s.checked,
+      stepPwd: s.checked && !s.challenge,
+      stepCode: s.checked && !!s.challenge,
       hasError: !!s.error,
       error: s.error,
       submitLabel: s.loading ? 'Connexion…' : 'Se connecter',
+      hasCodeError: !!s.codeError,
+      codeError: s.codeError,
+      codeLabel: s.codeBusy ? 'Vérification…' : 'Valider',
       togglePwd: this.togglePwd,
       onSubmit: this.onSubmit,
+      onSubmitCode: this.onSubmitCode,
+      onRestart: this.onRestart,
     };
   }
 }

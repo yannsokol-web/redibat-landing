@@ -27,7 +27,7 @@ FOUNDER_LINKS = [
 def key(p):
     return 'hdr' + p[0].upper() + p[1:]
 
-def head(title, description):
+def head(title, description, extra_head=''):
     return f'''<!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -46,7 +46,7 @@ def head(title, description):
 <link rel="icon" type="image/png" sizes="32x32" href="/assets/logos/favicon-32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="/assets/logos/favicon-16.png">
 <link rel="apple-touch-icon" href="/assets/logos/favicon-256.png">
-<script src="/communaute/community.js?v=1"></script>
+<script src="/communaute/community.js?v=1"></script>{extra_head}
 <script src="/support.js"></script>
 </head>
 <body>
@@ -158,7 +158,7 @@ TAIL = '''
 </html>
 '''
 
-def build(name, title, description, main, script):
-    html = head(title, description) + header() + main + FOOT + script + TAIL
+def build(name, title, description, main, script, extra_head=''):
+    html = head(title, description, extra_head) + header() + main + FOOT + script + TAIL
     (ROOT / name).write_text(html)
     return html
