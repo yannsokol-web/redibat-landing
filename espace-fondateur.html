@@ -28,7 +28,10 @@
   <link rel="stylesheet" href="_ds/r-dibat-design-system-740ba38c-581d-4335-88dd-fcf28913eed8/tokens/spacing.css">
   <link rel="stylesheet" href="_ds/r-dibat-design-system-740ba38c-581d-4335-88dd-fcf28913eed8/styles.css">
   <script src="_ds/r-dibat-design-system-740ba38c-581d-4335-88dd-fcf28913eed8/_ds_bundle.js"></script>
-  <style>html, body { margin: 0; background: var(--a-bg); }</style>
+  <style>
+    html, body { margin: 0; background: var(--a-bg); }
+    @media (max-width: 860px) { .rdb-dash-side { grid-template-columns: 1fr !important; } }
+  </style>
 </helmet>
 
 <div style="min-height: 100vh; background: var(--a-bg); font-family: 'Hanken Grotesk', system-ui, sans-serif;">
@@ -92,8 +95,10 @@
       <span style="flex: none; font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; letter-spacing: 0.04em; color: var(--a-blue);">Voir le détail →</span>
     </div>
 
-    <!-- Two columns -->
-    <div style="display: grid; grid-template-columns: 1.65fr 1fr; gap: 24px; align-items: start;">
+    <!-- Comptes sur toute la largeur (le tableau a sept colonnes : à 60 % de la page il débordait
+         et les actions de licence n'étaient accessibles qu'au défilement horizontal, invisible
+         sur Mac), puis rapports de bugs et messages côte à côte dessous. -->
+    <div style="display: grid; grid-template-columns: 1fr; gap: 24px; align-items: start;">
 
       <!-- Users -->
       <div style="background: #ffffff; border: 1px solid var(--a-border); border-radius: 16px; box-shadow: 0 1px 2px rgba(31,58,92,0.04); overflow: hidden;">
@@ -137,12 +142,6 @@
                   <sc-if value="{{ u.hasTotp }}"><div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--a-teal); margin-top: 4px;">🔒 Double authentification</div></sc-if>
                   <sc-if value="{{ u.isBanned }}"><div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--a-red); margin-top: 4px;">Banni de la communauté</div></sc-if>
                   <sc-if value="{{ u.hasWebSessions }}"><div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--a-teal); margin-top: 4px;">● {{ u.webSessions }}</div></sc-if>
-                  <!-- Badges délivrés à la main : un bouton par badge, plein quand il est attribué. -->
-                  <div style="display: flex; gap: 4px; flex-wrap: wrap; margin-top: 8px;">
-                    <sc-for list="{{ u.badgeToggles }}" as="b">
-                      <button type="button" onClick="{{ b.onToggle }}" title="{{ b.title }}" style="cursor: pointer; border: 1px solid {{ b.border }}; background: {{ b.bg }}; color: {{ b.color }}; font-family: 'IBM Plex Mono', monospace; font-size: 9.5px; letter-spacing: 0.05em; padding: 3px 8px; border-radius: 100px;">{{ b.label }}</button>
-                    </sc-for>
-                  </div>
                 </td>
                 <td style="padding: 14px 12px; font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 13.5px; color: var(--a-text);">{{ u.company }}</td>
                 <td style="padding: 14px 12px;">
@@ -158,6 +157,13 @@
                   <sc-if value="{{ u.hasSeat }}"><div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--a-teal); margin-top: 5px;">● Session active</div></sc-if>
                 </td>
                 <td style="padding: 14px 24px;">
+                  <!-- Badges délivrés à la main : une pastille par badge, pleine quand il est attribué. -->
+                  <div style="display: flex; gap: 4px; justify-content: flex-end; align-items: center; flex-wrap: wrap; margin-bottom: 8px;">
+                    <span style="font-family: 'IBM Plex Mono', monospace; font-size: 9.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--a-faint); margin-right: 2px;">Badges</span>
+                    <sc-for list="{{ u.badgeToggles }}" as="b">
+                      <button type="button" onClick="{{ b.onToggle }}" title="{{ b.title }}" style="cursor: pointer; border: 1px solid {{ b.border }}; background: {{ b.bg }}; color: {{ b.color }}; font-family: 'IBM Plex Mono', monospace; font-size: 9.5px; letter-spacing: 0.05em; padding: 3px 8px; border-radius: 100px; white-space: nowrap;">{{ b.label }}</button>
+                    </sc-for>
+                  </div>
                   <div style="display: flex; gap: 6px; justify-content: flex-end; flex-wrap: wrap;">
                     <button type="button" onClick="{{ u.onToggleRole }}" style="cursor: pointer; border: 1px solid var(--a-border); background: #ffffff; color: var(--a-blue); font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 12px; font-weight: 500; padding: 6px 11px; border-radius: 8px;">{{ u.roleToggleLabel }}</button>
                     <sc-if value="{{ u.canResend }}"><button type="button" onClick="{{ u.onResend }}" style="cursor: pointer; border: 1px solid var(--a-border); background: #ffffff; color: #16314f; font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 12px; font-weight: 500; padding: 6px 11px; border-radius: 8px;">Renvoyer</button></sc-if>
@@ -178,8 +184,8 @@
         </div>
       </div>
 
-      <!-- Side column -->
-      <div style="display: flex; flex-direction: column; gap: 24px;">
+      <!-- Rapports de bugs et messages -->
+      <div class="rdb-dash-side" style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: start;">
 
         <div style="background: #ffffff; border: 1px solid var(--a-border); border-radius: 16px; box-shadow: 0 1px 2px rgba(31,58,92,0.04); overflow: hidden;">
           <div onClick="{{ onOpenBugs }}" style="padding: 18px 22px; border-bottom: 1px solid var(--a-border-soft); cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 10px;">
