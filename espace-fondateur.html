@@ -31,6 +31,15 @@
   <style>
     html, body { margin: 0; background: var(--a-bg); }
     @media (max-width: 860px) { .rdb-dash-side { grid-template-columns: 1fr !important; } }
+    @media (max-width: 720px) { .rdb-dash-kpi { grid-template-columns: 1fr 1fr !important; } }
+    @media (max-width: 460px) { .rdb-dash-kpi { grid-template-columns: 1fr !important; } }
+    @media (max-width: 720px) {
+      .rdb-users thead { display: none; }
+      .rdb-users tr, .rdb-users td { display: block; }
+      .rdb-users td { padding: 6px 20px !important; max-width: none !important; white-space: normal !important; }
+      .rdb-users tr { padding: 10px 0; }
+      .rdb-actions > div { justify-content: flex-start !important; }
+    }
   </style>
 </helmet>
 
@@ -66,7 +75,7 @@
     </div>
 
     <!-- Stats -->
-    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; margin-bottom: 24px;">
+    <div class="rdb-dash-kpi" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; margin-bottom: 24px;">
       <sc-for list="{{ stats }}" as="s" hint-placeholder-count="4">
         <div onClick="{{ s.onClick }}" style="background: #ffffff; border: 1px solid var(--a-border); border-radius: 14px; padding: 20px 22px; box-shadow: 0 1px 2px rgba(31,58,92,0.04); cursor: {{ s.cursor }};">
           <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 12px;">
@@ -118,48 +127,42 @@
           <button type="button" onClick="{{ onUserFilterExpired }}" style="cursor: pointer; border: 1px solid var(--a-border); background: {{ uExpiredBg }}; color: {{ uExpiredColor }}; font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.04em; padding: 6px 12px; border-radius: 100px;">Expirés ({{ uCountExpired }})</button>
         </div>
         <div style="overflow-x: auto;">
-        <table style="width: 100%; border-collapse: collapse; min-width: 960px;">
+        <!-- Trois colonnes (compte, licence, actions) : le tableau tient dans sa carte à toute largeur
+             d'écran, sans défilement horizontal ; sous 720 px les cellules s'empilent (classe rdb-users). -->
+        <table class="rdb-users" style="width: 100%; border-collapse: collapse;">
           <thead>
             <tr>
-              <th style="text-align: left; font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--a-faint); font-weight: 500; padding: 12px 24px;">Adresse e-mail</th>
-              <th style="text-align: left; font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--a-faint); font-weight: 500; padding: 12px 12px;">Pseudo</th>
-              <th style="text-align: left; font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--a-faint); font-weight: 500; padding: 12px 12px;">Société</th>
-              <th style="text-align: left; font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--a-faint); font-weight: 500; padding: 12px 12px;">Offre</th>
-              <th style="text-align: left; font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--a-faint); font-weight: 500; padding: 12px 12px;">Abonnement</th>
-              <th style="text-align: left; font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--a-faint); font-weight: 500; padding: 12px 12px;">Statut</th>
-              <th style="text-align: right; font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--a-faint); font-weight: 500; padding: 12px 24px;">Actions</th>
+              <th style="text-align: left; font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--a-faint); font-weight: 500; padding: 12px 24px;">Compte</th>
+              <th style="text-align: left; font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--a-faint); font-weight: 500; padding: 12px 12px;">Licence</th>
+              <th style="text-align: right; font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--a-faint); font-weight: 500; padding: 12px 24px;">Badges et actions</th>
             </tr>
           </thead>
           <tbody>
             <sc-if value="{{ isUsersEmpty }}">
-              <tr><td colspan="7" style="padding: 30px 24px; text-align: center; font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 14px; color: var(--a-muted);">Aucun compte dans ce filtre.</td></tr>
+              <tr><td colspan="3" style="padding: 30px 24px; text-align: center; font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 14px; color: var(--a-muted);">Aucun compte dans ce filtre.</td></tr>
             </sc-if>
             <sc-for list="{{ users }}" as="u" hint-placeholder-count="6">
               <tr style="border-top: 1px solid var(--a-border-soft);">
-                <td style="padding: 14px 24px; font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 14px; color: #16314f; font-weight: 500;">{{ u.email }}</td>
-                <td style="padding: 14px 12px; font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 13.5px; color: var(--a-text);">
-                  {{ u.pseudo }}
+                <td style="padding: 14px 24px; vertical-align: top; max-width: 320px;">
+                  <div style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 14px; color: #16314f; font-weight: 500; word-break: break-all;">{{ u.email }}</div>
+                  <div style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 13px; color: var(--a-text); margin-top: 3px;">{{ u.pseudo }}<sc-if value="{{ u.hasCompany }}"> · {{ u.company }}</sc-if></div>
                   <sc-if value="{{ u.hasTotp }}"><div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--a-teal); margin-top: 4px;">🔒 Double authentification</div></sc-if>
                   <sc-if value="{{ u.isBanned }}"><div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--a-red); margin-top: 4px;">Banni de la communauté</div></sc-if>
                   <sc-if value="{{ u.hasWebSessions }}"><div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--a-teal); margin-top: 4px;">● {{ u.webSessions }}</div></sc-if>
+                  <sc-if value="{{ u.hasSeat }}"><div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--a-teal); margin-top: 4px;">● Session active (application)</div></sc-if>
                 </td>
-                <td style="padding: 14px 12px; font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 13.5px; color: var(--a-text);">{{ u.company }}</td>
-                <td style="padding: 14px 12px;">
-                  <span style="display: inline-block; font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; letter-spacing: 0.06em; padding: 4px 11px; border-radius: 100px; color: {{ u.licColor }}; background: {{ u.licBg }};">{{ u.licence }}</span>
-                </td>
-                <td style="padding: 14px 12px;">
-                  <div style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 13px; color: #16314f;">{{ u.duration }}</div>
+                <td style="padding: 14px 12px; vertical-align: top; white-space: nowrap;">
+                  <div style="display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
+                    <span style="display: inline-block; font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; letter-spacing: 0.06em; padding: 4px 11px; border-radius: 100px; color: {{ u.licColor }}; background: {{ u.licBg }};">{{ u.licence }}</span>
+                    <span style="display: inline-block; font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; letter-spacing: 0.04em; text-transform: uppercase; padding: 4px 10px; border-radius: 100px; color: {{ u.statusColor }}; background: {{ u.statusBg }};">{{ u.status }}</span>
+                  </div>
+                  <div style="font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 13px; color: #16314f; margin-top: 6px;">{{ u.duration }}</div>
                   <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--a-muted); margin-top: 2px;">{{ u.period }}</div>
-                </td>
-                <td style="padding: 14px 12px;">
-                  <span style="display: inline-block; font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; letter-spacing: 0.04em; text-transform: uppercase; padding: 4px 10px; border-radius: 100px; color: {{ u.statusColor }}; background: {{ u.statusBg }};">{{ u.status }}</span>
                   <div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: {{ u.pwColor }}; margin-top: 5px;">{{ u.pwNote }}</div>
-                  <sc-if value="{{ u.hasSeat }}"><div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--a-teal); margin-top: 5px;">● Session active</div></sc-if>
                 </td>
-                <td style="padding: 14px 24px;">
+                <td class="rdb-actions" style="padding: 14px 24px; vertical-align: top;">
                   <!-- Badges délivrés à la main : une pastille par badge, pleine quand il est attribué. -->
                   <div style="display: flex; gap: 4px; justify-content: flex-end; align-items: center; flex-wrap: wrap; margin-bottom: 8px;">
-                    <span style="font-family: 'IBM Plex Mono', monospace; font-size: 9.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--a-faint); margin-right: 2px;">Badges</span>
                     <sc-for list="{{ u.badgeToggles }}" as="b">
                       <button type="button" onClick="{{ b.onToggle }}" title="{{ b.title }}" style="cursor: pointer; border: 1px solid {{ b.border }}; background: {{ b.bg }}; color: {{ b.color }}; font-family: 'IBM Plex Mono', monospace; font-size: 9.5px; letter-spacing: 0.05em; padding: 3px 8px; border-radius: 100px; white-space: nowrap;">{{ b.label }}</button>
                     </sc-for>
@@ -839,7 +842,8 @@ class Component extends DCLogic {
           onBan: () => this.banUser(u.id, u.email),
           onUnban: () => this.unbanUser(u.id),
           onRevokeSessions: () => this.revokeSessions(u.id),
-          company: u.company || '-',
+          company: u.company || '',
+          hasCompany: !!u.company,
           licence,
           duration: u.plan_months ? (u.plan_months + ' mois') : '-',
           period: fmtFR(u.subscription_start) + ' → ' + fmtFR(u.subscription_end),
