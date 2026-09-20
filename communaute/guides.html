@@ -105,6 +105,7 @@
 
 <main class="cm-main">
   <sc-if value="{{ hasLoadError }}"><div class="cm-alert" role="alert">{{ loadError }}</div></sc-if>
+  <sc-if value="{{ hasNotice }}"><div class="cm-alert" role="alert">{{ notice }}</div></sc-if>
 
   <sc-if value="{{ viewList }}">
     <div class="cm-page-head">
@@ -139,7 +140,7 @@
     <p class="cm-mono" style="margin: 0 0 16px;"><a href="/communaute/guides" style="color: var(--a-blue); text-decoration: none;">← Tous les guides</a></p>
     <div class="cm-split is-article">
       <article class="cm-card" style="padding: 34px 38px 40px;">
-        <div class="cm-row-meta" style="margin-bottom: 10px;"><span class="cm-tag">{{ guide.moduleName }}</span><span>mis à jour {{ guide.updated }}</span><sc-if value="{{ guide.isDraft }}"><span class="cm-tag is-amber">Brouillon (visible du fondateur seulement)</span></sc-if></div>
+        <div class="cm-row-meta" style="margin-bottom: 10px;"><span class="cm-tag">{{ guide.moduleName }}</span><span>mis à jour {{ guide.updated }}</span><sc-if value="{{ guide.isDraft }}"><span class="cm-tag is-amber">Brouillon (visible du fondateur seulement)</span></sc-if><a class="cm-btn is-ghost is-sm" href="{{ guide.pdfHref }}" style="margin-left: auto;">Télécharger en PDF</a></div>
         <h1 class="cm-h1">{{ guide.title }}</h1>
         <sc-if value="{{ guide.hasSummary }}"><p class="cm-lede" style="margin-bottom: 22px;">{{ guide.summary }}</p></sc-if>
         <div class="cm-prose">
@@ -192,13 +193,23 @@
 
 class Component extends DCLogic {
   state = { ready: false, me: null, banned: false, loadError: '', nameOpen: false, nameError: '', nameBusy: false, nameForced: false,
-    slug: '', modules: null, guide: null, siblings: [] };
+    slug: '', modules: null, guide: null, siblings: [], notice: '' };
 
   componentDidMount() {
     if (this._started) return;   // garde : un seul démarrage même si le runtime re-monte
     this._started = true;
     const g = RDB.params().get('g') || '';
     this.state.slug = /^[a-z0-9-]{1,80}$/.test(g) ? g : '';
+    // Motif renvoyé par l'API quand le téléchargement du PDF (navigation directe) a échoué.
+    const err = RDB.params().get('erreur') || '';
+    const messages = {
+      license_inactive: "Votre licence n'est pas active : le téléchargement du PDF est refusé. La lecture en ligne reste ouverte.",
+      download_unavailable: 'Le PDF est momentanément indisponible. Réessayez plus tard.',
+      not_found: "Ce guide n'existe pas ou n'est pas publié.",
+      forbidden: 'Téléchargement refusé.',
+      community_banned: 'Votre accès à la communauté a été suspendu.',
+    };
+    this.state.notice = messages[err] || '';
     RDB.bootPage(this, {});
   }
 
@@ -221,10 +232,11 @@ class Component extends DCLogic {
       guides: m.guides.map((g) => ({ title: g.title, summary: g.summary || '', hasSummary: !!g.summary, href: '/communaute/guides?g=' + g.slug, updated: RDB.fmtDate(g.updated_at) })),
     }));
     const g = s.guide;
-    const guide = g ? { title: g.title, summary: g.summary || '', hasSummary: !!g.summary, moduleName: g.module_name || RDB.moduleName(g.module), updated: RDB.fmtDate(g.updated_at), isDraft: g.published === false }
-      : { title: '', summary: '', hasSummary: false, moduleName: '', updated: '', isDraft: false };
+    const guide = g ? { title: g.title, summary: g.summary || '', hasSummary: !!g.summary, moduleName: g.module_name || RDB.moduleName(g.module), updated: RDB.fmtDate(g.updated_at), isDraft: g.published === false,
+      pdfHref: RDB.API_BASE + '/v1/community/guides/' + encodeURIComponent(g.slug) + '/pdf' }
+      : { title: '', summary: '', hasSummary: false, moduleName: '', updated: '', isDraft: false, pdfHref: '' };
     return Object.assign(RDB.shellVals(this, 'guides'), {
-      viewList: !s.slug, viewGuide: !!s.slug && !!g,
+      viewList: !s.slug, viewGuide: !!s.slug && !!g, hasNotice: !!s.notice, notice: s.notice,
       modules, noGuides: s.modules !== null && modules.length === 0,
       guide, blocks: g ? RDB.parseLite(g.body) : [],
       siblings: (s.siblings || []).map((x) => ({ title: x.title, href: '/communaute/guides?g=' + x.slug, cls: x.slug === s.slug ? 'is-active' : '' })),
