@@ -250,6 +250,7 @@
           <label class="cm-act">Ou choisir les fichiers<input type="file" multiple="{{ true }}" accept=".md,.png,.jpg,.jpeg" onChange="{{ onImportPick }}" style="display: none;"></label>
           <sc-if value="{{ importing }}"><p class="cm-help" style="margin: 12px 0 0;">{{ importNote }}</p></sc-if>
         </div>
+        <sc-if value="{{ hasDraftGuides }}"><div style="margin: 0 0 16px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap;"><button type="button" class="cm-act is-primary" onClick="{{ onPublishAllGuides }}">Publier tous les brouillons ({{ draftGuidesCount }})</button><span class="cm-help" style="margin: 0;">Relisez d'abord avec « Voir » : une fois publiés, les membres les voient.</span></div></sc-if>
         <sc-if value="{{ noGuides }}"><div class="cm-empty">Aucun guide.</div></sc-if>
         <ul class="cm-list">
           <sc-for list="{{ guides }}" as="g">
@@ -260,6 +261,8 @@
                 <div class="cm-post-actions" style="margin-top: 0;">
                   <button type="button" class="cm-act" onClick="{{ g.onEdit }}">Modifier</button>
                   <a class="cm-act" href="{{ g.href }}">Voir</a>
+                  <sc-if value="{{ g.canPublish }}"><button type="button" class="cm-act is-primary" onClick="{{ g.onPublish }}">Publier</button></sc-if>
+                  <sc-if value="{{ g.canUnpublish }}"><button type="button" class="cm-act" onClick="{{ g.onUnpublish }}">Dépublier</button></sc-if>
                   <button type="button" class="cm-act is-danger" onClick="{{ g.onDelete }}">Supprimer</button>
                 </div>
               </div>
@@ -718,6 +721,21 @@ class Component extends DCLogic {
   }
 
   // ---- Actions de liste ---------------------------------------------------------------
+  // Publie d'un coup tous les guides encore en brouillon (après relecture).
+  onPublishAllGuides = async () => {
+    const drafts = this.state.guides.filter((g) => g.published !== 1);
+    if (!drafts.length || this.state.importing) return;
+    if (!window.confirm('Publier ' + drafts.length + ' guide(s) ? Les membres pourront les lire tout de suite.')) return;
+    this.setState({ actionError: '', banner: '' });
+    let done = 0;
+    for (const g of drafts) {
+      const r = await RDB.api('/v1/founder/community/guides/' + g.id, { method: 'POST', body: { published: true } });
+      if (r.status !== 200) { this.setState({ actionError: 'Publication interrompue à « ' + g.title + ' » : ' + RDB.errorMessage(r.status, r.data, 'échec.') }); break; }
+      done += 1;
+    }
+    await this.refresh('guides');
+    if (done) this.setState({ banner: done + ' guide(s) publié(s).' });
+  };
   publish = (kind, row, on) => () => this.action('/v1/founder/community/' + kind + '/' + row.id, { published: on }, on ? 'Publié.' : 'Dépublié.', kind);
   remove = (kind, row, refreshKey) => () => {
     if (!window.confirm('Supprimer définitivement « ' + row.title + ' » ?')) return;
@@ -753,7 +771,7 @@ class Component extends DCLogic {
     });
     const guides = s.guides.map((g) => {
       const p = pub(g.published === 1);
-      return { id: g.id, title: g.title, slug: g.slug, pubLabel: p[0], pubCls: p[1], moduleName: RDB.moduleName(g.module), updated: RDB.fmtDate(g.updated_at), href: '/communaute/guides?g=' + g.slug, onEdit: () => this.editGuide(g), onDelete: this.remove('guides', g) };
+      return { id: g.id, title: g.title, slug: g.slug, pubLabel: p[0], pubCls: p[1], moduleName: RDB.moduleName(g.module), updated: RDB.fmtDate(g.updated_at), href: '/communaute/guides?g=' + g.slug, canPublish: g.published !== 1, canUnpublish: g.published === 1, onPublish: this.publish('guides', g, true), onUnpublish: this.publish('guides', g, false), onEdit: () => this.editGuide(g), onDelete: this.remove('guides', g) };
     });
     const news = s.news.map((n) => {
       const p = pub(!!n.published_at);
@@ -778,6 +796,7 @@ class Component extends DCLogic {
       previewOpen: s.previewOpen, previewLabel: s.previewOpen ? 'Masquer l\'aperçu' : 'Aperçu', previewBlocks: s.previewOpen ? RDB.parseLite(edit.body) : [],
       hasFormError: !!s.formError, formError: s.formError, saveLabel: s.saving ? 'Enregistrement…' : 'Enregistrer',
       onEditField: this.onEditField, onCancelEdit: this.onCancelEdit, onTogglePreview: this.onTogglePreview,
+      hasDraftGuides: s.guides.some((g) => g.published !== 1), draftGuidesCount: String(s.guides.filter((g) => g.published !== 1).length), onPublishAllGuides: this.onPublishAllGuides,
       importing: !!s.importing, importNote: s.importNote || '', onImportOver: this.onImportOver, onImportDrop: this.onImportDrop, onImportPick: this.onImportPick,
       onNewVideo: this.onNewVideo, onNewFile: this.onNewFile, onNewGuide: this.onNewGuide, onNewNews: this.onNewNews,
       onSaveVideo: this.onSaveVideo, onSaveFile: this.onSaveFile, onSaveGuide: this.onSaveGuide, onSaveNews: this.onSaveNews,
