@@ -244,6 +244,12 @@
     <div class="cm-split is-editor">
       <section class="cm-card">
         <div class="cm-card-head"><h2 class="cm-h2">Guides</h2><button type="button" class="cm-act is-primary" onClick="{{ onNewGuide }}">Nouveau guide</button></div>
+        <div onDragOver="{{ onImportOver }}" onDrop="{{ onImportDrop }}" style="border: 2px dashed var(--a-border); border-radius: 14px; padding: 20px; text-align: center; margin: 4px 0 16px;">
+          <p class="cm-row-title" style="margin: 0 0 6px;">Importer une série de guides</p>
+          <p class="cm-help" style="margin: 0 0 12px;">Glissez ici le dossier prêt (fichiers .md et images .png). Les images sont téléversées, leurs liens renseignés, et les guides créés en brouillon (jamais publiés d'office).</p>
+          <label class="cm-act">Ou choisir les fichiers<input type="file" multiple="{{ true }}" accept=".md,.png,.jpg,.jpeg" onChange="{{ onImportPick }}" style="display: none;"></label>
+          <sc-if value="{{ importing }}"><p class="cm-help" style="margin: 12px 0 0;">{{ importNote }}</p></sc-if>
+        </div>
         <sc-if value="{{ noGuides }}"><div class="cm-empty">Aucun guide.</div></sc-if>
         <ul class="cm-list">
           <sc-for list="{{ guides }}" as="g">
@@ -388,7 +394,7 @@
 <script type="text/x-dc" data-dc-script>
 
 class Component extends DCLogic {
-  state = { ready: false, me: null, banned: false, loadError: '', nameOpen: false, nameError: '', nameBusy: false, nameForced: false,
+  state = { importing: false, importNote: '', ready: false, me: null, banned: false, loadError: '', nameOpen: false, nameError: '', nameBusy: false, nameForced: false,
     tab: 'videos', banner: '', actionError: '', formError: '', saving: false,
     videos: [], files: [], guides: [], news: [], chunkSize: 2097152, ffmpeg: false, fileExtensions: [],
     edit: null, previewOpen: false,
@@ -606,6 +612,111 @@ class Component extends DCLogic {
     this.save(d.id ? '/v1/founder/community/announcements/' + d.id : '/v1/founder/community/announcements', body, d.id ? 'Annonce mise à jour.' : 'Annonce créée.', 'news');
   };
 
+  // ---- Import d'une série de guides par glisser-déposer -------------------------------
+  // Un dossier : des guides `.md` (en-tête `---` : titre, resume, module, position, slug) et des
+  // images `.png`/`.jpg` nommées comme les jetons `file:@nom` du texte. Les images sont téléversées
+  // (une seule fois : un titre déjà connu est réutilisé), les jetons remplacés par les numéros, et
+  // les guides créés EN BROUILLON. Un slug déjà présent met le guide à jour sans changer son état
+  // de publication : rejouer l'import est sans danger.
+  static parseGuideFile(text) {
+    const m = /^---\r?\n([\s\S]*?)\r?\n---\r?\n?([\s\S]*)$/.exec(String(text).replace(/^﻿/, ''));
+    if (!m) return null;
+    const meta = {};
+    m[1].split(/\r?\n/).forEach((l) => { const i = l.indexOf(':'); if (i > 0) meta[l.slice(0, i).trim()] = l.slice(i + 1).trim(); });
+    return { meta, body: m[2].trim() };
+  }
+  static imageKeys(body) {
+    return Array.from(String(body).matchAll(/file:@([a-z0-9-]+)/g), (m) => m[1]);
+  }
+  static fillImageIds(body, ids) {
+    return String(body).replace(/file:@([a-z0-9-]+)/g, (_, k) => 'file:' + ids[k]);
+  }
+
+  onImportOver = (e) => { e.preventDefault(); };
+  onImportPick = async (e) => {
+    const files = Array.from(e.target.files || []);
+    e.target.value = '';
+    await this.importSeries(files);
+  };
+  onImportDrop = async (e) => {
+    e.preventDefault();
+    const dt = e.dataTransfer;
+    // Les entrées se lisent tout de suite : elles ne survivent pas à un `await`.
+    const entries = Array.from((dt && dt.items) || []).map((it) => (it.webkitGetAsEntry ? it.webkitGetAsEntry() : null)).filter(Boolean);
+    const files = entries.length ? await this.walkEntries(entries) : Array.from((dt && dt.files) || []);
+    await this.importSeries(files);
+  };
+  async walkEntries(entries) {
+    const out = [];
+    const walk = async (entry) => {
+      if (entry.isFile) {
+        out.push(await new Promise((res, rej) => entry.file(res, rej)));
+      } else if (entry.isDirectory) {
+        const reader = entry.createReader();
+        for (;;) {
+          const batch = await new Promise((res, rej) => reader.readEntries(res, rej));
+          if (!batch.length) break;
+          for (const b of batch) await walk(b);
+        }
+      }
+    };
+    for (const en of entries) await walk(en);
+    return out;
+  }
+
+  async importSeries(files) {
+    if (this.state.importing || this.state.upload) return;
+    const mdFiles = files.filter((f) => /\.md$/i.test(f.name)).sort((a, b) => a.name.localeCompare(b.name));
+    const imgs = new Map(files.filter((f) => /\.(png|jpe?g)$/i.test(f.name)).map((f) => [f.name.replace(/\.[^.]+$/, ''), f]));
+    if (!mdFiles.length) { this.setState({ actionError: 'Aucun fichier .md dans ce dépôt.', banner: '' }); return; }
+    this.setState({ importing: true, importNote: 'Lecture des fichiers…', actionError: '', banner: '' });
+    try {
+      const guides = [];
+      for (const f of mdFiles) {
+        const g = Component.parseGuideFile(await f.text());
+        if (!g || !g.meta.titre || !g.body) { this.setState({ actionError: 'Guide illisible (en-tête ou contenu absent) : ' + f.name }); return; }
+        guides.push(g);
+      }
+      const need = new Set();
+      guides.forEach((g) => Component.imageKeys(g.body).forEach((k) => need.add(k)));
+      const missing = Array.from(need).filter((k) => !imgs.has(k));
+      if (missing.length) { this.setState({ actionError: 'Images manquantes dans le dépôt : ' + missing.join(', ') + '.' }); return; }
+
+      const ids = {};
+      let n = 0;
+      for (const key of need) {
+        n += 1;
+        this.setState({ importNote: 'Image ' + n + ' sur ' + need.size + ' : ' + key });
+        const title = 'Guide : ' + key;
+        const known = this.state.files.find((x) => x.title === title && x.status === 'ready');
+        if (known) { ids[key] = known.id; continue; }
+        const file = imgs.get(key);
+        const r = await RDB.api('/v1/founder/community/files', { method: 'POST', body: { title, description: '', size: file.size, filename: file.name } });
+        if (r.status !== 201) { this.setState({ actionError: 'Image « ' + key + ' » refusée : ' + RDB.errorMessage(r.status, r.data, 'création impossible.') }); return; }
+        if (!(await this.uploadFile('files', r.data.id, file, 'Image ' + key))) return;
+        ids[key] = r.data.id;
+      }
+
+      let created = 0;
+      let updated = 0;
+      for (const g of guides) {
+        this.setState({ importNote: 'Guide « ' + g.meta.titre + ' »' });
+        const payload = { title: g.meta.titre, summary: g.meta.resume || '', module: g.meta.module || 'general', position: Number(g.meta.position) || 0, body: Component.fillImageIds(g.body, ids) };
+        const slug = g.meta.slug || '';
+        const cur = slug ? this.state.guides.find((x) => x.slug === slug) : null;
+        const r = cur
+          ? await RDB.api('/v1/founder/community/guides/' + cur.id, { method: 'POST', body: payload })
+          : await RDB.api('/v1/founder/community/guides', { method: 'POST', body: Object.assign({ published: false }, slug ? { slug } : {}, payload) });
+        if (r.status !== 200 && r.status !== 201) { this.setState({ actionError: 'Guide « ' + g.meta.titre + ' » refusé : ' + RDB.errorMessage(r.status, r.data, 'enregistrement impossible.') }); return; }
+        if (cur) updated += 1; else created += 1;
+      }
+      await this.refresh('guides');
+      this.setState({ banner: created + ' guide(s) créé(s) en brouillon, ' + updated + ' mis à jour. Relisez-les (bouton « Voir »), puis publiez-les depuis la liste.' });
+    } finally {
+      this.setState({ importing: false, importNote: '' });
+    }
+  }
+
   // ---- Actions de liste ---------------------------------------------------------------
   publish = (kind, row, on) => () => this.action('/v1/founder/community/' + kind + '/' + row.id, { published: on }, on ? 'Publié.' : 'Dépublié.', kind);
   remove = (kind, row, refreshKey) => () => {
@@ -667,6 +778,7 @@ class Component extends DCLogic {
       previewOpen: s.previewOpen, previewLabel: s.previewOpen ? 'Masquer l\'aperçu' : 'Aperçu', previewBlocks: s.previewOpen ? RDB.parseLite(edit.body) : [],
       hasFormError: !!s.formError, formError: s.formError, saveLabel: s.saving ? 'Enregistrement…' : 'Enregistrer',
       onEditField: this.onEditField, onCancelEdit: this.onCancelEdit, onTogglePreview: this.onTogglePreview,
+      importing: !!s.importing, importNote: s.importNote || '', onImportOver: this.onImportOver, onImportDrop: this.onImportDrop, onImportPick: this.onImportPick,
       onNewVideo: this.onNewVideo, onNewFile: this.onNewFile, onNewGuide: this.onNewGuide, onNewNews: this.onNewNews,
       onSaveVideo: this.onSaveVideo, onSaveFile: this.onSaveFile, onSaveGuide: this.onSaveGuide, onSaveNews: this.onSaveNews,
     });
