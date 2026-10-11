@@ -227,7 +227,12 @@ class Component extends DCLogic {
 
   renderVals() {
     const s = this.state;
-    const modules = (s.modules || []).filter((m) => m.guides && m.guides.length).map((m) => ({
+    // Le serveur range les modules dans SON ordre : la page les remet dans celui de
+    // RDB.MODULES (le socle commun d'abord, puis le parcours d'une affaire).
+    const rang = Object.keys(RDB.MODULES);
+    const ordre = (m) => { const i = rang.indexOf(m.code); return i < 0 ? rang.length : i; };
+    const modules = (s.modules || []).filter((m) => m.guides && m.guides.length)
+      .slice().sort((a, b) => ordre(a) - ordre(b)).map((m) => ({
       name: m.name, count: RDB.plural(m.guides.length, 'guide', 'guides'),
       guides: m.guides.map((g) => ({ title: g.title, summary: g.summary || '', hasSummary: !!g.summary, href: '/communaute/guides?g=' + g.slug, updated: RDB.fmtDate(g.updated_at) })),
     }));

@@ -25,14 +25,17 @@
   RDB.LOGIN = '/espace-client';
   RDB.VERSION = '3';
 
+  // Ordre de lecture : le socle commun d'abord, puis les modules dans l'ordre
+  // d'une affaire (rédiger, métrer, chiffrer, consulter, comparer, rapporter).
+  // C'est lui qui range les guides, les filtres des vidéos et la liste de « Publier ».
   RDB.MODULES = {
+    general: 'Général',
     cctp: 'CCTP et DPGF',
     quantitatif: 'Quantitatif',
     estimation: 'Estimation',
     plis: 'Ouverture des plis',
     tco: 'TCO',
     rao: 'RAO',
-    general: 'Général',
   };
   RDB.moduleName = function (code) { return RDB.MODULES[code] || (code ? String(code) : 'Général'); };
   RDB.moduleList = function () {
