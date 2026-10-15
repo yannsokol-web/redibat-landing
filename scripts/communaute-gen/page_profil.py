@@ -1,4 +1,4 @@
-from snippets import AUTHOR_BADGES
+from snippets import AUTHOR_BADGES, BUG_MODAL, BUG_JS
 
 TITLE = 'Mon profil'
 EXTRA_HEAD = '\n<!-- QR code d\'inscription 2FA (otpauth://) : qrcode-generator, MIT, servi en self. -->\n<script src="/vendor/qrcode-generator.js"></script>'
@@ -41,8 +41,8 @@ MAIN = r'''
 
     <div style="display: flex; flex-direction: column; gap: 24px;">
       <section class="cm-card">
-        <div class="cm-card-head"><h2 class="cm-h2">Mes signalements</h2><span class="cm-mono">{{ reportCount }}</span></div>
-        <sc-if value="{{ noReports }}"><div class="cm-empty">Aucun bug signalé. Depuis l'application ou le forum, vos signalements apparaîtront ici avec leur état, et l'éditeur pourra vous y répondre.</div></sc-if>
+        <div class="cm-card-head"><h2 class="cm-h2">Mes signalements</h2><div style="display: flex; align-items: center; gap: 12px;"><span class="cm-mono">{{ reportCount }}</span><button type="button" class="cm-act is-primary" onClick="{{ onOpenBug }}">Signaler un bug</button></div></div>
+        <sc-if value="{{ noReports }}"><div class="cm-empty">Aucun bug signalé. Depuis l'application ou le bouton « Signaler un bug », vos signalements apparaîtront ici avec leur état, et l'éditeur pourra vous y répondre.</div></sc-if>
         <ul class="cm-list">
           <sc-for list="{{ reports }}" as="b">
             <li><button type="button" class="cm-row" onClick="{{ b.onOpen }}" style="width: 100%; text-align: left; border: none; background: none; cursor: pointer; font: inherit;">
@@ -179,6 +179,7 @@ MAIN = r'''
     </div>
   </sc-if>
 
+''' + BUG_MODAL + r'''
   <!-- Fil d'un signalement : description, état, échanges avec l'éditeur, réponse -->
   <sc-if value="{{ reportOpen }}">
     <div class="cm-overlay" onClick="{{ onCloseReport }}">
@@ -222,7 +223,9 @@ class Component extends DCLogic {
     // Double authentification : tf = { mode: 'setup'|'disable'|'recovery', step: 'password'|'scan'|'codes' }
     tf: null, tfBusy: false, tfError: '', tfSecret: '', tfQr: '', tfCodes: [], tfBanner: '', tfBannerCls: 'cm-alert is-ok',
     // Appareils de confiance (2FA) et changement de mot de passe.
-    devices: null, tdNote: '', tdNoteCls: 'cm-alert is-ok', pwdBusy: false, pwdNote: '', pwdNoteCls: 'cm-alert is-ok' };
+    devices: null, tdNote: '', tdNoteCls: 'cm-alert is-ok', pwdBusy: false, pwdNote: '', pwdNoteCls: 'cm-alert is-ok',
+    // Signaler un bug à l'éditeur (fenêtre partagée avec le Forum, snippets.BUG_MODAL).
+    bugOpen: false, bugBusy: false, bugError: '', bugDone: false };
 
   componentDidMount() {
     if (this._started) return;   // garde : un seul démarrage même si le runtime re-monte
@@ -261,6 +264,12 @@ class Component extends DCLogic {
   };
   onCloseReport = () => this.setState({ report: null, thread: [], replyError: '' });
   stop = (e) => { if (e && e.stopPropagation) e.stopPropagation(); };
+''' + BUG_JS + r'''
+  // Un signalement envoyé d'ici apparaît aussitôt dans « Mes signalements ».
+  async afterBugReport() {
+    const r = await RDB.api('/v1/me/bug-reports');
+    if (r.status === 200) this.setState({ reports: r.data.reports || [] });
+  }
   onReply = async (e) => {
     e.preventDefault();
     if (this.state.replyBusy || !this.state.report) return;
@@ -495,7 +504,9 @@ class Component extends DCLogic {
       id: d.id, agent: this.agentLabel(d.user_agent), current: d.current === true, added: RDB.fmtRelative(d.created_at), expires: RDB.fmtDate(d.expires_at), ip: d.ip || '',
       onRemove: () => this.onTdRemove(d.id),
     }));
-    return Object.assign(RDB.shellVals(this, 'profile'), {
+    return Object.assign(RDB.shellVals(this, 'profile'), this.bugVals(s), {
+      bugLede: 'Ce signalement part directement à l\'éditeur, en privé. Il apparaîtra dans « Mes signalements », avec son état et les réponses.',
+      bugDoneText: 'Merci, votre signalement est enregistré : il apparaît dans « Mes signalements », où vous suivrez son traitement.',
       initial: RDB.initial(me.display_name || me.email), name: me.display_name || 'Sans pseudo', email: me.email || '',
       role: String(me.role || '').toUpperCase(), license: me.license_active === true ? 'licence active' : 'licence inactive', badges: RDB.badges(me.badges),
       fName: f.display_name, fCompany: f.company, fJob: f.job_title, fRegion: f.region, fBio: f.bio, fVisible: !!f.directory_visible,

@@ -10,10 +10,11 @@ CSP = ("default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'sel
        "font-src 'self' data: https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
        "script-src 'self' 'unsafe-inline' 'unsafe-eval'; connect-src 'self' https://api.redibat.fr")
 
-# Barre de l'espace client réduite le 15/10/2026 (décision de Yann) : Vidéos, Guides,
-# Téléchargements et « Reprendre un CCTP ». Accueil, Forum, Nouveautés et Membres
-# restent en ligne, joignables par leur adresse, mais ne sont plus dans la barre.
+# Barre de l'espace client (15/10/2026, décision de Yann) : Accueil, Vidéos, Guides,
+# Téléchargements et « Reprendre un CCTP ». Forum, Nouveautés et Membres restent en
+# ligne, joignables par leur adresse, mais ne sont plus dans la barre.
 NAV_LINKS = [
+    ('home', '/communaute/', 'Accueil'),
     ('videos', '/communaute/videos', 'Vidéos'),
     ('guides', '/communaute/guides', 'Guides'),
     ('downloads', '/communaute/telechargements', 'Téléchargements'),
@@ -46,7 +47,7 @@ def head(title, description, extra_head=''):
 <link rel="icon" type="image/png" sizes="32x32" href="/assets/logos/favicon-32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="/assets/logos/favicon-16.png">
 <link rel="apple-touch-icon" href="/assets/logos/favicon-256.png">
-<script src="/communaute/community.js?v=5"></script>{extra_head}
+<script src="/communaute/community.js?v=6"></script>{extra_head}
 <script src="/support.js"></script>
 </head>
 <body>
@@ -59,7 +60,7 @@ def head(title, description, extra_head=''):
   <link rel="stylesheet" href="{DS}/tokens/colors.css">
   <link rel="stylesheet" href="{DS}/tokens/typography.css">
   <link rel="stylesheet" href="{DS}/tokens/spacing.css">
-  <link rel="stylesheet" href="/communaute/community.css?v=5">
+  <link rel="stylesheet" href="/communaute/community.css?v=6">
 </helmet>
 '''
 

@@ -462,7 +462,7 @@
   // Coquille commune des pages : en-tête, modale du pseudo, états
   // ---------------------------------------------------------------------------
 
-  const PAGES = ['videos', 'guides', 'downloads', 'reprise', 'publish', 'dash'];
+  const PAGES = ['home', 'videos', 'guides', 'downloads', 'reprise', 'publish', 'dash'];
 
   /** Clés de l'en-tête commun (les mêmes sur toutes les pages). */
   RDB.headerVals = function (me, active) {

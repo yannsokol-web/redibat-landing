@@ -57,3 +57,60 @@ PAGER_JS = '''
     };
   }
 '''
+
+
+# « Signaler un bug à l'éditeur » (POST /v1/bug-report, même canal que l'application) : la
+# fenêtre et son envoi, partagés par le Forum et le Profil (15/10/2026 : la barre de l'espace
+# client ne mène plus au Forum, le Profil porte le bouton). Chaque page fournit `bugLede` et
+# `bugDoneText`, et peut définir `afterBugReport()` (le Profil y relit ses signalements).
+BUG_MODAL = """  <!-- Signaler un bug à l'éditeur -->
+  <sc-if value="{{ bugOpen }}">
+    <div class="cm-overlay" onClick="{{ onCloseBug }}">
+      <div class="cm-modal" role="dialog" aria-modal="true" onClick="{{ stop }}">
+        <div class="cm-modal-head"><h2>Signaler un bug à l'éditeur</h2><button type="button" class="cm-close" aria-label="Fermer" onClick="{{ onCloseBug }}">✕</button></div>
+        <sc-if value="{{ bugDone }}">
+          <div class="cm-alert is-ok">{{ bugDoneText }}</div>
+          <div style="text-align: right;"><button type="button" class="cm-btn is-ghost" onClick="{{ onCloseBug }}">Fermer</button></div>
+        </sc-if>
+        <sc-if value="{{ bugForm }}">
+          <p class="cm-lede" style="margin-bottom: 16px;">{{ bugLede }}</p>
+          <form onSubmit="{{ onSubmitBug }}">
+            <label class="cm-field"><span>Titre</span><input class="cm-input" name="title" maxlength="200" placeholder="Ex. : l'export DPGF s'arrête sur le lot 3"></label>
+            <label class="cm-field"><span>Gravité</span><select class="cm-select" name="severity"><option value="medium">Gênant</option><option value="high">Bloquant</option><option value="low">Mineur</option></select></label>
+            <label class="cm-field"><span>Description</span><textarea class="cm-textarea" name="description" maxlength="4000" placeholder="Version, étapes pour reproduire, message affiché…"></textarea></label>
+            <sc-if value="{{ hasBugError }}"><div class="cm-alert" role="alert">{{ bugError }}</div></sc-if>
+            <div style="display: flex; gap: 10px; justify-content: flex-end;"><button type="button" class="cm-btn is-ghost" onClick="{{ onCloseBug }}">Annuler</button><button type="submit" class="cm-btn">{{ bugLabel }}</button></div>
+          </form>
+        </sc-if>
+      </div>
+    </div>
+  </sc-if>
+"""
+
+BUG_JS = """
+  // Signalement privé à l'éditeur (POST /v1/bug-report, même canal que l'application).
+  onOpenBug = () => this.setState({ bugOpen: true, bugError: '', bugDone: false });
+  onCloseBug = () => this.setState({ bugOpen: false });
+  onSubmitBug = async (e) => {
+    e.preventDefault();
+    if (this.state.bugBusy) return;
+    const form = e.currentTarget || e.target;
+    const title = (form.title && form.title.value || '').trim();
+    const severity = (form.severity && form.severity.value) || 'medium';
+    const description = (form.description && form.description.value || '').trim();
+    if (!title) { this.setState({ bugError: 'Donnez un titre à votre signalement.' }); return; }
+    this.setState({ bugBusy: true, bugError: '' });
+    const r = await RDB.api('/v1/bug-report', { method: 'POST', body: { title, severity, description } });
+    if (r.status === 201) {
+      this.setState({ bugBusy: false, bugDone: true });
+      if (this.afterBugReport) await this.afterBugReport();
+      return;
+    }
+    this.setState({ bugBusy: false, bugError: RDB.errorMessage(r.status, r.data, 'Envoi impossible. Réessayez.') });
+  };
+  bugVals(s) {
+    return { bugOpen: !!s.bugOpen, bugDone: !!s.bugDone, bugForm: !s.bugDone, hasBugError: !!s.bugError, bugError: s.bugError || '',
+      bugLabel: s.bugBusy ? 'Envoi…' : 'Envoyer le signalement',
+      onOpenBug: this.onOpenBug, onCloseBug: this.onCloseBug, onSubmitBug: this.onSubmitBug };
+  }
+"""

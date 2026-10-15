@@ -1,4 +1,4 @@
-from snippets import RUNS, AUTHOR_BADGES, PAGER, PAGER_JS
+from snippets import RUNS, AUTHOR_BADGES, PAGER, PAGER_JS, BUG_MODAL, BUG_JS
 
 TITLE = 'Forum'
 DESCRIPTION = 'Forum des utilisateurs Rédibat : bugs, méthodes de travail, entraide et suggestions.'
@@ -141,29 +141,7 @@ MAIN = r'''
     <sc-if value="{{ isLockedNotice }}"><div class="cm-alert is-info" style="margin-top: 22px;">Ce sujet est verrouillé : il n'accepte plus de réponse.</div></sc-if>
   </sc-if>
 
-  <!-- Signaler un bug à l'éditeur -->
-  <sc-if value="{{ bugOpen }}">
-    <div class="cm-overlay" onClick="{{ onCloseBug }}">
-      <div class="cm-modal" role="dialog" aria-modal="true" onClick="{{ stop }}">
-        <div class="cm-modal-head"><h2>Signaler un bug à l'éditeur</h2><button type="button" class="cm-close" aria-label="Fermer" onClick="{{ onCloseBug }}">✕</button></div>
-        <sc-if value="{{ bugDone }}">
-          <div class="cm-alert is-ok">Merci, votre signalement est enregistré. Vous suivrez son traitement depuis votre profil.</div>
-          <div style="text-align: right;"><button type="button" class="cm-btn is-ghost" onClick="{{ onCloseBug }}">Fermer</button></div>
-        </sc-if>
-        <sc-if value="{{ bugForm }}">
-          <p class="cm-lede" style="margin-bottom: 16px;">Ce signalement part directement au fondateur, en privé. Pour en discuter avec les autres membres, ouvrez plutôt un sujet dans « Bugs et problèmes ».</p>
-          <form onSubmit="{{ onSubmitBug }}">
-            <label class="cm-field"><span>Titre</span><input class="cm-input" name="title" maxlength="200" placeholder="Ex. : l'export DPGF s'arrête sur le lot 3"></label>
-            <label class="cm-field"><span>Gravité</span><select class="cm-select" name="severity"><option value="medium">Gênant</option><option value="high">Bloquant</option><option value="low">Mineur</option></select></label>
-            <label class="cm-field"><span>Description</span><textarea class="cm-textarea" name="description" maxlength="4000" placeholder="Version, étapes pour reproduire, message affiché…"></textarea></label>
-            <sc-if value="{{ hasBugError }}"><div class="cm-alert" role="alert">{{ bugError }}</div></sc-if>
-            <div style="display: flex; gap: 10px; justify-content: flex-end;"><button type="button" class="cm-btn is-ghost" onClick="{{ onCloseBug }}">Annuler</button><button type="submit" class="cm-btn">{{ bugLabel }}</button></div>
-          </form>
-        </sc-if>
-      </div>
-    </div>
-  </sc-if>
-</main>
+''' + BUG_MODAL + r'''</main>
 '''
 
 SCRIPT = r'''
@@ -287,24 +265,8 @@ class Component extends DCLogic {
   onToggleLock = () => this.moderate({ is_locked: !(this.state.thread && this.state.thread.is_locked) }, 'Sujet mis à jour.');
   onMove = (e) => { const slug = e.target.value; if (slug && (!this.state.category || slug !== this.state.category.slug)) this.moderate({ category: slug }, 'Sujet déplacé.'); };
 
-  // Signalement privé à l'éditeur (POST /v1/bug-report, même canal que l'application).
-  onOpenBug = () => this.setState({ bugOpen: true, bugError: '', bugDone: false });
-  onCloseBug = () => this.setState({ bugOpen: false });
   stop = (e) => { if (e && e.stopPropagation) e.stopPropagation(); };
-  onSubmitBug = async (e) => {
-    e.preventDefault();
-    if (this.state.bugBusy) return;
-    const form = e.currentTarget || e.target;
-    const title = (form.title && form.title.value || '').trim();
-    const severity = (form.severity && form.severity.value) || 'medium';
-    const description = (form.description && form.description.value || '').trim();
-    if (!title) { this.setState({ bugError: 'Donnez un titre à votre signalement.' }); return; }
-    this.setState({ bugBusy: true, bugError: '' });
-    const r = await RDB.api('/v1/bug-report', { method: 'POST', body: { title, severity, description } });
-    if (r.status === 201) { this.setState({ bugBusy: false, bugDone: true }); return; }
-    this.setState({ bugBusy: false, bugError: RDB.errorMessage(r.status, r.data, 'Envoi impossible. Réessayez.') });
-  };
-''' + PAGER_JS + r'''
+''' + BUG_JS + r'''''' + PAGER_JS + r'''
   renderVals() {
     const s = this.state;
     const me = s.me || {};
@@ -337,7 +299,7 @@ class Component extends DCLogic {
       };
     });
     const hrefFor = viewThread ? ((n) => '/communaute/forum?t=' + s.threadId + '&page=' + n) : ((n) => '/communaute/forum?c=' + s.slug + '&page=' + n);
-    return Object.assign(RDB.shellVals(this, 'forum'), this.pagerVals(s.page, s.pages, hrefFor), {
+    return Object.assign(RDB.shellVals(this, 'forum'), this.pagerVals(s.page, s.pages, hrefFor), this.bugVals(s), {
       viewCategories, viewThreads, viewThread,
       hasBanner: !!s.banner, banner: s.banner,
       categories, category: catView, isBugsCategory: catView.slug === 'bugs',
@@ -350,11 +312,12 @@ class Component extends DCLogic {
       catOptions: (s.catOptions || []).map((c) => ({ slug: c.slug, name: c.name })),
       pinLabel: thread.isPinned ? 'Désépingler' : 'Épingler', lockLabel: thread.isLocked ? 'Déverrouiller' : 'Verrouiller',
       hasReplyError: !!s.replyError, replyError: s.replyError, replyLabel: s.busy ? 'Envoi…' : 'Répondre',
-      bugOpen: s.bugOpen, bugDone: s.bugDone, bugForm: !s.bugDone, hasBugError: !!s.bugError, bugError: s.bugError, bugLabel: s.bugBusy ? 'Envoi…' : 'Envoyer le signalement',
+      bugLede: 'Ce signalement part directement au fondateur, en privé. Pour en discuter avec les autres membres, ouvrez plutôt un sujet dans « Bugs et problèmes ».',
+      bugDoneText: 'Merci, votre signalement est enregistré. Vous suivrez son traitement depuis votre profil.',
       onToggleNew: this.onToggleNew, onNewThread: this.onNewThread, onReply: this.onReply,
       onEditChange: this.onEditChange, onSaveEdit: this.onSaveEdit, onCancelEdit: this.onCancelEdit, onDeleteThread: this.onDeleteThread,
       onTogglePin: this.onTogglePin, onToggleLock: this.onToggleLock, onMove: this.onMove,
-      onOpenBug: this.onOpenBug, onCloseBug: this.onCloseBug, onSubmitBug: this.onSubmitBug, stop: this.stop,
+      stop: this.stop,
     });
   }
 }

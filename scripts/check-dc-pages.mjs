@@ -123,6 +123,7 @@ for (const rel of pages) {
   const inst = new Cls();
   if (rel === 'espace-fondateur.html') founderResults.Cls = Cls;
   if (rel === 'communaute/reprise.html') founderResults.Reprise = { Cls, template };
+  if (['communaute/index.html', 'communaute/profil.html', 'communaute/forum.html'].includes(rel)) (founderResults.Bug = founderResults.Bug || {})[rel] = { Cls, template };
   let vals = null;
   try { vals = inst.renderVals(); check('renderVals() s\'exécute sur l\'état initial', !!vals); }
   catch (err) { check('renderVals() s\'exécute sur l\'état initial', false, err.message); }
@@ -273,7 +274,7 @@ if (RDB) {
   check('fmtDuration', RDB.fmtDuration(754) === '12 min' && RDB.fmtDuration(3900) === '1 h 05' && RDB.fmtDuration(45) === '45 s');
   check('badges connus seulement', RDB.badges(['founder', 'x', 'early']).map((x) => x.label).join('|') === 'Fondateur|Membre fondateur');
   const hv = RDB.headerVals({ display_name: 'Alice', is_founder: false }, 'guides');
-  check('headerVals marque la page active', hv.hdrGuides === 'cm-link is-active' && hv.hdrVideos === 'cm-link' && hv.hdrName === 'Alice' && hv.hdrIsFounder === false);
+  check('headerVals marque la page active', hv.hdrGuides === 'cm-link is-active' && hv.hdrVideos === 'cm-link' && hv.hdrHome === 'cm-link' && hv.hdrName === 'Alice' && hv.hdrIsFounder === false);
   check('« Reprendre un CCTP » est un onglet de la barre, actif sur sa page', RDB.headerVals({}, 'reprise').hdrReprise === 'cm-link is-active' && hv.hdrReprise === 'cm-link');
 }
 
@@ -429,6 +430,37 @@ if (founderResults.Reprise) {
   await c.onSend({ preventDefault() {}, currentTarget: null });
   check('sans l\'accord IA, rien ne part', posted === null && c.state.upload === null);
   RDB.api = apiOrig; RDB.uploadChunked = upOrig;
+}
+
+// --- « Signaler un bug à l'éditeur » : Accueil, Profil et Forum (fenêtre partagée) --------
+if (founderResults.Bug) {
+  console.log('\n■ Signaler un bug à l\'éditeur');
+  const pages = founderResults.Bug;
+  check('trois pages portent la fenêtre', Object.keys(pages).length === 3, Object.keys(pages).join(', '));
+  const apiOrig = RDB.api;
+  for (const [rel, { Cls, template }] of Object.entries(pages)) {
+    check(`${rel} : un bouton ouvre la fenêtre`, /onClick="\{\{ onOpenBug \}\}"/.test(template) && template.includes('{{ bugLede }}'));
+    const posts = []; let relu = 0;
+    RDB.api = async (u, o) => {
+      if (o && o.method === 'POST') { posts.push({ u, body: o.body }); return { status: 201, data: {} }; }
+      if (u === '/v1/me/bug-reports') { relu += 1; return { status: 200, data: { reports: [{ id: 7, title: 'Le zoom saute' }] } }; }
+      return { status: 200, data: {} };
+    };
+    const c = new Cls(); c.state = { ...c.state, ready: true };
+    c.onOpenBug();
+    let v = c.renderVals();
+    check(`${rel} : la fenêtre s'ouvre, avec son texte`, v.bugOpen === true && v.bugForm === true && v.bugLede.length > 20);
+    const form = { title: { value: '  Le zoom saute  ' }, severity: { value: 'high' }, description: { value: 'Après un export.' } };
+    await c.onSubmitBug({ preventDefault() {}, currentTarget: form });
+    v = c.renderVals();
+    check(`${rel} : le signalement part à /v1/bug-report, titre nettoyé`, posts.length === 1 && posts[0].u === '/v1/bug-report' && posts[0].body.title === 'Le zoom saute' && posts[0].body.severity === 'high', JSON.stringify(posts));
+    check(`${rel} : merci affiché`, v.bugDone === true && v.bugDoneText.startsWith('Merci'));
+    if (rel === 'communaute/profil.html') check('profil : la liste « Mes signalements » est relue aussitôt', relu === 1 && c.state.reports.length === 1, String(relu));
+    const vide = new Cls(); vide.state = { ...vide.state, ready: true, bugOpen: true }; posts.length = 0;
+    await vide.onSubmitBug({ preventDefault() {}, currentTarget: { title: { value: ' ' } } });
+    check(`${rel} : sans titre, rien ne part`, posts.length === 0 && /titre/.test(vide.state.bugError));
+  }
+  RDB.api = apiOrig;
 }
 
 console.log(`\n${ok} contrôle(s) réussi(s), ${fails.length} en échec.`);

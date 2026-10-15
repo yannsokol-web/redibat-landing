@@ -185,6 +185,11 @@ a.cm-row:hover { background: var(--a-bg-3); }
   .cm-search input { width: 120px; }
   .cm-pill { display: none; }
 }
+/* Entre 769 et 900 px, la barre débordait de la page : l'avatar seul ouvre le menu du compte. */
+@media (max-width: 900px) {
+  .cm-account-name { display: none; }
+  .cm-account > summary { padding: 5px; }
+}
 @media (max-width: 768px) {
   .cm-main { padding: 22px 16px 56px; }
   .cm-header-in { padding: 10px 16px; gap: 10px; }

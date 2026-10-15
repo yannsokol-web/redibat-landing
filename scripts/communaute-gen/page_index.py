@@ -1,3 +1,5 @@
+from snippets import BUG_MODAL, BUG_JS
+
 TITLE = 'Accueil'
 DESCRIPTION = 'Espace communautaire Rédibat : vidéos, forum, guides et nouveautés, réservés aux comptes.'
 
@@ -14,6 +16,7 @@ MAIN = r'''
     <div class="cm-tabs">
       <a href="/communaute/forum" class="cm-tab">Poser une question</a>
       <a href="/communaute/videos" class="cm-tab">Voir les vidéos</a>
+      <button type="button" class="cm-tab" onClick="{{ onOpenBug }}">Signaler un bug à l'éditeur</button>
     </div>
   </div>
 
@@ -86,12 +89,14 @@ MAIN = r'''
       </ul>
     </section>
   </div>
-</main>
+''' + BUG_MODAL + r'''</main>
 '''
 
 SCRIPT = r'''
 class Component extends DCLogic {
-  state = { ready: false, me: null, banned: false, loadError: '', nameOpen: false, nameError: '', nameBusy: false, nameForced: false, home: null };
+  state = { ready: false, me: null, banned: false, loadError: '', nameOpen: false, nameError: '', nameBusy: false, nameForced: false, home: null,
+    // Signaler un bug à l'éditeur (fenêtre partagée avec le Forum et le Profil, snippets.BUG_MODAL).
+    bugOpen: false, bugBusy: false, bugError: '', bugDone: false };
 
   componentDidMount() {
     if (this._started) return;   // garde : un seul démarrage même si le runtime re-monte
@@ -105,6 +110,8 @@ class Component extends DCLogic {
     this.setState({ home: r.data });
   }
 
+  stop = (e) => { if (e && e.stopPropagation) e.stopPropagation(); };
+''' + BUG_JS + r'''
   renderVals() {
     const s = this.state;
     const h = s.home || {};
@@ -127,7 +134,10 @@ class Component extends DCLogic {
       categoryName: t.category_name || '', replies: RDB.plural(t.reply_count || 0, 'réponse', 'réponses'),
       when: RDB.fmtRelative(t.last_post_at), author: RDB.author(t.author),
     }));
-    return Object.assign(RDB.shellVals(this, 'home'), {
+    return Object.assign(RDB.shellVals(this, 'home'), this.bugVals(s), {
+      bugLede: 'Ce signalement part directement à l\'éditeur, en privé. Vous suivrez son traitement depuis votre profil, rubrique « Mes signalements ».',
+      bugDoneText: 'Merci, votre signalement est enregistré. Vous suivrez son traitement depuis votre profil, rubrique « Mes signalements ».',
+      stop: this.stop,
       welcome: me.display_name ? ('Bonjour ' + me.display_name) : 'Bienvenue dans la communauté',
       cMembers: String(Number(counts.members) || 0),
       cThreads: String(Number(counts.threads) || 0),

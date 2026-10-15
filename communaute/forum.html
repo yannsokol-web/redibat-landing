@@ -16,7 +16,7 @@
 <link rel="icon" type="image/png" sizes="32x32" href="/assets/logos/favicon-32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="/assets/logos/favicon-16.png">
 <link rel="apple-touch-icon" href="/assets/logos/favicon-256.png">
-<script src="/communaute/community.js?v=5"></script>
+<script src="/communaute/community.js?v=6"></script>
 <script src="/support.js"></script>
 </head>
 <body>
@@ -29,7 +29,7 @@
   <link rel="stylesheet" href="/_ds/r-dibat-design-system-740ba38c-581d-4335-88dd-fcf28913eed8/tokens/colors.css">
   <link rel="stylesheet" href="/_ds/r-dibat-design-system-740ba38c-581d-4335-88dd-fcf28913eed8/tokens/typography.css">
   <link rel="stylesheet" href="/_ds/r-dibat-design-system-740ba38c-581d-4335-88dd-fcf28913eed8/tokens/spacing.css">
-  <link rel="stylesheet" href="/communaute/community.css?v=5">
+  <link rel="stylesheet" href="/communaute/community.css?v=6">
 </helmet>
 
 <div class="cm-page">
@@ -42,6 +42,7 @@
       <span class="cm-pill">Communauté</span>
     </a>
     <nav class="cm-nav" aria-label="Espace communautaire">
+      <a href="/communaute/" class="{{ hdrHome }}">Accueil</a>
       <a href="/communaute/videos" class="{{ hdrVideos }}">Vidéos</a>
       <a href="/communaute/guides" class="{{ hdrGuides }}">Guides</a>
       <a href="/communaute/telechargements" class="{{ hdrDownloads }}">Téléchargements</a>
@@ -73,6 +74,7 @@
           <input type="search" name="q" placeholder="Rechercher" aria-label="Rechercher" maxlength="80">
         </form>
         <div class="rdb-mobile-label">Communauté</div>
+        <a href="/communaute/" class="rdb-mobile-link">Accueil</a>
         <a href="/communaute/videos" class="rdb-mobile-link">Vidéos</a>
         <a href="/communaute/guides" class="rdb-mobile-link">Guides</a>
         <a href="/communaute/telechargements" class="rdb-mobile-link">Téléchargements</a>
@@ -252,11 +254,11 @@
       <div class="cm-modal" role="dialog" aria-modal="true" onClick="{{ stop }}">
         <div class="cm-modal-head"><h2>Signaler un bug à l'éditeur</h2><button type="button" class="cm-close" aria-label="Fermer" onClick="{{ onCloseBug }}">✕</button></div>
         <sc-if value="{{ bugDone }}">
-          <div class="cm-alert is-ok">Merci, votre signalement est enregistré. Vous suivrez son traitement depuis votre profil.</div>
+          <div class="cm-alert is-ok">{{ bugDoneText }}</div>
           <div style="text-align: right;"><button type="button" class="cm-btn is-ghost" onClick="{{ onCloseBug }}">Fermer</button></div>
         </sc-if>
         <sc-if value="{{ bugForm }}">
-          <p class="cm-lede" style="margin-bottom: 16px;">Ce signalement part directement au fondateur, en privé. Pour en discuter avec les autres membres, ouvrez plutôt un sujet dans « Bugs et problèmes ».</p>
+          <p class="cm-lede" style="margin-bottom: 16px;">{{ bugLede }}</p>
           <form onSubmit="{{ onSubmitBug }}">
             <label class="cm-field"><span>Titre</span><input class="cm-input" name="title" maxlength="200" placeholder="Ex. : l'export DPGF s'arrête sur le lot 3"></label>
             <label class="cm-field"><span>Gravité</span><select class="cm-select" name="severity"><option value="medium">Gênant</option><option value="high">Bloquant</option><option value="low">Mineur</option></select></label>
@@ -413,10 +415,11 @@ class Component extends DCLogic {
   onToggleLock = () => this.moderate({ is_locked: !(this.state.thread && this.state.thread.is_locked) }, 'Sujet mis à jour.');
   onMove = (e) => { const slug = e.target.value; if (slug && (!this.state.category || slug !== this.state.category.slug)) this.moderate({ category: slug }, 'Sujet déplacé.'); };
 
+  stop = (e) => { if (e && e.stopPropagation) e.stopPropagation(); };
+
   // Signalement privé à l'éditeur (POST /v1/bug-report, même canal que l'application).
   onOpenBug = () => this.setState({ bugOpen: true, bugError: '', bugDone: false });
   onCloseBug = () => this.setState({ bugOpen: false });
-  stop = (e) => { if (e && e.stopPropagation) e.stopPropagation(); };
   onSubmitBug = async (e) => {
     e.preventDefault();
     if (this.state.bugBusy) return;
@@ -427,9 +430,18 @@ class Component extends DCLogic {
     if (!title) { this.setState({ bugError: 'Donnez un titre à votre signalement.' }); return; }
     this.setState({ bugBusy: true, bugError: '' });
     const r = await RDB.api('/v1/bug-report', { method: 'POST', body: { title, severity, description } });
-    if (r.status === 201) { this.setState({ bugBusy: false, bugDone: true }); return; }
+    if (r.status === 201) {
+      this.setState({ bugBusy: false, bugDone: true });
+      if (this.afterBugReport) await this.afterBugReport();
+      return;
+    }
     this.setState({ bugBusy: false, bugError: RDB.errorMessage(r.status, r.data, 'Envoi impossible. Réessayez.') });
   };
+  bugVals(s) {
+    return { bugOpen: !!s.bugOpen, bugDone: !!s.bugDone, bugForm: !s.bugDone, hasBugError: !!s.bugError, bugError: s.bugError || '',
+      bugLabel: s.bugBusy ? 'Envoi…' : 'Envoyer le signalement',
+      onOpenBug: this.onOpenBug, onCloseBug: this.onCloseBug, onSubmitBug: this.onSubmitBug };
+  }
 
   pagerVals(page, pages, hrefFor) {
     page = Number(page) || 1; pages = Number(pages) || 1;
@@ -472,7 +484,7 @@ class Component extends DCLogic {
       };
     });
     const hrefFor = viewThread ? ((n) => '/communaute/forum?t=' + s.threadId + '&page=' + n) : ((n) => '/communaute/forum?c=' + s.slug + '&page=' + n);
-    return Object.assign(RDB.shellVals(this, 'forum'), this.pagerVals(s.page, s.pages, hrefFor), {
+    return Object.assign(RDB.shellVals(this, 'forum'), this.pagerVals(s.page, s.pages, hrefFor), this.bugVals(s), {
       viewCategories, viewThreads, viewThread,
       hasBanner: !!s.banner, banner: s.banner,
       categories, category: catView, isBugsCategory: catView.slug === 'bugs',
@@ -485,11 +497,12 @@ class Component extends DCLogic {
       catOptions: (s.catOptions || []).map((c) => ({ slug: c.slug, name: c.name })),
       pinLabel: thread.isPinned ? 'Désépingler' : 'Épingler', lockLabel: thread.isLocked ? 'Déverrouiller' : 'Verrouiller',
       hasReplyError: !!s.replyError, replyError: s.replyError, replyLabel: s.busy ? 'Envoi…' : 'Répondre',
-      bugOpen: s.bugOpen, bugDone: s.bugDone, bugForm: !s.bugDone, hasBugError: !!s.bugError, bugError: s.bugError, bugLabel: s.bugBusy ? 'Envoi…' : 'Envoyer le signalement',
+      bugLede: 'Ce signalement part directement au fondateur, en privé. Pour en discuter avec les autres membres, ouvrez plutôt un sujet dans « Bugs et problèmes ».',
+      bugDoneText: 'Merci, votre signalement est enregistré. Vous suivrez son traitement depuis votre profil.',
       onToggleNew: this.onToggleNew, onNewThread: this.onNewThread, onReply: this.onReply,
       onEditChange: this.onEditChange, onSaveEdit: this.onSaveEdit, onCancelEdit: this.onCancelEdit, onDeleteThread: this.onDeleteThread,
       onTogglePin: this.onTogglePin, onToggleLock: this.onToggleLock, onMove: this.onMove,
-      onOpenBug: this.onOpenBug, onCloseBug: this.onCloseBug, onSubmitBug: this.onSubmitBug, stop: this.stop,
+      stop: this.stop,
     });
   }
 }
