@@ -16,7 +16,7 @@
 <link rel="icon" type="image/png" sizes="32x32" href="/assets/logos/favicon-32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="/assets/logos/favicon-16.png">
 <link rel="apple-touch-icon" href="/assets/logos/favicon-256.png">
-<script src="/communaute/community.js?v=4"></script>
+<script src="/communaute/community.js?v=5"></script>
 <!-- QR code d'inscription 2FA (otpauth://) : qrcode-generator, MIT, servi en self. -->
 <script src="/vendor/qrcode-generator.js"></script>
 <script src="/support.js"></script>
@@ -31,7 +31,7 @@
   <link rel="stylesheet" href="/_ds/r-dibat-design-system-740ba38c-581d-4335-88dd-fcf28913eed8/tokens/colors.css">
   <link rel="stylesheet" href="/_ds/r-dibat-design-system-740ba38c-581d-4335-88dd-fcf28913eed8/tokens/typography.css">
   <link rel="stylesheet" href="/_ds/r-dibat-design-system-740ba38c-581d-4335-88dd-fcf28913eed8/tokens/spacing.css">
-  <link rel="stylesheet" href="/communaute/community.css?v=4">
+  <link rel="stylesheet" href="/communaute/community.css?v=5">
 </helmet>
 
 <div class="cm-page">
@@ -44,13 +44,10 @@
       <span class="cm-pill">Communauté</span>
     </a>
     <nav class="cm-nav" aria-label="Espace communautaire">
-      <a href="/communaute/" class="{{ hdrHome }}">Accueil</a>
       <a href="/communaute/videos" class="{{ hdrVideos }}">Vidéos</a>
-      <a href="/communaute/forum" class="{{ hdrForum }}">Forum</a>
       <a href="/communaute/guides" class="{{ hdrGuides }}">Guides</a>
-      <a href="/communaute/nouveautes" class="{{ hdrNews }}">Nouveautés</a>
       <a href="/communaute/telechargements" class="{{ hdrDownloads }}">Téléchargements</a>
-      <a href="/communaute/membres" class="{{ hdrMembers }}">Membres</a>
+      <a href="/communaute/reprise" class="{{ hdrReprise }}">Reprendre un CCTP</a>
       <sc-if value="{{ hdrIsFounder }}">
         <a href="/communaute/publier" class="{{ hdrPublish }} is-founder">Publier</a>
         <a href="/espace-fondateur" class="{{ hdrDash }} is-founder">Tableau de bord</a>
@@ -64,7 +61,6 @@
       <summary aria-label="Mon compte"><span class="cm-avatar">{{ hdrInitial }}</span><span class="cm-account-name">{{ hdrName }}</span></summary>
       <div class="cm-account-menu">
         <a href="/communaute/profil" class="cm-menu-link">Mon profil</a>
-        <a href="/communaute/reprise" class="cm-menu-link">Reprendre un CCTP</a>
         <button type="button" class="cm-menu-link is-danger" onClick="{{ onHdrLogout }}">Se déconnecter</button>
       </div>
     </details>
@@ -79,13 +75,10 @@
           <input type="search" name="q" placeholder="Rechercher" aria-label="Rechercher" maxlength="80">
         </form>
         <div class="rdb-mobile-label">Communauté</div>
-        <a href="/communaute/" class="rdb-mobile-link">Accueil</a>
         <a href="/communaute/videos" class="rdb-mobile-link">Vidéos</a>
-        <a href="/communaute/forum" class="rdb-mobile-link">Forum</a>
         <a href="/communaute/guides" class="rdb-mobile-link">Guides</a>
-        <a href="/communaute/nouveautes" class="rdb-mobile-link">Nouveautés</a>
         <a href="/communaute/telechargements" class="rdb-mobile-link">Téléchargements</a>
-        <a href="/communaute/membres" class="rdb-mobile-link">Membres</a>
+        <a href="/communaute/reprise" class="rdb-mobile-link">Reprendre un CCTP</a>
         <sc-if value="{{ hdrIsFounder }}">
           <div class="rdb-mobile-sep"></div>
           <div class="rdb-mobile-label">Fondateur</div>
@@ -94,7 +87,6 @@
         </sc-if>
         <div class="rdb-mobile-sep"></div>
         <a href="/communaute/profil" class="rdb-mobile-link">Mon profil ({{ hdrName }})</a>
-        <a href="/communaute/reprise" class="rdb-mobile-link">Reprendre un CCTP</a>
         <button type="button" class="rdb-mobile-link" onClick="{{ onHdrLogout }}" style="width: 100%; text-align: left; border: none; background: none; cursor: pointer; color: var(--a-red);">Se déconnecter</button>
       </div>
     </details>

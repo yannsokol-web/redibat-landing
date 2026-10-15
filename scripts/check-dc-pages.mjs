@@ -272,8 +272,9 @@ if (RDB) {
   check('fmtSize', RDB.fmtSize(1536) === '2 Ko' && RDB.fmtSize(2.5 * 1048576) === '2,5 Mo');
   check('fmtDuration', RDB.fmtDuration(754) === '12 min' && RDB.fmtDuration(3900) === '1 h 05' && RDB.fmtDuration(45) === '45 s');
   check('badges connus seulement', RDB.badges(['founder', 'x', 'early']).map((x) => x.label).join('|') === 'Fondateur|Membre fondateur');
-  const hv = RDB.headerVals({ display_name: 'Alice', is_founder: false }, 'forum');
-  check('headerVals marque la page active', hv.hdrForum === 'cm-link is-active' && hv.hdrHome === 'cm-link' && hv.hdrName === 'Alice' && hv.hdrIsFounder === false);
+  const hv = RDB.headerVals({ display_name: 'Alice', is_founder: false }, 'guides');
+  check('headerVals marque la page active', hv.hdrGuides === 'cm-link is-active' && hv.hdrVideos === 'cm-link' && hv.hdrName === 'Alice' && hv.hdrIsFounder === false);
+  check('« Reprendre un CCTP » est un onglet de la barre, actif sur sa page', RDB.headerVals({}, 'reprise').hdrReprise === 'cm-link is-active' && hv.hdrReprise === 'cm-link');
 }
 
 // --- Envoi par morceaux (RDB.uploadChunked) : « Publier » et « Reprendre un CCTP » ------

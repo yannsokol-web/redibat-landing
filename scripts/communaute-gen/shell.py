@@ -10,14 +10,14 @@ CSP = ("default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'sel
        "font-src 'self' data: https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
        "script-src 'self' 'unsafe-inline' 'unsafe-eval'; connect-src 'self' https://api.redibat.fr")
 
+# Barre de l'espace client réduite le 15/10/2026 (décision de Yann) : Vidéos, Guides,
+# Téléchargements et « Reprendre un CCTP ». Accueil, Forum, Nouveautés et Membres
+# restent en ligne, joignables par leur adresse, mais ne sont plus dans la barre.
 NAV_LINKS = [
-    ('home', '/communaute/', 'Accueil'),
     ('videos', '/communaute/videos', 'Vidéos'),
-    ('forum', '/communaute/forum', 'Forum'),
     ('guides', '/communaute/guides', 'Guides'),
-    ('news', '/communaute/nouveautes', 'Nouveautés'),
     ('downloads', '/communaute/telechargements', 'Téléchargements'),
-    ('members', '/communaute/membres', 'Membres'),
+    ('reprise', '/communaute/reprise', 'Reprendre un CCTP'),
 ]
 FOUNDER_LINKS = [
     ('publish', '/communaute/publier', 'Publier'),
@@ -46,7 +46,7 @@ def head(title, description, extra_head=''):
 <link rel="icon" type="image/png" sizes="32x32" href="/assets/logos/favicon-32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="/assets/logos/favicon-16.png">
 <link rel="apple-touch-icon" href="/assets/logos/favicon-256.png">
-<script src="/communaute/community.js?v=4"></script>{extra_head}
+<script src="/communaute/community.js?v=5"></script>{extra_head}
 <script src="/support.js"></script>
 </head>
 <body>
@@ -59,7 +59,7 @@ def head(title, description, extra_head=''):
   <link rel="stylesheet" href="{DS}/tokens/colors.css">
   <link rel="stylesheet" href="{DS}/tokens/typography.css">
   <link rel="stylesheet" href="{DS}/tokens/spacing.css">
-  <link rel="stylesheet" href="/communaute/community.css?v=4">
+  <link rel="stylesheet" href="/communaute/community.css?v=5">
 </helmet>
 '''
 
@@ -92,7 +92,6 @@ def header():
       <summary aria-label="Mon compte"><span class="cm-avatar">{{{{ hdrInitial }}}}</span><span class="cm-account-name">{{{{ hdrName }}}}</span></summary>
       <div class="cm-account-menu">
         <a href="/communaute/profil" class="cm-menu-link">Mon profil</a>
-        <a href="/communaute/reprise" class="cm-menu-link">Reprendre un CCTP</a>
         <button type="button" class="cm-menu-link is-danger" onClick="{{{{ onHdrLogout }}}}">Se déconnecter</button>
       </div>
     </details>
@@ -115,7 +114,6 @@ def header():
         </sc-if>
         <div class="rdb-mobile-sep"></div>
         <a href="/communaute/profil" class="rdb-mobile-link">Mon profil ({{{{ hdrName }}}})</a>
-        <a href="/communaute/reprise" class="rdb-mobile-link">Reprendre un CCTP</a>
         <button type="button" class="rdb-mobile-link" onClick="{{{{ onHdrLogout }}}}" style="width: 100%; text-align: left; border: none; background: none; cursor: pointer; color: var(--a-red);">Se déconnecter</button>
       </div>
     </details>
