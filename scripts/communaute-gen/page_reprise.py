@@ -1,0 +1,234 @@
+TITLE = 'Reprendre un CCTP'
+DESCRIPTION = 'Un CCTP que Rédibat n\'ouvre pas, ou ouvre mal : envoyez-le, il vous revient en affaire Rédibat avec son rapport.'
+
+MAIN = r'''
+<main class="cm-main is-narrow">
+  <sc-if value="{{ hasLoadError }}"><div class="cm-alert" role="alert">{{ loadError }}</div></sc-if>
+  <sc-if value="{{ hasNotice }}"><div class="cm-alert" role="alert">{{ notice }}</div></sc-if>
+
+  <div class="cm-page-head">
+    <div>
+      <p class="cm-eyebrow">Reprise de CCTP</p>
+      <h1 class="cm-h1">Reprendre un CCTP dans Rédibat</h1>
+      <p class="cm-lede">Un CCTP que Rédibat n'ouvre pas, ou ouvre mal (lots ou articles manquants) ? Envoyez-le : il vous revient en affaire Rédibat (.rdbx), avec le rapport de ce qui a été repris. Word, PDF, .doc, .odt, .rtf, base Access .mddx, ou un fichier .rdbx abîmé.</p>
+    </div>
+  </div>
+
+  <sc-if value="{{ notEligibleOffer }}">
+    <div class="cm-alert is-info" role="status">Votre offre ne comprend pas la reprise de CCTP. Pour en savoir plus, écrivez-nous depuis <a href="/#contact" style="color: inherit;">redibat.fr/#contact</a>.</div>
+  </sc-if>
+  <sc-if value="{{ notEligibleLicense }}">
+    <div class="cm-alert is-info" role="status">Votre licence n'est pas active : la reprise de CCTP est réservée aux licences en cours.</div>
+  </sc-if>
+
+  <sc-if value="{{ eligible }}">
+    <sc-if value="{{ serviceDown }}"><div class="cm-alert" role="alert">Le service de reprise est momentanément indisponible. Réessayez plus tard, ou écrivez-nous depuis <a href="/#contact" style="color: inherit;">redibat.fr/#contact</a>.</div></sc-if>
+
+    <section class="cm-card" style="margin-bottom: 24px;">
+      <div class="cm-card-head"><h2 class="cm-h2">Envoyer un fichier</h2><span class="cm-mono">{{ quotaLabel }}</span></div>
+      <form class="cm-card-body" onSubmit="{{ onSend }}">
+        <label class="cm-field"><span>Fichier (jusqu'à {{ maxSize }})</span><input class="cm-input" type="file" name="file" accept="{{ accept }}" onChange="{{ onPick }}"></label>
+        <label class="cm-check" style="align-items: flex-start; margin-bottom: 12px;"><input type="checkbox" name="consent" checked="{{ consent }}" onChange="{{ onConsent }}" style="margin-top: 3px; flex: none;"> <span>J'accepte que ce fichier soit analysé par un service d'intelligence artificielle (Claude, de la société Anthropic, aux États-Unis) pour en reconnaître la structure. Le texte de mon document n'est pas réécrit : il est recopié tel quel.</span></label>
+        <label class="cm-check" style="align-items: flex-start; margin-bottom: 16px;"><input type="checkbox" name="keep" checked="{{ keep }}" onChange="{{ onKeep }}" style="margin-top: 3px; flex: none;"> <span>Facultatif : j'autorise Rédibat à conserver ce fichier pour améliorer la lecture des CCTP dans l'application. Sinon, il est effacé sous {{ retention }} jours, avec l'affaire rendue.</span></label>
+        <sc-if value="{{ uploading }}">
+          <p class="cm-help" style="margin: 0 0 8px;">{{ uploadLabel }} ({{ uploadPct }} %)</p>
+          <div class="cm-progress" style="margin-bottom: 16px;"><div style="width: {{ uploadPct }}%;"></div></div>
+        </sc-if>
+        <sc-if value="{{ hasFormError }}"><div class="cm-alert" role="alert">{{ formError }}</div></sc-if>
+        <div style="display: flex; justify-content: flex-end;"><button type="submit" class="cm-btn" disabled="{{ cannotSend }}">Envoyer</button></div>
+      </form>
+    </section>
+
+    <section class="cm-card" style="margin-bottom: 24px;">
+      <div class="cm-card-head"><h2 class="cm-h2">Mes reprises</h2><span class="cm-mono">{{ countLabel }}</span></div>
+      <sc-if value="{{ noJobs }}"><div class="cm-empty">Aucune reprise pour l'instant.</div></sc-if>
+      <ul class="cm-list">
+        <sc-for list="{{ jobs }}" as="j">
+          <li class="cm-row" style="align-items: flex-start;">
+            <div class="cm-row-main">
+              <p class="cm-row-title">{{ j.name }}</p>
+              <div class="cm-row-meta" style="margin-bottom: 6px;"><span class="{{ j.statusCls }}">{{ j.statusLabel }}</span><span>{{ j.size }}</span><span>{{ j.date }}</span><sc-if value="{{ j.hasExpiry }}"><span>{{ j.expiry }}</span></sc-if></div>
+              <sc-if value="{{ j.hasSummary }}"><p class="cm-small" style="margin: 0 0 6px;">{{ j.summary }}</p></sc-if>
+              <sc-if value="{{ j.hasError }}"><p class="cm-small" style="margin: 0 0 6px; color: var(--a-red);">{{ j.error }}</p></sc-if>
+              <sc-if value="{{ j.open }}">
+                <div style="border: 1px solid var(--a-border); border-radius: 12px; padding: 12px 16px; margin: 8px 0;">
+                  <sc-if value="{{ j.hasCompare }}"><p class="cm-small" style="margin: 0 0 10px;">{{ j.compare }}</p></sc-if>
+                  <sc-if value="{{ j.hasCorrections }}">
+                    <p class="cm-small" style="margin: 0 0 6px; font-weight: 600;">Corrections apportées</p>
+                    <ul style="margin: 0 0 10px; padding-left: 18px;"><sc-for list="{{ j.corrections }}" as="k"><li class="cm-small">{{ k }}</li></sc-for></ul>
+                  </sc-if>
+                  <sc-if value="{{ j.hasWarnings }}">
+                    <p class="cm-small" style="margin: 0 0 6px; font-weight: 600;">À vérifier</p>
+                    <ul style="margin: 0 0 10px; padding-left: 18px;"><sc-for list="{{ j.warnings }}" as="w"><li class="cm-small">{{ w }}</li></sc-for></ul>
+                  </sc-if>
+                  <sc-if value="{{ j.showDiscarded }}">
+                    <p class="cm-small" style="margin: 0 0 6px; font-weight: 600;">{{ j.discardedTitle }}</p>
+                    <sc-if value="{{ j.noDiscarded }}"><p class="cm-small cm-muted" style="margin: 0;">Aucune.</p></sc-if>
+                    <sc-for list="{{ j.discardedGroups }}" as="g">
+                      <p class="cm-small cm-muted" style="margin: 8px 0 4px;">{{ g.label }}</p>
+                      <ul style="margin: 0; padding-left: 18px; max-height: 220px; overflow: auto;"><sc-for list="{{ g.lines }}" as="t"><li class="cm-small">{{ t }}</li></sc-for></ul>
+                    </sc-for>
+                  </sc-if>
+                </div>
+              </sc-if>
+              <div class="cm-post-actions" style="margin-top: 0;">
+                <sc-if value="{{ j.downloadable }}"><button type="button" class="cm-act is-primary" onClick="{{ j.onDownload }}">Télécharger l'affaire (.rdbx)</button></sc-if>
+                <sc-if value="{{ j.hasReport }}"><button type="button" class="cm-act" onClick="{{ j.onToggle }}">{{ j.toggleLabel }}</button></sc-if>
+                <sc-if value="{{ j.canDelete }}"><button type="button" class="cm-act is-danger" onClick="{{ j.onDelete }}">Supprimer</button></sc-if>
+              </div>
+            </div>
+          </li>
+        </sc-for>
+      </ul>
+    </section>
+
+    <section class="cm-card">
+      <div class="cm-card-head"><h2 class="cm-h2">Comment ça marche</h2></div>
+      <div class="cm-card-body">
+        <p style="margin: 0 0 10px; font-size: 15px; line-height: 1.6;">Votre fichier est lu par les mêmes lecteurs que l'application. Pour un Word ou un PDF, une intelligence artificielle reconnaît ensuite sa structure (lots, chapitres, articles, localisations) : elle ne voit que le début de chaque ligne et ne réécrit rien ; le texte de l'affaire est celui de votre document, recopié. Une vérification s'assure qu'aucune ligne n'est perdue : chaque ligne écartée (page de garde, sommaire, en-têtes et pieds de page) est listée dans le rapport.</p>
+        <p style="margin: 0; font-size: 15px; line-height: 1.6;">Ouvrez le fichier téléchargé dans Rédibat (Ouvrir une affaire), puis relisez la structure : une ligne peut avoir été rangée au mauvais endroit. Un .rdbx abîmé est réparé sans intelligence artificielle, et le rapport dit ce qui n'a pas pu être récupéré.</p>
+      </div>
+    </section>
+  </sc-if>
+</main>
+'''
+
+SCRIPT = r'''
+class Component extends DCLogic {
+  state = { ready: false, me: null, banned: false, loadError: '', nameOpen: false, nameError: '', nameBusy: false, nameForced: false,
+    info: null, notice: '', file: null, consent: false, keep: false, upload: null, formError: '', openId: 0 };
+
+  componentDidMount() {
+    if (this._started) return;   // garde : un seul démarrage même si le runtime re-monte
+    this._started = true;
+    // Motif renvoyé par l'API quand un téléchargement par navigation directe a échoué.
+    const err = RDB.params().get('erreur') || '';
+    const messages = {
+      not_found: 'Cette reprise n\'existe pas, ou elle a été supprimée.',
+      expired: 'Cette reprise a expiré : ses fichiers ont été effacés. Envoyez le CCTP à nouveau.',
+      not_ready: 'Cette reprise n\'est pas encore prête.',
+    };
+    this.state.notice = messages[err] || '';
+    RDB.bootPage(this, {});
+  }
+
+  async load() {
+    const r = await RDB.api('/v1/me/conversions');
+    if (RDB.loadFailed(this, r)) return;
+    this.setState({ info: r.data });
+    this.poll();
+  }
+
+  // Tant qu'une reprise est en file ou en cours, la liste se relit toutes les 5 s.
+  poll() {
+    const pending = ((this.state.info && this.state.info.conversions) || []).some((c) => c.status === 'queued' || c.status === 'processing');
+    if (!pending || this._timer) return;
+    this._timer = setTimeout(async () => {
+      this._timer = null;
+      const r = await RDB.api('/v1/me/conversions');
+      if (r.status === 200) this.setState({ info: r.data });
+      this.poll();
+    }, 5000);
+  }
+
+  onPick = (e) => this.setState({ file: (e.target.files && e.target.files[0]) || null, formError: '' });
+  onConsent = (e) => this.setState({ consent: !!e.target.checked });
+  onKeep = (e) => this.setState({ keep: !!e.target.checked });
+
+  onSend = async (e) => {
+    e.preventDefault();
+    const s = this.state;
+    if (s.upload || !s.file || !s.consent) return;
+    const form = e.currentTarget || e.target;
+    const file = s.file;
+    const label = 'Envoi de « ' + file.name + ' »';
+    this.setState({ upload: { label, pct: 0 }, formError: '' });
+    const c = await RDB.api('/v1/me/conversions', { method: 'POST', body: { filename: file.name, size: file.size, consent_ai: true, keep: !!s.keep } });
+    if (c.status !== 201) {
+      const code = c.data && c.data.error;
+      const msg = code === 'bad_request' && c.data.field === 'filename' ? 'Ce type de fichier n\'est pas accepté.'
+        : code === 'bad_request' && c.data.field === 'size' ? 'Ce fichier est trop volumineux.' : RDB.errorMessage(c.status, c.data, 'Envoi impossible.');
+      this.setState({ upload: null, formError: msg });
+      return;
+    }
+    const r = await RDB.uploadChunked({ base: '/v1/me/conversions/' + c.data.id, file, chunkSize: c.data.chunk_size,
+      onProgress: (pct) => this.setState({ upload: { label, pct } }) });
+    // Envoi réussi : le champ se vide, sinon il afficherait encore le nom d'un fichier déjà parti.
+    const input = r.ok && form && form.querySelector ? form.querySelector('input[type="file"]') : null;
+    if (input) input.value = '';
+    const messages = { auth: 'Session expirée ou refusée : reconnectez-vous.', network: 'Envoi interrompu (réseau). Envoyez le fichier à nouveau.',
+      other_file: 'Envoi incohérent : envoyez le fichier à nouveau.' };
+    // Envoi réussi : les deux accords se redonnent au fichier suivant (ils valent pour UN envoi).
+    this.setState({ upload: null, file: r.ok ? null : s.file, consent: r.ok ? false : s.consent, keep: r.ok ? false : s.keep,
+      formError: r.ok ? '' : (messages[r.error] || RDB.errorMessage(r.status, r.data, 'Envoi impossible.')),
+      notice: r.ok ? 'Fichier reçu : la reprise est en cours. Cette page se met à jour toute seule.' : '' });
+    const l = await RDB.api('/v1/me/conversions');
+    if (l.status === 200) this.setState({ info: l.data });
+    this.poll();
+  };
+
+  toggle = (c) => () => this.setState((s) => ({ openId: s.openId === c.id ? 0 : c.id }));
+  remove = (c) => async () => {
+    if (!window.confirm('Supprimer la reprise de « ' + c.original_name + ' » et ses fichiers ?')) return;
+    const r = await RDB.api('/v1/me/conversions/' + c.id, { method: 'DELETE' });
+    if (r.status !== 200) { this.setState({ notice: RDB.errorMessage(r.status, r.data, 'Suppression impossible.') }); return; }
+    const l = await RDB.api('/v1/me/conversions');
+    if (l.status === 200) this.setState({ info: l.data });
+  };
+
+  renderVals() {
+    const s = this.state;
+    const info = s.info || {};
+    const STATUS = { uploading: ['Envoi incomplet', 'cm-tag is-muted'], queued: ['En file d\'attente', 'cm-tag is-amber'], processing: ['Reprise en cours', 'cm-tag is-amber'],
+      ready: ['Prête', 'cm-tag is-teal'], failed: ['Échec', 'cm-tag is-red'] };
+    const jobs = (info.conversions || []).map((c) => {
+      const st = c.purged ? ['Expirée', 'cm-tag is-muted'] : (STATUS[c.status] || STATUS.uploading);
+      const rap = c.rapport || {};
+      const discarded = rap.ecartees || [];
+      // Regroupées par motif, dans l'ordre du document : un motif répété 115 fois se lit mal.
+      const groups = [];
+      discarded.forEach((d) => {
+        const reason = d.raison || 'écartée';
+        let g = groups.find((x) => x.reason === reason);
+        if (!g) { g = { reason, lines: [] }; groups.push(g); }
+        g.lines.push(d.texte || '');
+      });
+      const discardedGroups = groups.map((g) => ({ label: g.reason.charAt(0).toUpperCase() + g.reason.slice(1) + ' : ' + g.lines.length, lines: g.lines }));
+      const warnings = (rap.avertissements || []).concat(rap.pertes || []);
+      const total = rap.ecartees_total || discarded.length;
+      const corrections = rap.corrections || [];
+      const compte = (c) => RDB.plural(c.lots || 0, 'lot', 'lots') + ', ' + RDB.plural(c.titres || 0, 'titre', 'titres');
+      const compare = rap.reprise ? (rap.regles ? 'L\'application seule trouvait ' + compte(rap.regles) + ' ; la reprise en trouve ' + compte(rap.reprise) + '.'
+        : 'L\'application ne parvenait pas à ouvrir ce fichier ; la reprise trouve ' + compte(rap.reprise) + '.') : '';
+      return {
+        name: c.original_name, statusLabel: st[0], statusCls: st[1], size: RDB.fmtSize(c.size), date: RDB.fmtDateTime(c.created_at),
+        hasExpiry: !c.purged && c.status === 'ready', expiry: 'disponible jusqu\'au ' + RDB.fmtDate(c.expires_at),
+        hasSummary: !!c.summary, summary: c.summary || '', hasError: c.status === 'failed' && !!c.error, error: c.error || '',
+        open: s.openId === c.id, hasReport: !!c.rapport, toggleLabel: s.openId === c.id ? 'Masquer le rapport' : 'Voir le rapport',
+        hasCompare: !!compare, compare, hasCorrections: corrections.length > 0, corrections,
+        hasWarnings: warnings.length > 0, warnings, showDiscarded: rap.methode !== 'reparation',
+        discardedTitle: total > discarded.length ? 'Lignes écartées (' + discarded.length + ' sur ' + total + ')' : 'Lignes écartées (' + total + ')',
+        discardedGroups, noDiscarded: discarded.length === 0,
+        downloadable: c.downloadable === true, canDelete: c.status !== 'queued' && c.status !== 'processing',
+        onDownload: () => RDB.goDownload('/v1/me/conversions/' + c.id + '/download'), onToggle: this.toggle(c), onDelete: this.remove(c),
+      };
+    });
+    const quota = info.quota || { used: 0, max: 0 };
+    const eligible = info.eligible === true;
+    return Object.assign(RDB.shellVals(this, 'reprise'), {
+      hasNotice: !!s.notice, notice: s.notice,
+      eligible, notEligibleOffer: !!s.info && !eligible && info.reason === 'offre',
+      notEligibleLicense: !!s.info && !eligible && info.reason === 'license_inactive',
+      serviceDown: eligible && info.service_ok === false,
+      quotaLabel: quota.used + ' sur ' + quota.max + ' ce mois-ci',
+      maxSize: RDB.fmtSize(info.max_bytes || 0), accept: (info.extensions || []).map((x) => '.' + x).join(','),
+      retention: String(info.retention_days || 7),
+      consent: !!s.consent, keep: !!s.keep, onPick: this.onPick, onConsent: this.onConsent, onKeep: this.onKeep, onSend: this.onSend,
+      uploading: !!s.upload, uploadLabel: s.upload ? s.upload.label : '', uploadPct: s.upload ? s.upload.pct : 0,
+      hasFormError: !!s.formError, formError: s.formError,
+      cannotSend: !!s.upload || !s.file || !s.consent || info.service_ok === false,
+      jobs, noJobs: jobs.length === 0, countLabel: RDB.plural(jobs.length, 'reprise', 'reprises'),
+    });
+  }
+}
+'''

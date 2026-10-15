@@ -46,7 +46,7 @@ def head(title, description, extra_head=''):
 <link rel="icon" type="image/png" sizes="32x32" href="/assets/logos/favicon-32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="/assets/logos/favicon-16.png">
 <link rel="apple-touch-icon" href="/assets/logos/favicon-256.png">
-<script src="/communaute/community.js?v=3"></script>{extra_head}
+<script src="/communaute/community.js?v=4"></script>{extra_head}
 <script src="/support.js"></script>
 </head>
 <body>
@@ -59,7 +59,7 @@ def head(title, description, extra_head=''):
   <link rel="stylesheet" href="{DS}/tokens/colors.css">
   <link rel="stylesheet" href="{DS}/tokens/typography.css">
   <link rel="stylesheet" href="{DS}/tokens/spacing.css">
-  <link rel="stylesheet" href="/communaute/community.css?v=3">
+  <link rel="stylesheet" href="/communaute/community.css?v=4">
 </helmet>
 '''
 
@@ -92,6 +92,7 @@ def header():
       <summary aria-label="Mon compte"><span class="cm-avatar">{{{{ hdrInitial }}}}</span><span class="cm-account-name">{{{{ hdrName }}}}</span></summary>
       <div class="cm-account-menu">
         <a href="/communaute/profil" class="cm-menu-link">Mon profil</a>
+        <a href="/communaute/reprise" class="cm-menu-link">Reprendre un CCTP</a>
         <button type="button" class="cm-menu-link is-danger" onClick="{{{{ onHdrLogout }}}}">Se déconnecter</button>
       </div>
     </details>
@@ -114,6 +115,7 @@ def header():
         </sc-if>
         <div class="rdb-mobile-sep"></div>
         <a href="/communaute/profil" class="rdb-mobile-link">Mon profil ({{{{ hdrName }}}})</a>
+        <a href="/communaute/reprise" class="rdb-mobile-link">Reprendre un CCTP</a>
         <button type="button" class="rdb-mobile-link" onClick="{{{{ onHdrLogout }}}}" style="width: 100%; text-align: left; border: none; background: none; cursor: pointer; color: var(--a-red);">Se déconnecter</button>
       </div>
     </details>

@@ -1,5 +1,5 @@
 // Scénarios interactifs dans Chrome headless (protocole DevTools) : connexion par la vraie
-// page, puis étapes { goto | eval | expect | shot | wait }. Usage :
+// page, puis étapes { goto | eval | expect | shot | wait | setFile | downloadTo }. Usage :
 //   node interact.mjs <compte> <dossier-de-sortie> <scenario.json>
 import fs from 'node:fs';
 import path from 'node:path';
@@ -62,6 +62,9 @@ if (EMAIL) {
   console.log('connecté :', await evaluate('location.href'));
 }
 for (const step of steps) {
+  // { "downloadTo": dossier } : Chrome enregistre les téléchargements dans ce dossier (le nom
+  // retenu est celui que le NAVIGATEUR tire de Content-Disposition, accents compris).
+  if (step.downloadTo) { fs.mkdirSync(step.downloadTo, { recursive: true }); await send('Page.setDownloadBehavior', { behavior: 'allow', downloadPath: step.downloadTo }); }
   if (step.goto) { await goto(step.goto); console.log(`\n→ ${step.goto} : ${await evaluate('location.href')}`); }
   if (step.setFile) {
     const doc = await send('DOM.getDocument', { depth: 1 });

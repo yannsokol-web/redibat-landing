@@ -16,7 +16,7 @@
 <link rel="icon" type="image/png" sizes="32x32" href="/assets/logos/favicon-32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="/assets/logos/favicon-16.png">
 <link rel="apple-touch-icon" href="/assets/logos/favicon-256.png">
-<script src="/communaute/community.js?v=3"></script>
+<script src="/communaute/community.js?v=4"></script>
 <script src="/support.js"></script>
 </head>
 <body>
@@ -29,7 +29,7 @@
   <link rel="stylesheet" href="/_ds/r-dibat-design-system-740ba38c-581d-4335-88dd-fcf28913eed8/tokens/colors.css">
   <link rel="stylesheet" href="/_ds/r-dibat-design-system-740ba38c-581d-4335-88dd-fcf28913eed8/tokens/typography.css">
   <link rel="stylesheet" href="/_ds/r-dibat-design-system-740ba38c-581d-4335-88dd-fcf28913eed8/tokens/spacing.css">
-  <link rel="stylesheet" href="/communaute/community.css?v=3">
+  <link rel="stylesheet" href="/communaute/community.css?v=4">
 </helmet>
 
 <div class="cm-page">
@@ -62,6 +62,7 @@
       <summary aria-label="Mon compte"><span class="cm-avatar">{{ hdrInitial }}</span><span class="cm-account-name">{{ hdrName }}</span></summary>
       <div class="cm-account-menu">
         <a href="/communaute/profil" class="cm-menu-link">Mon profil</a>
+        <a href="/communaute/reprise" class="cm-menu-link">Reprendre un CCTP</a>
         <button type="button" class="cm-menu-link is-danger" onClick="{{ onHdrLogout }}">Se déconnecter</button>
       </div>
     </details>
@@ -91,6 +92,7 @@
         </sc-if>
         <div class="rdb-mobile-sep"></div>
         <a href="/communaute/profil" class="rdb-mobile-link">Mon profil ({{ hdrName }})</a>
+        <a href="/communaute/reprise" class="rdb-mobile-link">Reprendre un CCTP</a>
         <button type="button" class="rdb-mobile-link" onClick="{{ onHdrLogout }}" style="width: 100%; text-align: left; border: none; background: none; cursor: pointer; color: var(--a-red);">Se déconnecter</button>
       </div>
     </details>
@@ -105,7 +107,6 @@
 
 <main class="cm-main">
   <sc-if value="{{ hasLoadError }}"><div class="cm-alert" role="alert">{{ loadError }}</div></sc-if>
-  <sc-if value="{{ hasNotice }}"><div class="cm-alert" role="alert">{{ notice }}</div></sc-if>
 
   <sc-if value="{{ viewList }}">
     <div class="cm-page-head">
@@ -140,7 +141,7 @@
     <p class="cm-mono" style="margin: 0 0 16px;"><a href="/communaute/guides" style="color: var(--a-blue); text-decoration: none;">← Tous les guides</a></p>
     <div class="cm-split is-article">
       <article class="cm-card" style="padding: 34px 38px 40px;">
-        <div class="cm-row-meta" style="margin-bottom: 10px;"><span class="cm-tag">{{ guide.moduleName }}</span><span>mis à jour {{ guide.updated }}</span><sc-if value="{{ guide.isDraft }}"><span class="cm-tag is-amber">Brouillon (visible du fondateur seulement)</span></sc-if><a class="cm-btn is-ghost is-sm" href="{{ guide.pdfHref }}" style="margin-left: auto;">Télécharger en PDF</a></div>
+        <div class="cm-row-meta" style="margin-bottom: 10px;"><span class="cm-tag">{{ guide.moduleName }}</span><span>mis à jour {{ guide.updated }}</span><sc-if value="{{ guide.isDraft }}"><span class="cm-tag is-amber">Brouillon (visible du fondateur seulement)</span></sc-if></div>
         <h1 class="cm-h1">{{ guide.title }}</h1>
         <sc-if value="{{ guide.hasSummary }}"><p class="cm-lede" style="margin-bottom: 22px;">{{ guide.summary }}</p></sc-if>
         <div class="cm-prose">
@@ -193,23 +194,13 @@
 
 class Component extends DCLogic {
   state = { ready: false, me: null, banned: false, loadError: '', nameOpen: false, nameError: '', nameBusy: false, nameForced: false,
-    slug: '', modules: null, guide: null, siblings: [], notice: '' };
+    slug: '', modules: null, guide: null, siblings: [] };
 
   componentDidMount() {
     if (this._started) return;   // garde : un seul démarrage même si le runtime re-monte
     this._started = true;
     const g = RDB.params().get('g') || '';
     this.state.slug = /^[a-z0-9-]{1,80}$/.test(g) ? g : '';
-    // Motif renvoyé par l'API quand le téléchargement du PDF (navigation directe) a échoué.
-    const err = RDB.params().get('erreur') || '';
-    const messages = {
-      license_inactive: "Votre licence n'est pas active : le téléchargement du PDF est refusé. La lecture en ligne reste ouverte.",
-      download_unavailable: 'Le PDF est momentanément indisponible. Réessayez plus tard.',
-      not_found: "Ce guide n'existe pas ou n'est pas publié.",
-      forbidden: 'Téléchargement refusé.',
-      community_banned: 'Votre accès à la communauté a été suspendu.',
-    };
-    this.state.notice = messages[err] || '';
     RDB.bootPage(this, {});
   }
 
@@ -237,11 +228,10 @@ class Component extends DCLogic {
       guides: m.guides.map((g) => ({ title: g.title, summary: g.summary || '', hasSummary: !!g.summary, href: '/communaute/guides?g=' + g.slug, updated: RDB.fmtDate(g.updated_at) })),
     }));
     const g = s.guide;
-    const guide = g ? { title: g.title, summary: g.summary || '', hasSummary: !!g.summary, moduleName: g.module_name || RDB.moduleName(g.module), updated: RDB.fmtDate(g.updated_at), isDraft: g.published === false,
-      pdfHref: RDB.API_BASE + '/v1/community/guides/' + encodeURIComponent(g.slug) + '/pdf' }
-      : { title: '', summary: '', hasSummary: false, moduleName: '', updated: '', isDraft: false, pdfHref: '' };
+    const guide = g ? { title: g.title, summary: g.summary || '', hasSummary: !!g.summary, moduleName: g.module_name || RDB.moduleName(g.module), updated: RDB.fmtDate(g.updated_at), isDraft: g.published === false }
+      : { title: '', summary: '', hasSummary: false, moduleName: '', updated: '', isDraft: false };
     return Object.assign(RDB.shellVals(this, 'guides'), {
-      viewList: !s.slug, viewGuide: !!s.slug && !!g, hasNotice: !!s.notice, notice: s.notice,
+      viewList: !s.slug, viewGuide: !!s.slug && !!g,
       modules, noGuides: s.modules !== null && modules.length === 0,
       guide, blocks: g ? RDB.parseLite(g.body) : [],
       siblings: (s.siblings || []).map((x) => ({ title: x.title, href: '/communaute/guides?g=' + x.slug, cls: x.slug === s.slug ? 'is-active' : '' })),

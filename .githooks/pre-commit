@@ -72,6 +72,11 @@ if printf '%s\n' "$added" | grep -Eq 'RedibatPro|RedibatMax' ; then
     fail "Mot de passe de démonstration en clair détecté (RedibatPro / RedibatMax)."
 fi
 
+# Clé d'API Anthropic : elle ne vit que dans le .env du serveur (service « Reprendre un CCTP »).
+if printf '%s\n' "$added" | grep -Eq 'sk-ant-[A-Za-z0-9_-]{20,}' ; then
+    fail "Clé d'API Anthropic (sk-ant-…) détectée. Elle ne vit que dans le .env du serveur."
+fi
+
 # Motif générique mot de passe en clair : password : <6+ non blancs> ou password = <6+>
 if printf '%s\n' "$added" | grep -Eiq 'password[[:space:]]*[:=][[:space:]]*[^[:space:]]{6,}' ; then
     fail "Motif de mot de passe en clair détecté (password[:=]…). Utiliser un hash / un secret hors dépôt."

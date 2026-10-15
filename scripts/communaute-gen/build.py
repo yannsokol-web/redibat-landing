@@ -13,6 +13,7 @@ PAGES = [
     ('profil.html', 'page_profil'),
     ('recherche.html', 'page_recherche'),
     ('publier.html', 'page_publier'),
+    ('reprise.html', 'page_reprise'),
 ]
 
 only = sys.argv[1:]

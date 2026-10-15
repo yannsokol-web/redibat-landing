@@ -298,59 +298,25 @@ class Component extends DCLogic {
     return false;
   }
 
-  // ---- Téléversement en morceaux (vidéos et documents) --------------------------------
-  sendChunk(kind, id, index, blob, onProgress) {
-    return new Promise((resolve) => {
-      const xhr = new XMLHttpRequest();
-      xhr.open('POST', RDB.API_BASE + '/v1/founder/community/' + kind + '/' + id + '/chunk');
-      xhr.withCredentials = true;
-      xhr.setRequestHeader('Content-Type', 'application/octet-stream');
-      xhr.setRequestHeader('X-Chunk-Index', String(index));
-      xhr.setRequestHeader('Accept', 'application/json');
-      xhr.upload.onprogress = (e) => { if (e.lengthComputable) onProgress(e.loaded); };
-      xhr.onload = () => { let data = null; try { data = JSON.parse(xhr.responseText); } catch (_) {} resolve({ status: xhr.status, data }); };
-      xhr.onerror = () => resolve({ status: 0, data: null });
-      xhr.timeout = 90000;
-      xhr.ontimeout = () => resolve({ status: 0, data: null });
-      xhr.send(blob);
-    });
-  }
-
+  // ---- Téléversement en morceaux (vidéos et documents) : `RDB.uploadChunked`, point UNIQUE
+  // partagé avec « Reprendre un CCTP ».
   async uploadFile(kind, id, file, label) {
-    const cs = this.state.chunkSize;
-    const total = Math.ceil(file.size / cs);
-    const setPct = (bytes) => this.setState({ upload: { label, pct: Math.min(100, Math.floor(bytes * 100 / file.size)) } });
     this.setState({ upload: { label, pct: 0 }, actionError: '' });
-    let index = 0;
-    const st = await RDB.api('/v1/founder/community/' + kind + '/' + id + '/upload-status');
-    if (st.status === 200 && st.data) {
-      if (st.data.expected_size !== file.size) { this.setState({ upload: null, actionError: 'Ce fichier n\'a pas la taille attendue : sélectionnez le même fichier que la première fois.' }); return false; }
-      index = Number(st.data.next_index) || 0;
-    }
-    while (index < total) {
-      const blob = file.slice(index * cs, Math.min(file.size, (index + 1) * cs));
-      let ok = false;
-      for (let attempt = 0; attempt < 3 && !ok; attempt += 1) {
-        const r = await this.sendChunk(kind, id, index, blob, (loaded) => setPct(index * cs + loaded));
-        if (r.status === 200) { ok = true; index += 1; }
-        else if (r.status === 409 && r.data && Number.isInteger(r.data.next_index)) { ok = true; index = r.data.next_index; }   // resynchronisation
-        else if (r.status === 401 || r.status === 403) { this.setState({ upload: null, actionError: 'Session expirée ou refusée : reconnectez-vous.' }); return false; }
-        else await new Promise((res) => setTimeout(res, 800 * (attempt + 1)));
-      }
-      if (!ok) { this.setState({ upload: null, actionError: 'Téléversement interrompu (réseau). Relancez-le : il reprendra où il s\'est arrêté.' }); return false; }
-    }
-    setPct(file.size);
-    const fin = await RDB.api('/v1/founder/community/' + kind + '/' + id + '/finalize', { method: 'POST', body: {} });
+    const r = await RDB.uploadChunked({ base: '/v1/founder/community/' + kind + '/' + id, file, chunkSize: this.state.chunkSize,
+      onProgress: (pct) => this.setState({ upload: { label, pct } }) });
+    if (!r.ok && r.error === 'other_file') { this.setState({ upload: null, actionError: 'Ce fichier n\'a pas la taille attendue : sélectionnez le même fichier que la première fois.' }); return false; }
+    if (!r.ok && r.error === 'auth') { this.setState({ upload: null, actionError: 'Session expirée ou refusée : reconnectez-vous.' }); return false; }
+    if (!r.ok && r.error === 'network') { this.setState({ upload: null, actionError: 'Téléversement interrompu (réseau). Relancez-le : il reprendra où il s\'est arrêté.' }); return false; }
     this.setState({ upload: null });
-    if (fin.status !== 200) {
-      const code = fin.data && fin.data.error;
+    if (!r.ok) {
+      const code = r.data && r.data.error;
       const msg = code === 'not_mp4' ? 'Ce fichier n\'est pas un MP4 : sans ffmpeg sur le serveur, seul un MP4 (H.264) est accepté.'
-        : code === 'size_mismatch' ? 'Le fichier est incomplet : relancez le téléversement.' : RDB.errorMessage(fin.status, fin.data, 'Finalisation impossible.');
+        : code === 'size_mismatch' ? 'Le fichier est incomplet : relancez le téléversement.' : RDB.errorMessage(r.status, r.data, 'Finalisation impossible.');
       this.setState({ actionError: msg });
       await this.refresh(kind);
       return false;
     }
-    this.setState({ banner: fin.data.status === 'processing' ? 'Fichier reçu : normalisation en cours (quelques minutes). La vidéo apparaîtra « prête » ensuite.' : 'Fichier reçu et prêt. Pensez à le publier.' });
+    this.setState({ banner: r.data.status === 'processing' ? 'Fichier reçu : normalisation en cours (quelques minutes). La vidéo apparaîtra « prête » ensuite.' : 'Fichier reçu et prêt. Pensez à le publier.' });
     await this.refresh(kind);
     return true;
   }

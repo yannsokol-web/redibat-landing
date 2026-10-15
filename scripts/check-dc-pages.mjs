@@ -122,6 +122,7 @@ for (const rel of pages) {
   if (strict) check('le gabarit emploie des clés', used.size > 3, String(used.size));
   const inst = new Cls();
   if (rel === 'espace-fondateur.html') founderResults.Cls = Cls;
+  if (rel === 'communaute/reprise.html') founderResults.Reprise = { Cls, template };
   let vals = null;
   try { vals = inst.renderVals(); check('renderVals() s\'exécute sur l\'état initial', !!vals); }
   catch (err) { check('renderVals() s\'exécute sur l\'état initial', false, err.message); }
@@ -273,6 +274,160 @@ if (RDB) {
   check('badges connus seulement', RDB.badges(['founder', 'x', 'early']).map((x) => x.label).join('|') === 'Fondateur|Membre fondateur');
   const hv = RDB.headerVals({ display_name: 'Alice', is_founder: false }, 'forum');
   check('headerVals marque la page active', hv.hdrForum === 'cm-link is-active' && hv.hdrHome === 'cm-link' && hv.hdrName === 'Alice' && hv.hdrIsFounder === false);
+}
+
+// --- Envoi par morceaux (RDB.uploadChunked) : « Publier » et « Reprendre un CCTP » ------
+if (RDB && RDB.uploadChunked) {
+  console.log('\n■ community.js : envoi par morceaux');
+  // Faux XMLHttpRequest : `respond(index, size)` décide de la réponse de chaque morceau.
+  let respond = () => ({ status: 200, data: {} });
+  let sent = [];
+  globalThis.XMLHttpRequest = class {
+    constructor() { this.headers = {}; this.upload = {}; }
+    open(method, u) { this.url = u; }
+    setRequestHeader(k, v) { this.headers[k] = v; }
+    send(blob) {
+      const index = Number(this.headers['X-Chunk-Index']);
+      sent.push({ index, size: blob.size, url: this.url });
+      const r = respond(index, blob.size);
+      queueMicrotask(() => {
+        if (r.status === 0) { this.onerror(); return; }
+        if (this.upload.onprogress) this.upload.onprogress({ lengthComputable: true, loaded: blob.size });
+        this.status = r.status; this.responseText = JSON.stringify(r.data || {}); this.onload();
+      });
+    }
+  };
+  const apiOrig = RDB.api;
+  let status = { status: 200, data: { expected_size: 25, next_index: 0 } };
+  let finalize = { status: 200, data: { status: 'queued' } };
+  let finalized = 0;
+  RDB.api = async (u) => {
+    if (u.endsWith('/upload-status')) return status;
+    if (u.endsWith('/finalize')) { finalized += 1; return finalize; }
+    return { status: 404, data: null };
+  };
+  const fichier = (size) => ({ size, slice: (a, b) => ({ size: b - a }) });
+  const envoyer = async (size = 25) => {
+    sent = []; finalized = 0;
+    const pcts = [];
+    const r = await RDB.uploadChunked({ base: '/v1/me/conversions/7', file: fichier(size), chunkSize: 10,
+      retryDelayMs: 0, onProgress: (p) => pcts.push(p) });
+    return { r, pcts };
+  };
+
+  let e = await envoyer();
+  check('envoi neuf : trois morceaux dans l\'ordre, le dernier tronqué', JSON.stringify(sent.map((x) => [x.index, x.size])) === '[[0,10],[1,10],[2,5]]', JSON.stringify(sent));
+  check('les morceaux vont à <base>/chunk de l\'API', sent.every((x) => x.url === RDB.API_BASE + '/v1/me/conversions/7/chunk'), sent[0] && sent[0].url);
+  check('puis finalize, une fois, et le résultat est rendu', e.r.ok === true && finalized === 1 && e.r.data.status === 'queued', JSON.stringify(e.r));
+  check('la progression va de 0 à 100 sans reculer', e.pcts[0] === 0 && e.pcts[e.pcts.length - 1] === 100 && e.pcts.every((v, i) => i === 0 || v >= e.pcts[i - 1]), JSON.stringify(e.pcts));
+
+  status = { status: 200, data: { expected_size: 25, next_index: 2 } };
+  e = await envoyer();
+  check('un envoi interrompu REPREND au morceau attendu', JSON.stringify(sent.map((x) => x.index)) === '[2]' && e.r.ok, JSON.stringify(sent));
+
+  status = { status: 200, data: { expected_size: 999, next_index: 1 } };
+  e = await envoyer();
+  check('un autre fichier que celui commencé est refusé SANS rien envoyer', e.r.ok === false && e.r.error === 'other_file' && sent.length === 0 && finalized === 0, JSON.stringify(e.r));
+
+  status = { status: 200, data: { expected_size: 25, next_index: 0 } };
+  respond = (i) => (i === 0 ? { status: 409, data: { next_index: 2 } } : { status: 200, data: {} });
+  e = await envoyer();
+  check('un 409 resynchronise sur le next_index du serveur', JSON.stringify(sent.map((x) => x.index)) === '[0,2]' && e.r.ok, JSON.stringify(sent));
+
+  respond = () => ({ status: 401, data: { error: 'unauthorized' } });
+  e = await envoyer();
+  check('une session refusée arrête net, sans finalize', e.r.ok === false && e.r.error === 'auth' && e.r.status === 401 && sent.length === 1 && finalized === 0, JSON.stringify(e.r));
+
+  respond = () => ({ status: 0 });
+  e = await envoyer();
+  check('réseau coupé : trois essais du même morceau, puis « network »', e.r.ok === false && e.r.error === 'network' && JSON.stringify(sent.map((x) => x.index)) === '[0,0,0]' && finalized === 0, JSON.stringify(sent));
+
+  respond = (i) => (i === 1 && sent.filter((x) => x.index === 1).length === 1 ? { status: 503 } : { status: 200, data: {} });
+  e = await envoyer();
+  check('un échec passager est réessayé, puis l\'envoi continue', e.r.ok && JSON.stringify(sent.map((x) => x.index)) === '[0,1,1,2]', JSON.stringify(sent));
+
+  respond = () => ({ status: 200, data: {} });
+  finalize = { status: 422, data: { error: 'incomplete' } };
+  e = await envoyer();
+  check('un refus de finalize est rendu avec son statut', e.r.ok === false && e.r.error === 'finalize' && e.r.status === 422 && e.r.data.error === 'incomplete', JSON.stringify(e.r));
+
+  RDB.api = apiOrig;
+  delete globalThis.XMLHttpRequest;
+}
+
+// --- Page « Reprendre un CCTP » : rendu sur des états réalistes -------------------------
+if (founderResults.Reprise) {
+  const { Cls, template } = founderResults.Reprise;
+  console.log('\n■ communaute/reprise.html : rendu');
+  const base = { eligible: true, reason: null, quota: { used: 2, max: 30 }, service_ok: true, chunk_size: 4194304,
+    max_bytes: 52428800, extensions: ['pdf', 'docx', 'rdbx'], retention_days: 7, conversions: [] };
+  const rendre = (info, extra = {}) => { const c = new Cls(); c.state = { ...c.state, ready: true, info, ...extra }; return c.renderVals(); };
+
+  let v = rendre({ eligible: false, reason: 'offre', quota: { used: 0, max: 30 }, conversions: [] });
+  check('offre écartée : message dédié, pas de formulaire', v.notEligibleOffer === true && v.eligible === false && v.notEligibleLicense === false);
+  v = rendre({ eligible: false, reason: 'license_inactive', quota: { used: 0, max: 30 }, conversions: [] });
+  check('licence inactive : message dédié', v.notEligibleLicense === true && v.notEligibleOffer === false);
+  v = new Cls().renderVals();
+  check('avant la réponse de l\'API : aucun message d\'inéligibilité', v.notEligibleOffer === false && v.notEligibleLicense === false && v.eligible === false);
+
+  v = rendre(base);
+  check('quota et formats annoncés', v.quotaLabel === '2 sur 30 ce mois-ci' && v.accept === '.pdf,.docx,.rdbx' && v.maxSize === '50,0 Mo', `${v.quotaLabel} | ${v.accept} | ${v.maxSize}`);
+  check('« Envoyer » reste grisé sans fichier ni accord', v.cannotSend === true);
+  v = rendre(base, { file: { name: 'a.pdf', size: 10 } });
+  check('… et sans l\'accord IA, même avec un fichier', v.cannotSend === true);
+  v = rendre(base, { file: { name: 'a.pdf', size: 10 }, consent: true });
+  check('fichier + accord : « Envoyer » actif', v.cannotSend === false);
+  v = rendre({ ...base, service_ok: false }, { file: { name: 'a.pdf', size: 10 }, consent: true });
+  check('budget épuisé : service indisponible annoncé, envoi grisé', v.serviceDown === true && v.cannotSend === true);
+
+  const pret = { id: 3, status: 'ready', original_name: 'CCTP lot 18.pdf', size: 2048000, created_at: '2026-10-15T08:00:00.000Z',
+    expires_at: '2026-10-22T08:00:00.000Z', purged: false, downloadable: true, summary: 'Reprise faite.', error: null,
+    rapport: { methode: 'ia', regles: { lots: 1, titres: 3 }, reprise: { lots: 1, titres: 52 }, avertissements: ['Relire le lot 1.'],
+      pertes: [], corrections: [], ecartees: [{ n: 1, texte: 'Sommaire', raison: 'sommaire' }, { n: 2, texte: 'Page 2', raison: 'en-tête' }, { n: 5, texte: 'Sommaire (suite)', raison: 'sommaire' }], ecartees_total: 4 } };
+  const repare = { id: 2, status: 'ready', original_name: 'Affaire.rdbx', size: 9000, created_at: '2026-10-14T08:00:00.000Z',
+    expires_at: '2026-10-21T08:00:00.000Z', purged: false, downloadable: true, summary: 'Fichier réparé.', error: null,
+    rapport: { methode: 'reparation', avertissements: [], pertes: ['Lot 3 : illisible, écarté.'], corrections: ['BOM retirée.'], ecartees: [], ecartees_total: 0 } };
+  const echec = { id: 1, status: 'failed', original_name: 'scan.pdf', size: 100, created_at: '2026-10-13T08:00:00.000Z',
+    expires_at: '2026-10-20T08:00:00.000Z', purged: false, downloadable: false, summary: null, error: 'Document protégé.', rapport: null };
+  const expire = { ...echec, id: 4, status: 'ready', purged: true, downloadable: false, error: null };
+  v = rendre({ ...base, conversions: [pret, repare, echec, expire] }, { openId: 3 });
+  const [jp, jr, je, jx] = v.jobs;
+  const cles = [...new Set([...template.matchAll(/\{\{\s*!?j\.(\w+)/g)].map((m) => m[1]))];
+  const absentes = cles.filter((k) => !(k in jp));
+  check('toute clé « j.* » du gabarit existe sur une ligne de « Mes reprises »', cles.length > 10 && absentes.length === 0, absentes.join(', '));
+  check('reprise IA : la comparaison avec l\'application est dite', jp.compare === 'L\'application seule trouvait 1 lot, 3 titres ; la reprise en trouve 1 lot, 52 titres.', jp.compare);
+  check('… les écartées regroupées par motif, dans l\'ordre du document', JSON.stringify(jp.discardedGroups) === JSON.stringify([{ label: 'Sommaire : 2', lines: ['Sommaire', 'Sommaire (suite)'] }, { label: 'En-tête : 1', lines: ['Page 2'] }]), JSON.stringify(jp.discardedGroups));
+  check('… les écartées sont comptées sur le TOTAL du serveur', jp.discardedTitle === 'Lignes écartées (3 sur 4)' && jp.showDiscarded === true, jp.discardedTitle);
+  check('… rapport ouvert, téléchargeable, date d\'expiration', jp.open === true && jp.downloadable === true && jp.expiry === 'disponible jusqu\'au 22/10/2026');
+  check('réparation : corrections et pertes listées, pas de lignes écartées', jr.hasCorrections && jr.corrections[0] === 'BOM retirée.' && jr.warnings.includes('Lot 3 : illisible, écarté.') && jr.showDiscarded === false && jr.hasCompare === false);
+  check('échec : le motif est affiché, rien à télécharger', je.hasError && je.error === 'Document protégé.' && je.downloadable === false && je.statusLabel === 'Échec' && je.hasReport === false);
+  check('expirée : étiquette « Expirée », ni téléchargement ni date', jx.statusLabel === 'Expirée' && jx.downloadable === false && jx.hasExpiry === false);
+  v = rendre({ ...base, conversions: [{ ...pret, status: 'processing', downloadable: false }] });
+  check('en cours : on ne peut pas la supprimer', v.jobs[0].canDelete === false && v.jobs[0].statusLabel === 'Reprise en cours');
+  v = rendre({ ...base, conversions: [{ ...pret, rapport: { ...pret.rapport, regles: undefined } }] });
+  check('l\'application n\'ouvrait pas le fichier : c\'est dit', v.jobs[0].compare.startsWith('L\'application ne parvenait pas à ouvrir ce fichier'), v.jobs[0].compare);
+
+  console.log('\n■ communaute/reprise.html : l\'envoi');
+  const apiOrig = RDB.api, upOrig = RDB.uploadChunked;
+  let posted = null, upload = { ok: true, data: { status: 'queued' } };
+  RDB.api = async (u, o) => {
+    if (o && o.method === 'POST') { posted = o.body; return { status: 201, data: { id: 9, chunk_size: 10 } }; }
+    return { status: 200, data: base };
+  };
+  RDB.uploadChunked = async (opts) => { posted.base = opts.base; return upload; };
+  const formulaire = () => { const c = new Cls(); c.state = { ...c.state, ready: true, info: base, file: { name: 'a.pdf', size: 10 }, consent: true, keep: true }; return c; };
+  let c = formulaire();
+  await c.onSend({ preventDefault() {}, currentTarget: null });
+  check('la demande porte l\'accord IA et le choix « garder »', posted.consent_ai === true && posted.keep === true && posted.filename === 'a.pdf' && posted.base === '/v1/me/conversions/9', JSON.stringify(posted));
+  check('envoi réussi : fichier oublié et les DEUX accords à redonner pour le suivant', c.state.file === null && c.state.consent === false && c.state.keep === false && c.state.upload === null && !!c.state.notice, JSON.stringify({ f: c.state.file, c: c.state.consent, k: c.state.keep }));
+  upload = { ok: false, error: 'network', status: 0, data: null };
+  c = formulaire();
+  await c.onSend({ preventDefault() {}, currentTarget: null });
+  check('envoi interrompu : fichier et accords conservés, motif affiché', c.state.file !== null && c.state.consent === true && c.state.keep === true && /réseau/.test(c.state.formError), c.state.formError);
+  c = formulaire(); c.state.consent = false; posted = null;
+  await c.onSend({ preventDefault() {}, currentTarget: null });
+  check('sans l\'accord IA, rien ne part', posted === null && c.state.upload === null);
+  RDB.api = apiOrig; RDB.uploadChunked = upOrig;
 }
 
 console.log(`\n${ok} contrôle(s) réussi(s), ${fails.length} en échec.`);

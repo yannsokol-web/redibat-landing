@@ -23,7 +23,7 @@
   RDB.API_BASE = hasLocation && location.hostname === 'localhost' ? 'http://localhost:3000' : 'https://api.redibat.fr';
   RDB.HOME = '/communaute/';
   RDB.LOGIN = '/espace-client';
-  RDB.VERSION = '3';
+  RDB.VERSION = '4';
 
   // Ordre de lecture : le socle commun d'abord, puis les modules dans l'ordre
   // d'une affaire (rédiger, métrer, chiffrer, consulter, comparer, rapporter).
@@ -144,6 +144,8 @@
     if (status === 0) return 'Impossible de joindre le serveur. Vérifiez votre connexion.';
     if (status === 403 && code === 'community_banned') return 'Votre accès à la communauté a été suspendu.';
     if (status === 403 && code === 'csrf') return 'Requête refusée. Rechargez la page et réessayez.';
+    if (status === 403 && code === 'offre') return 'Votre offre ne comprend pas ce service.';
+    if (status === 403 && code === 'license_inactive') return 'Votre licence n\'est pas active.';
     if (status === 403) return 'Action non autorisée.';
     if (status === 404) return 'Introuvable.';
     if (status === 409 && code === 'display_name_required') return 'Choisissez d\'abord un pseudo.';
@@ -153,10 +155,76 @@
     if (status === 409) return 'Action impossible dans l\'état actuel.';
     if (status === 429 && code === 'too_fast') return 'Un instant : attendez ' + ((data && data.retry_after) || 20) + ' s entre deux messages.';
     if (status === 429 && code === 'daily_limit') return 'Vous avez atteint la limite quotidienne de messages.';
+    if (status === 429 && code === 'quota') return 'Vous avez atteint le nombre de reprises du mois (' + ((data && data.quota && data.quota.max) || '') + ').';
+    if (status === 503 && code === 'service_budget') return 'Le service de reprise est momentanément indisponible. Réessayez plus tard ou écrivez-nous.';
+    if (status === 503) return 'Service momentanément indisponible. Réessayez plus tard.';
     if (status === 429) return 'Trop de requêtes. Réessayez dans quelques minutes.';
     if (status === 400 && data && data.field) return 'Champ invalide : ' + data.field + '.';
     if (status === 413) return 'Contenu trop volumineux.';
     return fallback || 'Une erreur est survenue. Réessayez.';
+  };
+
+  // ---------------------------------------------------------------------------
+  // Téléversement en morceaux (point UNIQUE : « Publier » et « Reprendre un CCTP »)
+  // ---------------------------------------------------------------------------
+
+  function sendChunk(url, index, blob, onProgress) {
+    return new Promise(function (resolve) {
+      const xhr = new global.XMLHttpRequest();
+      xhr.open('POST', url);
+      xhr.withCredentials = true;
+      xhr.setRequestHeader('Content-Type', 'application/octet-stream');
+      xhr.setRequestHeader('X-Chunk-Index', String(index));
+      xhr.setRequestHeader('Accept', 'application/json');
+      if (xhr.upload) xhr.upload.onprogress = function (e) { if (e.lengthComputable) onProgress(e.loaded); };
+      xhr.onload = function () { let data = null; try { data = JSON.parse(xhr.responseText); } catch (_) {} resolve({ status: xhr.status, data: data }); };
+      xhr.onerror = function () { resolve({ status: 0, data: null }); };
+      xhr.timeout = 90000;
+      xhr.ontimeout = function () { resolve({ status: 0, data: null }); };
+      xhr.send(blob);
+    });
+  }
+
+  /**
+   * Envoie `opts.file` à la ressource `opts.base` de l'API (« /v1/me/conversions/12 ») :
+   * `upload-status` d'abord (un envoi interrompu REPREND où il s'est arrêté), puis des
+   * morceaux de `opts.chunkSize` octets (trois essais chacun, resynchronisation sur le
+   * `next_index` d'un 409), enfin `finalize`. `opts.onProgress(pct)`.
+   * Rend { ok: true, data } (réponse de finalize) ou { ok: false, error, status, data } avec
+   * `error` ∈ 'other_file' (taille différente de l'envoi commencé) | 'auth' | 'network' |
+   * 'finalize'.
+   */
+  RDB.uploadChunked = async function (opts) {
+    const file = opts.file;
+    const cs = opts.chunkSize;
+    const delay = opts.retryDelayMs === undefined ? 800 : opts.retryDelayMs;
+    const onProgress = opts.onProgress || function () {};
+    const total = Math.ceil(file.size / cs);
+    const pct = function (bytes) { onProgress(Math.min(100, Math.floor(bytes * 100 / (file.size || 1)))); };
+    pct(0);
+    let index = 0;
+    const st = await RDB.api(opts.base + '/upload-status');
+    if (st.status === 200 && st.data) {
+      if (st.data.expected_size !== file.size) return { ok: false, error: 'other_file', status: 200, data: st.data };
+      index = Number(st.data.next_index) || 0;
+    }
+    while (index < total) {
+      const blob = file.slice(index * cs, Math.min(file.size, (index + 1) * cs));
+      let done = false;
+      for (let attempt = 0; attempt < 3 && !done; attempt += 1) {
+        const at = index;
+        const r = await sendChunk(RDB.API_BASE + opts.base + '/chunk', at, blob, function (loaded) { pct(at * cs + loaded); });
+        if (r.status === 200) { done = true; index += 1; }
+        else if (r.status === 409 && r.data && Number.isInteger(r.data.next_index)) { done = true; index = r.data.next_index; }
+        else if (r.status === 401 || r.status === 403) return { ok: false, error: 'auth', status: r.status, data: r.data };
+        else if (delay) await new Promise(function (res) { setTimeout(res, delay * (attempt + 1)); });
+      }
+      if (!done) return { ok: false, error: 'network', status: 0, data: null };
+    }
+    pct(file.size);
+    const fin = await RDB.api(opts.base + '/finalize', { method: 'POST', body: {} });
+    if (fin.status !== 200) return { ok: false, error: 'finalize', status: fin.status, data: fin.data };
+    return { ok: true, data: fin.data };
   };
 
   // ---------------------------------------------------------------------------
